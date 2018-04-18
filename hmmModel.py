@@ -17,9 +17,12 @@ class TransitionTable:
         items = tuple(items)
         itemsLen = len(items)
         self.total += itemsLen
-        x = product(range(itemsLen), range(1, self.k + 1))
-        y = filter(lambda p: p[0]+p[1] <= itemsLen, x)
-        self.counter += Counter([items[i:i + j] for i, j in y])
+        if self.k == 1:
+            self.counter += Counter(items)
+        else:
+            x = product(range(itemsLen), range(1, self.k + 1))
+            y = filter(lambda p: p[0]+p[1] <= itemsLen, x)
+            self.counter += Counter([items[i:i + j] for i, j in y])
 
     def addKeyValue(self, key, value):
         self.counter[tuple(key)] += value
@@ -87,10 +90,10 @@ class HmmModel:
                 self.wordTags.addKeyValue(key, value)
 
     def writeQ(self, filepath):
-        StorageParser().Save(filepath, self.tagsTransitions)
+        StorageParser().Save(filepath, self.tagsTransitions.counter)
 
     def writeE(self, filepath):
-        StorageParser().Save(filepath, self.wordTags)
+        StorageParser().Save(filepath, self.wordTags.counter)
 
     #compute q(t3|t1,t2)
     def getQ(self, t1, t2, t3):
