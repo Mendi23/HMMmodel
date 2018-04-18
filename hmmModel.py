@@ -1,7 +1,7 @@
 import re
 from collections import Counter
 from itertools import product
-
+import numpy as np
 
 class TransitionTable:
 
@@ -32,6 +32,11 @@ class TransitionTable:
         for pair, count in filter(lambda x: x[1] < threshold, self.counter.items()):
             unkCounter[(token, pair[1])] += count
         self.counter += unkCounter
+
+    def getCount(self, key = None):
+        if key:
+            return self.counter[key]
+        return self.total
 
 
 class TagsParser:
@@ -70,6 +75,10 @@ class StorageParser:
                 f.write(f"{self.wordDelim.join(tags)}{self.valueDelim}{count}\n")
 
 class HmmModel:
+
+    class INVALID_INTERPOLATION(ValueError):
+        pass
+
 
     def __init__(self, nOrder = 2, unkThreshold = 5):
         self.tagsTransitions = TransitionTable(k = nOrder+1)
@@ -117,9 +126,21 @@ class HmmModel:
         StorageParser().Save(filepath, self.wordTags.counter)
 
     #compute q(t3|t1,t2)
-    def getQ(self, t1, t2, t3):
-        pass
+    def getQ(self, t1, t2, t3, hyperParam = (0.4, 0.4, 0.2)):
 
+        if sum(hyperParam) != 1:
+            raise HmmModel.INVALID_INTERPOLATION()
+
+        c = self.tagsTransitions.getCount((t3))
+        bc = self.tagsTransitions.getCount((t2, t3))
+        abc = self.tagsTransitions.getCount((t1, t2, t3))
+        ab = self.tagsTransitions.getCount((t1, t2)) or 1
+        b = self.tagsTransitions.getCount((t2)) or 1
+        tot = self.tagsTransitions.getCount() or 1
+
+        return sum(np.array((abc/ab, bc/b, c/tot))*hyperParam)
+
+    #compute e(s|t)
     def getE(self, s, t):
         pass
 
