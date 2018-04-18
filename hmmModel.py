@@ -27,6 +27,11 @@ class TransitionTable:
     def addKeyValue(self, key, value):
         self.counter[tuple(key)] += value
 
+    def computeUnknown(self, threshold, token):
+        unkCounter = Counter()
+        for pair, count in filter(lambda x: x[1] < threshold, self.counter.items()):
+            unkCounter[(token, pair[1])] += count
+        self.counter += unkCounter
 
 
 class TagsParser:
@@ -42,7 +47,7 @@ class TagsParser:
             for line in f:
                 t = re.split(f"[{self.wordDelim}]", line.strip())
                 for word in t:
-                    tagPair = tuple(word.split(self.tagDelim))
+                    tagPair = tuple(word.rsplit(self.tagDelim, 1))
                     tags.append(tagPair)
                     if tagPair[-1] in self.endLine:
                         yield tags
@@ -66,10 +71,17 @@ class StorageParser:
 
 class HmmModel:
 
-    def __init__(self, nOrder = 2):
+    def __init__(self, nOrder = 2, unkThreshold = 5):
         self.tagsTransitions = TransitionTable(k = nOrder+1)
         self.wordTags = TransitionTable(1)
         self.nOrder = nOrder
+        self.signatures = {
+            '^Aa':re.compile("^[A-Z][a-z]"),
+            '^ing':re.compile("ing$"),
+            '^ought':re.compile("ought$"),
+        }
+        self.unkThreshold = unkThreshold
+        self.unknownToken = "*UNK*"
 
     def computeFromFile (self, filePath):
         START = "start"
@@ -78,7 +90,15 @@ class HmmModel:
             self.tagsTransitions.addFromList(
                 [START] * self.nOrder + list(map(lambda t: t[-1], tags))
             )
-            self.wordTags.addFromList(tags)
+
+            self.wordTags.addFromList(list(self._getSignatures(tags)))
+            self.wordTags.addFromList(list(map(lambda t: (t[0].lower(),t[1]), tags)))
+            self.wordTags.computeUnknown(self.unkThreshold, self.unknownToken)
+
+    def _getSignatures(self, tags):
+        for word, tag in tags:
+            for match in filter(lambda r: r[1].search(word), self.signatures.items()):
+                yield (match[0], tag)
 
     def loadTransitions(self, QfilePath = None, EfilePath = None):
         if QfilePath:
