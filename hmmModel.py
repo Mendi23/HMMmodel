@@ -93,7 +93,8 @@ class HmmModel:
 
             self.wordTags.addFromList(list(self._getSignatures(tags)))
             self.wordTags.addFromList(list(map(lambda t: (t[0].lower(),t[1]), tags)))
-            self.wordTags.computeUnknown(self.unkThreshold, self.unknownToken)
+
+        self.wordTags.computeUnknown(self.unkThreshold, self.unknownToken)
 
     def _getSignatures(self, tags):
         for word, tag in tags:
