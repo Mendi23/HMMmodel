@@ -1,132 +1,60 @@
 import re
-from collections import Counter
-from itertools import product
+from itertools import chain
+
 import numpy as np
 
-class TransitionTable:
+from TransitionTable import TransitionTable, KTransitionTable
+from parsers import TagsParser, StorageParser
 
-    def __init__(self, k = 3, items = None):
-        self.k = k
-        self.counter = Counter()
-        self.total = 0
-        if items:
-            self.addFromList(items)
-
-    def addFromList(self, items):
-        "items shouldn't contain lists"
-        items = tuple(items)
-        itemsLen = len(items)
-        self.total += itemsLen
-        if self.k == 1:
-            self.counter += Counter(items)
-        else:
-            x = product(range(itemsLen), range(1, self.k + 1))
-            y = filter(lambda p: p[0]+p[1] <= itemsLen, x)
-            self.counter += Counter([items[i:i + j] for i, j in y])
-
-    def addKeyValue(self, key, value):
-        self.counter[tuple(key)] += value
-
-    def computeUnknown(self, threshold, token):
-        unkCounter = Counter()
-        for pair, count in filter(lambda x: x[1] < threshold, self.counter.items()):
-            unkCounter[(token, pair[1])] += count
-        self.counter += unkCounter
-
-    def getCount(self, key = None):
-        if key:
-            return self.counter[key]
-        return self.total
-
-
-class TagsParser:
-
-    def __init__(self, endLineTag = ("."), wordDelim = (" "), tagDelim = '/'):
-        self.endLine = endLineTag
-        self.wordDelim = ''.join(wordDelim)
-        self.tagDelim = tagDelim
-
-    def parseFile(self, filePath):
-        tags = []
-        with open(filePath) as f:
-            for line in f:
-                t = re.split(f"[{self.wordDelim}]", line.strip())
-                for word in t:
-                    tagPair = tuple(word.rsplit(self.tagDelim, 1))
-                    tags.append(tagPair)
-                    if tagPair[-1] in self.endLine:
-                        yield tags
-                        tags = []
-
-class StorageParser:
-
-    def __init__(self, wordDelim = " ", valueDelim = "\t"):
-        self.wordDelim = wordDelim
-        self.valueDelim = valueDelim
-
-    def Load(self, filePath):
-        with open(filePath) as f:
-            for line in map(lambda x: x.split(self.valueDelim), f):
-                yield line[0].split(self.wordDelim), int(line[-1])
-
-    def Save(self, filePath, counter:dict):
-        with open(filePath, 'w') as f:
-            for tags, count in counter.items():
-                f.write(f"{self.wordDelim.join(tags)}{self.valueDelim}{count}\n")
 
 class HmmModel:
-
     class INVALID_INTERPOLATION(ValueError):
         pass
 
-
-    def __init__(self, nOrder = 2, unkThreshold = 5):
-        self.tagsTransitions = TransitionTable(k = nOrder+1)
-        self.wordTags = TransitionTable(1)
+    def __init__(self, nOrder=2, unkThreshold=5):
+        self.tagsTransitions = KTransitionTable(k=nOrder + 1)
+        self.wordTags = TransitionTable()
         self.nOrder = nOrder
         self.signatures = {
-            '^Aa':re.compile("^[A-Z][a-z]"),
-            '^ing':re.compile("ing$"),
-            '^ought':re.compile("ought$"),
+            '^Aa': re.compile("^[A-Z][a-z]"),
+            '^ing': re.compile("ing$"),
+            '^ought': re.compile("ought$"),
         }
         self.unkThreshold = unkThreshold
         self.unknownToken = "*UNK*"
 
-    def computeFromFile (self, filePath):
+    def computeFromFile(self, filePath):
         START = "start"
-        p = TagsParser()
-        for tags in p.parseFile(filePath):
+        startTags = [START] * self.nOrder
+        for tags in TagsParser().parseFile(filePath):
             self.tagsTransitions.addFromList(
-                [START] * self.nOrder + list(map(lambda t: t[-1], tags))
-            )
+                chain(startTags, map(lambda t: t[-1], tags)))
 
-            self.wordTags.addFromList(list(self._getSignatures(tags)))
-            self.wordTags.addFromList(list(map(lambda t: (t[0].lower(),t[1]), tags)))
+            self.wordTags.addFromList(self._getTagsWithSignatures(tags))
 
         self.wordTags.computeUnknown(self.unkThreshold, self.unknownToken)
 
-    def _getSignatures(self, tags):
+    def _getTagsWithSignatures(self, tags):
         for word, tag in tags:
+            yield (word.lower(), tag)
             for match in filter(lambda r: r[1].search(word), self.signatures.items()):
                 yield (match[0], tag)
 
-    def loadTransitions(self, QfilePath = None, EfilePath = None):
-        if QfilePath:
-            for key, value in StorageParser().Load(QfilePath):
-                self.tagsTransitions.addKeyValue(key, value)
+    def loadTransitions(self, QfilePath=None, EfilePath=None):
+        parser = StorageParser()
+        for key, value in parser.Load(QfilePath):
+            self.tagsTransitions.addKeyValue(key, value)
+        for key, value in parser.Load(EfilePath):
+            self.wordTags.addKeyValue(key, value)
 
-        if EfilePath:
-            for key, value in StorageParser().Load(EfilePath):
-                self.wordTags.addKeyValue(key, value)
+    def writeQ(self, filePath):
+        StorageParser().Save(filePath, self.tagsTransitions.getAllItems())
 
-    def writeQ(self, filepath):
-        StorageParser().Save(filepath, self.tagsTransitions.counter)
+    def writeE(self, filePath):
+        StorageParser().Save(filePath, self.wordTags.getAllItems())
 
-    def writeE(self, filepath):
-        StorageParser().Save(filepath, self.wordTags.counter)
-
-    #compute q(t3|t1,t2)
-    def getQ(self, t1, t2, t3, hyperParam = (0.4, 0.4, 0.2)):
+    def getQ(self, t1, t2, t3, hyperParam=(0.4, 0.4, 0.2)):
+        """ compute q(t3|t1,t2) """
 
         if sum(hyperParam) != 1:
             raise HmmModel.INVALID_INTERPOLATION()
@@ -138,9 +66,8 @@ class HmmModel:
         b = self.tagsTransitions.getCount((t2)) or 1
         tot = self.tagsTransitions.getCount() or 1
 
-        return sum(np.array((abc/ab, bc/b, c/tot))*hyperParam)
+        return sum(np.array((abc / ab, bc / b, c / tot)) * hyperParam)
 
-    #compute e(s|t)
     def getE(self, s, t):
+        # compute e(s|t)
         pass
-
