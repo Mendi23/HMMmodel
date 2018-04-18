@@ -21,6 +21,9 @@ class TransitionTable:
         y = filter(lambda p: p[0]+p[1] <= itemsLen, x)
         self.counter += Counter([items[i:i + j] for i, j in y])
 
+    def addKeyValue(self, key, value):
+        self.counter[tuple(key)] += value
+
 
 
 class TagsParser:
@@ -42,34 +45,64 @@ class TagsParser:
                         yield tags
                         tags = []
 
+class StorageParser:
+
+    def __init__(self, wordDelim = " ", valueDelim = "\t"):
+        self.wordDelim = wordDelim
+        self.valueDelim = valueDelim
+
+    def Load(self, filePath):
+        with open(filePath) as f:
+            for line in map(lambda x: x.split(self.valueDelim), f):
+                yield line[0].split(self.wordDelim), int(line[-1])
+
+    def Save(self, filePath, tt:TransitionTable):
+        with open(filePath, 'w') as f:
+            for tags, count in tt.counter.items():
+                f.write(f"{self.wordDelim.join(tags)}{self.valueDelim}{count}\n")
+
 class HmmModel:
 
-    def __init__(self, filePath, nOrder = 2):
-        self.tagsTransitions = TransitionTable(nOrder+1)
+    def __init__(self, nOrder = 2):
+        self.tagsTransitions = TransitionTable(k = nOrder+1)
         self.wordTags = TransitionTable(1)
+        self.nOrder = nOrder
+
+    def computeFromFile (self, filePath):
         START = "start"
         p = TagsParser()
         for tags in p.parseFile(filePath):
             self.tagsTransitions.addFromList(
-                [START]*nOrder + list(map(lambda t: t[-1], tags))
+                [START] * self.nOrder + list(map(lambda t: t[-1], tags))
             )
             self.wordTags.addFromList(tags)
 
-    def writeq(self, filepath):
-        with open(filepath, 'w') as f:
-            for tags, count in self.tagsTransitions.counter.items():
-                f.write("{}\t{}\n".format(' '.join(tags), count))
+    def loadTransitions(self, QfilePath = None, EfilePath = None):
+        if QfilePath:
+            for key, value in StorageParser().Load(QfilePath):
+                self.tagsTransitions.addKeyValue(key, value)
 
+        if EfilePath:
+            for key, value in StorageParser().Load(EfilePath):
+                self.wordTags.addKeyValue(key, value)
 
-    def getq(self):
+    def writeQ(self, filepath):
+        StorageParser().Save(filepath, self.tagsTransitions)
+
+    def writeE(self, filepath):
+        StorageParser().Save(filepath, self.wordTags)
+
+    #compute q(t3|t1,t2)
+    def getQ(self, t1, t2, t3):
         pass
 
-    def gete(self, str):
+    def getE(self, s, t):
         pass
 
 
 
-x = HmmModel("./DataSets/ass1-tagger-train")
+x = HmmModel()
+x.computeFromFile("./DataSets/ass1-tagger-train")
 #x = HmmModel("Testing.txt")
-x.writeq("Uriel.out")
+x.writeQ("Uriel.out")
 
