@@ -52,7 +52,7 @@ class KTransitionTable(TransitionTable):
 
     def _addFromList(self, items, itemsLen):
         for j in range(1, self._k + 1):
-            self._counters[j] += Counter(
+            self._counters[j - 1] += Counter(
                 [items[i:i + j]
                  for i in filter(lambda i: i + j <= itemsLen, range(itemsLen))])
         # indexPairs = product(range(itemsLen), range(2, self._k + 1))
@@ -65,7 +65,7 @@ class KTransitionTable(TransitionTable):
         self._counters[len(key)][key] += value
 
     def _getCount(self, key):
-        return self._counters[len(key)][key]
+        return self._counters[len(key) - 1][key]
 
     def getAllItems(self):
         return chain.from_iterable(map(lambda x: x.items(), self._counters))
