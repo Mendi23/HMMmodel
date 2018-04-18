@@ -28,7 +28,7 @@ class TransitionTable:
 
 class TagsParser:
 
-    def __init__(self, endLineTag = ["."], wordDelim = [" "], tagDelim = '/'):
+    def __init__(self, endLineTag = ("."), wordDelim = (" "), tagDelim = '/'):
         self.endLine = endLineTag
         self.wordDelim = ''.join(wordDelim)
         self.tagDelim = tagDelim
@@ -56,9 +56,9 @@ class StorageParser:
             for line in map(lambda x: x.split(self.valueDelim), f):
                 yield line[0].split(self.wordDelim), int(line[-1])
 
-    def Save(self, filePath, tt:TransitionTable):
+    def Save(self, filePath, counter:dict):
         with open(filePath, 'w') as f:
-            for tags, count in tt.counter.items():
+            for tags, count in counter.items():
                 f.write(f"{self.wordDelim.join(tags)}{self.valueDelim}{count}\n")
 
 class HmmModel:
@@ -98,11 +98,4 @@ class HmmModel:
 
     def getE(self, s, t):
         pass
-
-
-
-x = HmmModel()
-x.computeFromFile("./DataSets/ass1-tagger-train")
-#x = HmmModel("Testing.txt")
-x.writeQ("Uriel.out")
 
