@@ -13,11 +13,13 @@ class TransitionTable:
             self.addFromList(items)
 
     def addFromList(self, items):
+        "items shouldn't contain lists"
+        items = tuple(items)
         itemsLen = len(items)
         self.total += itemsLen
         x = product(range(itemsLen), range(1, self.k + 1))
         y = filter(lambda p: p[0]+p[1] <= itemsLen, x)
-        self.counter += Counter([tuple(items[i:i + j]) for i, j in y])
+        self.counter += Counter([items[i:i + j] for i, j in y])
 
 
 
@@ -34,8 +36,9 @@ class TagsParser:
             for line in f:
                 t = re.split(f"[{self.wordDelim}]", line.strip())
                 for word in t:
-                    tags.append(word.split(self.tagDelim))
-                    if word in self.endLine:
+                    tagPair = tuple(word.split(self.tagDelim))
+                    tags.append(tagPair)
+                    if tagPair[-1] in self.endLine:
                         yield tags
                         tags = []
 
@@ -51,7 +54,6 @@ class HmmModel:
                 [START]*nOrder + list(map(lambda t: t[-1], tags))
             )
             self.wordTags.addFromList(tags)
-        print(self.tagsTransitions.counter)
 
     def writeq(self, filepath):
         with open(filepath, 'w') as f:
@@ -68,6 +70,6 @@ class HmmModel:
 
 
 x = HmmModel("./DataSets/ass1-tagger-train")
-
+#x = HmmModel("Testing.txt")
 x.writeq("Uriel.out")
 
