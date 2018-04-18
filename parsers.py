@@ -32,7 +32,7 @@ class StorageParser:
             return
         with open(filePath) as f:
             for line in map(lambda x: x.split(self.valueDelim), f):
-                yield line[0].split(self.wordDelim), int(line[-1])
+                yield tuple(line[0].split(self.wordDelim)), int(line[-1])
 
     def Save(self, filePath, items):
         with open(filePath, 'w') as f:

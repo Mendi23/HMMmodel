@@ -1,6 +1,6 @@
 
 if __name__ == '__main__':
-    from hmmModel import *
+    from hmmModel import HmmModel
     from sys import argv
 
     x = HmmModel(2)
