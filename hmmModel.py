@@ -11,8 +11,8 @@ class HmmModel:
     class INVALID_INTERPOLATION(ValueError):
         pass
 
-    def __init__(self, nOrder=2, unkThreshold=5):
-        self.tagsTransitions = KTransitionTable(k=nOrder + 1)
+    def __init__(self, nOrder = 2, unkThreshold = 5):
+        self.tagsTransitions = KTransitionTable(k = nOrder + 1)
         self.wordTags = TransitionTable()
         self.nOrder = nOrder
         self.signatures = {
@@ -34,13 +34,18 @@ class HmmModel:
 
         self.wordTags.computeUnknown(self.unkThreshold, self.unknownToken)
 
+    def reComputeUnknown(self, newThreshold = 5):
+        if (newThreshold != self.unkThreshold):
+            self.wordTags.computeUnknown(self.unkThreshold, self.unknownToken, newThreshold)
+            self.unkThreshold = newThreshold
+
     def _getTagsWithSignatures(self, tags):
         for word, tag in tags:
             yield (word.lower(), tag)
             for match in filter(lambda r: r[1].search(word), self.signatures.items()):
                 yield (match[0], tag)
 
-    def loadTransitions(self, QfilePath=None, EfilePath=None):
+    def loadTransitions(self, QfilePath = None, EfilePath = None):
         parser = StorageParser()
         for key, value in parser.Load(QfilePath):
             self.tagsTransitions.addKeyValue(key, value)
@@ -53,7 +58,7 @@ class HmmModel:
     def writeE(self, filePath):
         StorageParser().Save(filePath, self.wordTags.getAllItems())
 
-    def getQ(self, t1, t2, t3, hyperParam=(0.4, 0.4, 0.2)):
+    def getQ(self, t1, t2, t3, hyperParam = (0.4, 0.4, 0.2)):
         """ compute q(t3|t1,t2) """
 
         if sum(hyperParam) != 1:
@@ -69,5 +74,8 @@ class HmmModel:
         return sum(np.array((abc / ab, bc / b, c / tot)) * hyperParam)
 
     def getE(self, s, t):
-        # compute e(s|t)
-        pass
+        """ compute e(s|t) """
+        count = self.wordTags.getCount((s,t))
+        tot = self.tagsTransitions.getCount(t) or 1
+        return count / tot
+
