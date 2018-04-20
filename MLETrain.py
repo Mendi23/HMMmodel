@@ -7,5 +7,5 @@ if __name__ == '__main__':
     x.computeFromFile(argv[1])
     x.writeQ(argv[2])
     x.writeE(argv[3])
-
-
+    #print(x.wordTags.getAllItems())
+    #print(x.tagsTransitions.getAllItems())
