@@ -67,4 +67,4 @@ class EmissionTable:
     def getAllItems(self):
         for i in self._counter.keys():
             for j in self._counter[i].items():
-                yield (i,) + j
+                yield (j[0], i, j[1])
