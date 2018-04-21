@@ -1,6 +1,5 @@
 import re
 from itertools import chain
-from collections import Counter
 from ETTables import EmissionTable, NgramTransitions
 from parsers import TagsParser, StorageParser
 
