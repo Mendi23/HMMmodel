@@ -2,6 +2,7 @@ from typing import Hashable
 from abc import ABC, abstractmethod
 
 from collections.__init__ import Counter
+from collections import defaultdict
 
 
 class _CountTable(ABC):
