@@ -26,29 +26,27 @@ class Tree(defaultdict):
         return map(lambda x: (x[0], x[1]._value), self._getDirectIndex(index).items())
 
     def _getAllItemsRec(self, cur):
-        dict_t = { cur: self._value }
+        m = [cur + (self._value,)]
         for x in self.keys():
-            dict_t.update(self[x]._getAllItemsRec(cur + tuple(x)))
-        return dict_t
-
+            m += self[x]._getAllItemsRec(cur + (x,))
+        return m
 
     def getAllItems(self):
-        d = {}
+        d = []
         for k in self.keys():
-            d.update(self[k]._getAllItemsRec(tuple(k)))
-
+            d += self[k]._getAllItemsRec((k,))
         return d
 
 
 class NgramTransitions(Tree):
     def __init__(self, k = 3):
-        super(Tree, self).__init__()
-        self.k = k
+        super(NgramTransitions, self).__init__()
+        self._k = k
 
-    def addFromIterable(self, items):
+    def addFromList(self, items):
         itemsLen = len(items)
         for j in range(0, itemsLen - self._k + 1):
-            self._root.updateValue(items[j: j + self._k])
+            self.updateValue(items[j: j + self._k])
 
 
 class EmissionTable:
@@ -63,7 +61,10 @@ class EmissionTable:
             self._counter[tag][word] += value
 
     def computeUnknown(self, threshold):
-        return map(lambda tag: sum(filter(lambda x: x < threshold, self._counter[tag].values())),
-                   self._counter.keys())
+        return map(lambda tag: (tag, sum(filter(lambda x: x < threshold, self._counter[tag].values(
+        )))), self._counter.keys())
 
     def getAllItems(self):
+        for i in self._counter.keys():
+            for j in self._counter[i].items():
+                yield (i,) + j

@@ -13,7 +13,7 @@ class HmmModel:
         self.tagsTransitions = NgramTransitions(k = nOrder + 1)
         self.wordTags = EmissionTable()
         self.eventsTags = EmissionTable()
-        self.unknownCounter = Counter()
+        self.unknownCounter = {}
         self.nOrder = nOrder
         self.unkThreshold = unkThreshold
 
@@ -29,15 +29,16 @@ class HmmModel:
     def computeFromFile(self, filePath):
         endTags = [self.endTag] * self.nOrder
         for tags in TagsParser().parseFile(filePath):
-            self.tagsTransitions.addFromIterable(chain(map(lambda t: t[-1], tags), endTags))
+
+            self.tagsTransitions.addFromList(list((map(lambda t: t[-1], tags))) + endTags)
 
             self.wordTags.addFromIterable(self._getWordsCheckSignatures(tags))
 
-        self.unknownCounter = self.wordTags.computeUnknown(self.unkThreshold)
+        self.unknownCounter = dict(self.wordTags.computeUnknown(self.unkThreshold))
 
     def reComputeUnknown(self, newThreshold = 5):
         if (newThreshold != self.unkThreshold):
-            self.unknownCounter = self.wordTags.computeUnknown(newThreshold)
+            self.unknownCounter = dict(self.wordTags.computeUnknown(newThreshold))
             self.unkThreshold = newThreshold
 
     def _getWordsCheckSignatures(self, tags):
@@ -64,9 +65,9 @@ class HmmModel:
 
     def writeE(self, filePath):
         StorageParser().Save(filePath,
-                             list(self.wordTags.getAllItems()) + list(self.eventsTags.getAllItems())
-                             + list(map(lambda x: ((self.unknownToken, x[0]), x[1]),
-                                        self.unknownCounter.items())))
+                             chain(self.wordTags.getAllItems(), self.eventsTags.getAllItems(),
+                                   map(lambda x: (self.unknownToken,) + x,
+                                       self.unknownCounter.items())))
 
     def getQ(self, word, paramList):
         """ compute q(t_n|t_1,t_2,...t_n-1) """

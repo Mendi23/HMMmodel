@@ -34,5 +34,6 @@ class StorageParser:
 
     def Save(self, filePath, items):
         with open(filePath, 'w') as f:
-            for tags, count in items:
-                f.write(f"{self.wordDelim.join(tags)}{self.valueDelim}{count}\n")
+            for tags in items:
+                print(tags)
+                f.write(f"{self.wordDelim.join(tags[:-1])}{self.valueDelim}{tags[-1]}\n")
