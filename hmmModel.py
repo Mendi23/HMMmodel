@@ -29,11 +29,8 @@ class HmmModel:
     def computeFromFile(self, filePath):
         endTags = [self.endTag] * self.nOrder
         for tags in TagsParser().parseFile(filePath):
-
             self.tagsTransitions.addFromList(list((map(lambda t: t[-1], tags))) + endTags)
-
             self.wordTags.addFromIterable(self._getWordsCheckSignatures(tags))
-
         self.unknownCounter = dict(self.wordTags.computeUnknown(self.unkThreshold))
 
     def reComputeUnknown(self, newThreshold = 5):
