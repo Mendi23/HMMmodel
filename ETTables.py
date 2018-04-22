@@ -14,6 +14,9 @@ class Tree(defaultdict):
             iter = iter[i]
             iter._value += val
 
+    def setValue(self, index, val):
+        self._getDirectIndex(index)._value = val
+
     def getValue(self, index = None):
         return self._getDirectIndex(index)._value
 

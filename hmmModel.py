@@ -47,10 +47,10 @@ class HmmModel:
     def loadTransitions(self, QfilePath = None, EfilePath = None):
         parser = StorageParser()
         for key, value in parser.Load(QfilePath):
-            self.tagsTransitions.updateValue(key, value)
+            self.tagsTransitions.setValue(key, value)
         for key, value in parser.Load(EfilePath):
             if (key[0] == self.unknownToken):
-                self.unknownCounter[key[1]] += value
+                self.unknownCounter[key[1]] = value
             elif (key[0].startswith(self.eventChar)):
                 self.eventsTags.addFromIterable(key, value)
             else:
