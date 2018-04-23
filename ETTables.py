@@ -10,38 +10,33 @@ class Tree(defaultdict):
         super(Tree, self).__init__(Tree)
         self._value = 0
 
-    def updateValue(self, index, val=1):
+    def updateValue(self, indexes, val=1):
         it = self
         it._value += val
-        for i in index:
+        for i in indexes:
             it = it[i]
             it._value += val
 
-    def setValue(self, index, val):
-        self._getDirectIndex(index)._value = val
+    def setValue(self, indexes, val):
+        self._getDirectIndex(indexes)._value = val
 
-    def getValue(self, index=None):
-        return self._getDirectIndex(index)._value
+    def getValue(self, indexes=None):
+        return self._getDirectIndex(indexes)._value
 
-    def _getDirectIndex(self, index=None):
-        if not isinstance(index, Iterable) or not index:
+    def _getDirectIndex(self, indexes=None):
+        if not indexes:
             return self
-        return reduce(lambda acc, i: acc[i], index, self)
+        assert isinstance(indexes, Iterable)
+        return reduce(lambda acc, i: acc[i], indexes, self)
 
-    def getItems(self, index=None):
-        return ((tag, val._value) for tag, val in self._getDirectIndex(index).items())
+    # def getItems(self, indexes=None):
+    #     return ((tag, val._value) for tag, val in self._getDirectIndex(indexes).items())
 
-    def _getAllItemsRec(self, cur):
-        m = [cur + (self._value,)]
-        for x in self.keys():
-            m += self[x]._getAllItemsRec(cur + (x,))
-        return m
-
-    def getAllItems(self):
-        d = []
+    def getAllItems(self, cur=()):
+        if cur:
+            yield cur + (self._value,)
         for k in self.keys():
-            d += self[k]._getAllItemsRec((k,))
-        return d
+            yield from self[k].getAllItems(cur + (k,))
 
 
 class NgramTransitions(Tree):
@@ -57,25 +52,24 @@ class NgramTransitions(Tree):
 
 class EmissionTable:
     def __init__(self):
-        self._counter = defaultdict(Counter)
+        self._countersByTag = defaultdict(Counter)
 
     def getCount(self, word, tag):
-        return self._counter[tag][word]
+        return self._countersByTag[tag][word]
 
     def addFromIterable(self, items, value=1):
         """
         items: iterable items must be a tuple of (word, tag)
         """
-        for pair in items:
-            word, tag = pair
-            self._counter[tag][word] += value
+        for word, tag in items:
+            self._countersByTag[tag][word] += value
 
     def computeUnknown(self, threshold):
         return filter(lambda x: x[1] > 0,
                       ((tag, sum(filter(lambda x: x < threshold, counter.values())))
-                       for tag, counter in self._counter.items()))
+                       for tag, counter in self._countersByTag.items()))
 
     def getAllItems(self):
-        for tag in self._counter.keys():
-            for wordCount in self._counter[tag].items():
-                yield (wordCount[0], tag, wordCount[1])
+        for tag in self._countersByTag.keys():
+            for word, count in self._countersByTag[tag].items():
+                yield (word, tag, count)

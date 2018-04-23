@@ -18,16 +18,18 @@ class HmmModel:
         self.unkThreshold = unkThreshold
 
         self.endTag = "END"
+        self.startTag = "start"
         self.unknownToken = "*UNK*"
-        self.eventChar = '^'
-        self.signatures = {'^Aa': re.compile("^[A-Z][a-z]"),
-                           '^ing': re.compile("ing$"),
-                           '^ought': re.compile("ought$"), }
+        self.eventChar = eventChart = '^'
+        self.signatures = {eventChart + 'Aa': re.compile("^[A-Z][a-z]"),
+                           eventChart + 'ing': re.compile("ing$"),
+                           eventChart + 'ought': re.compile("ought$"), }
 
     def computeFromFile(self, filePath):
         endTags = [self.endTag] * self.nOrder
+        startTags = [self.startTag] * self.nOrder
         for tags in TagsParser().parseFile(filePath):
-            self.tagsTransitions.addFromList(list((map(lambda t: t[-1], tags))) + endTags)
+            self.tagsTransitions.addFromList(startTags + [t[-1] for t in tags] + endTags)
             self.wordTags.addFromIterable(self._getWordsCheckSignatures(tags))
         self.unknownCounter = dict(self.wordTags.computeUnknown(self.unkThreshold))
 
@@ -63,8 +65,9 @@ class HmmModel:
 
     def writeE(self, filePath):
         StorageParser().Save(filePath,
-                             chain(self.wordTags.getAllItems(), self.eventsTags.getAllItems(),
-                                   map(lambda x: (self.unknownToken,) + x, self.unknownCounter.items())))
+                             chain(self.wordTags.getAllItems(),
+                                   self.eventsTags.getAllItems(),
+                                   ((self.unknownToken,) + keyVal for keyVal in self.unknownCounter.items())))
 
     def getQ(self, params, hyperParam=None):
         """ compute q(t_n|t_1,t_2,...t_n-1)
@@ -78,9 +81,8 @@ class HmmModel:
             raise self.INVALID_INTERPOLATION()
 
         getTagValue = self.tagsTransitions.getValue
-        length = min(self.nOrder + 1, len(params))
         countValues = (getTagValue(params[i:]) / (getTagValue(params[i:-1]) or 1)
-                       for i in range(length))
+                       for i in range(min(self.nOrder + 1, len(params))))
         return sum(np.array(hyperParam) * np.fromiter(countValues, float))
 
     # result = 0
