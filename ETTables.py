@@ -24,7 +24,7 @@ class Tree(defaultdict):
         return self._getDirectIndex(index)._value
 
     def _getDirectIndex(self, index=None):
-        if not isinstance(index, Iterable) or len(index) == 0:
+        if not isinstance(index, Iterable) or not index:
             return self
         return reduce(lambda acc, i: acc[i], index, self)
 
@@ -59,7 +59,6 @@ class EmissionTable:
     def __init__(self):
         self._counter = defaultdict(Counter)
 
-
     def getCount(self, word, tag):
         return self._counter[tag][word]
 
@@ -72,11 +71,11 @@ class EmissionTable:
             self._counter[tag][word] += value
 
     def computeUnknown(self, threshold):
-        return filter(lambda x: x[1] > 0, map(
-            lambda tag: (tag, sum(filter(lambda x: x < threshold, self._counter[tag].values()))),
-            self._counter.keys()))
+        return filter(lambda x: x[1] > 0,
+                      [(tag, sum(filter(lambda x: x < threshold, counter.values())))
+                       for tag, counter in self._counter.items()])
 
     def getAllItems(self):
-        for i in self._counter.keys():
-            for j in self._counter[i].items():
-                yield (j[0], i, j[1])
+        for tag in self._counter.keys():
+            for wordCount in self._counter[tag].items():
+                yield (wordCount[0], tag, wordCount[1])

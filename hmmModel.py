@@ -20,7 +20,8 @@ class HmmModel:
         self.endTag = "END"
         self.unknownToken = "*UNK*"
         self.eventChar = '^'
-        self.signatures = {'^Aa': re.compile("^[A-Z][a-z]"), '^ing': re.compile("ing$"),
+        self.signatures = {'^Aa': re.compile("^[A-Z][a-z]"),
+                           '^ing': re.compile("ing$"),
                            '^ought': re.compile("ought$"), }
 
     def computeFromFile(self, filePath):
@@ -74,16 +75,16 @@ class HmmModel:
         if sum(hyperParam) != 1:
             raise self.INVALID_INTERPOLATION()
 
-        getTagVal = self.tagsTransitions.getValue
+        getTagValue = self.tagsTransitions.getValue
         length = min(self.nOrder + 1, len(params))
-        countValues = map(lambda i: getTagVal(params[i:]) / (getTagVal(params[i:-1]) or 1),
+        countValues = map(lambda i: getTagValue(params[i:]) / (getTagValue(params[i:-1]) or 1),
                           range(length))
         return sum(np.array(hyperParam) * np.fromiter(countValues, float))
 
     # result = 0
     # for i in range(min(self.nOrder, len(paramList)-1)):
-    # 	result += hyperParam[i]*self.tagsTransitions.getValue(paramList[
-    # 	i:])/self.tagsTransitions.getValue(paramList[i:-1])
+    #   result += hyperParam[i]*self.tagsTransitions.getValue(paramList[
+    #   i:])/self.tagsTransitions.getValue(paramList[i:-1])
 
     def getE(self, w, t):
         """ compute e(w|t) """
