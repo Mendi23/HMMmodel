@@ -1,22 +1,34 @@
+from math import log
+from collections import deque
+
+from hmmModel import HmmModel
+from parsers import OutputParser
 
 
-class hmmTagger:
+class GreedyTagger:
+    def __init__(self, hmmmodel: HmmModel, k=3, endLineTag=".", hyperParams=(0.4, 0.4, 0.2)):
+        self.hyperParams = hyperParams
+        self._k = k
+        self._model = hmmmodel
+        self._allTags = hmmmodel.getAllTags()
+        self._endLineTag = endLineTag
+        self._startQ = [self._model.startTag] * self._k
+        self._queue = deque(self._startQ)
 
-    def getQ(self, paramList, hyperParam = None):
-        """ compute q(t_n|t_1,t_2,...t_n-1) """
+    def tagLine(self, wordsLine, outParser: OutputParser):
+        q = self._queue
+        first = True
+        for word in wordsLine:
+            q.popleft()
+            argmax = max(self._allTags,
+                         key=lambda tag: self._calcQ(tag) * self._calcE(word, tag))
+            q.append(argmax)
+            outParser.append(word, argmax, first)
+            first = False
 
-        if (not hyperParam):
-            hyperParam = 1/(self.nOrder+1)*self.nOrder,
 
-        if sum(hyperParam) != 1:
-            raise HmmModel.INVALID_INTERPOLATION()
+    def _calcE(self, word, tag):
+        return self._model.getE(word, tag)
 
-        c = self.tagsTransitions.getCount((t3,))
-        bc = self.tagsTransitions.getCount((t2, t3))
-        abc = self.tagsTransitions.getCount((t1, t2, t3))
-        ab = self.tagsTransitions.getCount((t1, t2)) or 1
-        b = self.tagsTransitions.getCount((t2,)) or 1
-        tot = self.tagsTransitions.getCount() or 1
-        # print("c:", c, "bc:", bc, "abc:", abc, "ab:", ab, "b:", b, "tot:", tot)
-
-        return sum(np.array((abc / ab, bc / b, c / tot)) * hyperParam)
+    def _calcQ(self, tag):
+        return self._model.getQ(tuple(self._queue) + (tag,), self.hyperParams)
