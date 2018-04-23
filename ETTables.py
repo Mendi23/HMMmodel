@@ -8,11 +8,11 @@ class Tree(defaultdict):
         self._value = 0
 
     def updateValue(self, index, val = 1):
-        iter = self
-        iter._value += val
+        it = self
+        it._value += val
         for i in index:
-            iter = iter[i]
-            iter._value += val
+	        it = it[i]
+	        it._value += val
 
     def setValue(self, index, val):
         self._getDirectIndex(index)._value = val

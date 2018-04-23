@@ -2,7 +2,7 @@ import re
 
 
 class TagsParser:
-    def __init__(self, endLineTag = ("."), wordDelim = (" "), tagDelim = '/'):
+    def __init__(self, endLineTag = (".",), wordDelim = (" ",), tagDelim = '/'):
         self.endLine = endLineTag
         self.wordDelim = ''.join(wordDelim)
         self.tagDelim = tagDelim
