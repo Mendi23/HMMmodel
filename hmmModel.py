@@ -1,4 +1,5 @@
 import re
+from collections import Counter
 from itertools import chain
 from ETTables import EmissionTable, NgramTransitions
 from parsers import TagsParser, StorageParser
@@ -10,10 +11,10 @@ class HmmModel:
         pass
 
     def __init__(self, nOrder=2, unkThreshold=5):
-        self.tagsTransitions = NgramTransitions(k=nOrder + 1)
-        self.wordTags = EmissionTable()
-        self.eventsTags = EmissionTable()
-        self.unknownCounter = {}
+        self._tagsTransitions = NgramTransitions(k=nOrder + 1)
+        self._wordTags = EmissionTable()
+        self._eventsTags = EmissionTable()
+        self._unknownCounter = Counter()
         self.nOrder = nOrder
         self.unkThreshold = unkThreshold
 
@@ -31,20 +32,20 @@ class HmmModel:
         total = 0
         for tags in TagsParser().parseFile(filePath):
             total += len(tags)
-            self.tagsTransitions.addFromList(startTags + [t[-1] for t in tags] + endTags)
-            self.wordTags.addFromIterable(self._getWordsCheckSignatures(tags))
-        self.unknownCounter = dict(self.wordTags.computeUnknown(self.unkThreshold))
-        self.tagsTransitions.setValue((), total)
+            self._tagsTransitions.addFromList(startTags + [t[-1] for t in tags] + endTags)
+            self._wordTags.addFromIterable(self._getWordsCheckSignatures(tags))
+        self._unknownCounter = Counter(dict(self._wordTags.computeUnknown(self.unkThreshold)))
+        self._tagsTransitions.setValue((), total)
 
     def reComputeUnknown(self, newThreshold=5):
         if newThreshold != self.unkThreshold:
-            self.unknownCounter = dict(self.wordTags.computeUnknown(newThreshold))
+            self._unknownCounter = Counter(dict(self._wordTags.computeUnknown(newThreshold)))
             self.unkThreshold = newThreshold
 
     def _getWordsCheckSignatures(self, tags):
         for word, tag in tags:
             yield (word.lower(), tag)
-            self.eventsTags.addFromIterable((
+            self._eventsTags.addFromIterable((
                 (signature[0], tag) for signature in
                 filter(lambda r: r[1].search(word), self.signatures.items())
             ))
@@ -52,26 +53,26 @@ class HmmModel:
     def loadTransitions(self, QfilePath=None, EfilePath=None):
         parser = StorageParser()
         for key, value in parser.Load(QfilePath):
-            self.tagsTransitions.setValue(key, value)
+            self._tagsTransitions.setValue(key, value)
             if len(key) == 1 and key[0] not in (self.startTag, self.endTag):
-                self.tagsTransitions.updateValue((), value)
+                self._tagsTransitions.updateValue((), value)
 
         for key, value in parser.Load(EfilePath):
             if key[0] == self.unknownToken:
-                self.unknownCounter[key[1]] = value
+                self._unknownCounter[key[1]] = value
             elif key[0].startswith(self.eventChar):
-                self.eventsTags.addFromIterable((key,), value)
+                self._eventsTags.addFromIterable((key,), value)
             else:
-                self.wordTags.addFromIterable((key,), value)
+                self._wordTags.addFromIterable((key,), value)
 
     def writeQ(self, filePath):
-        StorageParser().Save(filePath, self.tagsTransitions.getAllItems())
+        StorageParser().Save(filePath, self._tagsTransitions.getAllItems())
 
     def writeE(self, filePath):
         StorageParser().Save(filePath,
-                             chain(self.wordTags.getAllItems(),
-                                   self.eventsTags.getAllItems(),
-                                   ((self.unknownToken,) + keyVal for keyVal in self.unknownCounter.items())))
+                             chain(self._wordTags.getAllItems(),
+                                   self._eventsTags.getAllItems(),
+                                   ((self.unknownToken,) + keyVal for keyVal in self._unknownCounter.items())))
 
     def getQ(self, params, hyperParam=None):
         """ compute q(t_n|t_1,t_2,...t_n-1)
@@ -84,7 +85,7 @@ class HmmModel:
         if sum(hyperParam) != 1:
             raise self.INVALID_INTERPOLATION()
 
-        getTagValue = self.tagsTransitions.getValue
+        getTagValue = self._tagsTransitions.getValue
         countValues = (getTagValue(params[i:]) / (getTagValue(params[i:-1]) or 1)
                        for i in range(min(self.nOrder + 1, len(params))))
         return sum(np.array(hyperParam) * np.fromiter(countValues, float))
@@ -96,4 +97,10 @@ class HmmModel:
 
     def getE(self, w, t):
         """ compute e(w|t) """
-        return self.wordTags.getCount(w, t) / (self.tagsTransitions.getValue((t,) or 1))
+        return self._wordTags.getCount(w, t) / (self._tagsTransitions.getValue((t,) or 1))
+
+    def getAllTags(self):
+        return self._tagsTransitions.keys()
+
+    def getUnknownTag(self):
+        return self._unknownCounter.most_common(1)[0]
