@@ -53,6 +53,7 @@ class NgramTransitions(Tree):
 class EmissionTable:
     def __init__(self):
         self._countersByTag = defaultdict(Counter)
+        self._words = set()
 
     def getCount(self, word, tag):
         return self._countersByTag[tag][word]
@@ -63,6 +64,7 @@ class EmissionTable:
         """
         for word, tag in items:
             self._countersByTag[tag][word] += value
+            self._words.add(word)
 
     def computeUnknown(self, threshold):
         return filter(lambda x: x[1] > 0,
@@ -73,3 +75,6 @@ class EmissionTable:
         for tag in self._countersByTag.keys():
             for word, count in self._countersByTag[tag].items():
                 yield (word, tag, count)
+
+    def wordExists(self, word):
+        return word in self._words

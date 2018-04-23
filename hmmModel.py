@@ -42,12 +42,15 @@ class HmmModel:
             self._unknownCounter = Counter(dict(self._wordTags.computeUnknown(newThreshold)))
             self.unkThreshold = newThreshold
 
+    def _signaturesFilterOnWord(self, word):
+        return filter(lambda r: r[1].search(word), self.signatures.items())
+
     def _getWordsCheckSignatures(self, tags):
         for word, tag in tags:
             yield (word.lower(), tag)
             self._eventsTags.addFromIterable((
                 (signature[0], tag) for signature in
-                filter(lambda r: r[1].search(word), self.signatures.items())
+                self._signaturesFilterOnWord(word)
             ))
 
     def loadTransitions(self, QfilePath=None, EfilePath=None):
@@ -102,5 +105,14 @@ class HmmModel:
     def getAllTags(self):
         return self._tagsTransitions.keys()
 
+    def wordExists(self, word):
+        return self._wordTags.wordExists(word)
+
+    def getBySignature(self, word, tag):
+        possibleScores = [self._eventsTags.getCount(sig[0], tag)
+                          for sig in self._signaturesFilterOnWord(word)]
+        return max(possibleScores + [0, ])
+
     def getUnknownTag(self):
         return self._unknownCounter.most_common(1)[0]
+
