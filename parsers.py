@@ -1,4 +1,5 @@
 import re
+from collections import deque
 
 
 class TagsParser:
@@ -55,25 +56,38 @@ class StorageParser:
 
 
 class OutputParser:
-    def __init__(self, filePath, wordDelim=" ", tagDelim="/"):
+    def __init__(self, filePath, wordDelim=" ", tagDelim="/", threshold=64):
+        self.threshold = threshold
         self.filePath = filePath
         self.tagDelim = tagDelim
         self.wordDelim = wordDelim
         self.first = True
+        self.buff = deque()
 
     def __enter__(self):
         self.fd = open(self.filePath, 'w')
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        self.flush()
         self.fd.close()
 
     def append(self, word, tag):
         if not self.first:
-            self.fd.write(self.wordDelim)
-        self.fd.write(f"{word}{self.tagDelim}{tag}")
+            self.buff.append(self.wordDelim)
+        self.buff.append(f"{word}{self.tagDelim}{tag}")
         self.first = False
+        self._flushIfNeeded()
 
     def breakLine(self):
         self.first = True
-        self.fd.write("\n")
+        self.buff.append("\n")
+        self._flushIfNeeded()
+
+    def flush(self):
+        self.fd.write(''.join(self.buff))
+        self.buff = deque()
+
+    def _flushIfNeeded(self):
+        if len(self.buff) > self.threshold:
+            self.flush()
