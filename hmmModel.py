@@ -2,6 +2,7 @@ import re
 from itertools import chain
 from ETTables import EmissionTable, NgramTransitions
 from parsers import TagsParser, StorageParser
+import numpy as np
 
 
 class HmmModel:
@@ -44,13 +45,15 @@ class HmmModel:
 		parser = StorageParser()
 		for key, value in parser.Load(QfilePath):
 			self.tagsTransitions.setValue(key, value)
+			if len(key) == 1:
+				self.tagsTransitions.updateValue((), value)
 		for key, value in parser.Load(EfilePath):
 			if key[0] == self.unknownToken:
 				self.unknownCounter[key[1]] = value
 			elif key[0].startswith(self.eventChar):
-				self.eventsTags.addFromIterable(key, value)
+				self.eventsTags.addFromIterable((key,), value)
 			else:
-				self.wordTags.addFromIterable(key, value)
+				self.wordTags.addFromIterable((key,), value)
 
 	def writeQ (self, filePath):
 		StorageParser().Save(filePath, self.tagsTransitions.getAllItems())
@@ -60,10 +63,28 @@ class HmmModel:
 			chain(self.wordTags.getAllItems(), self.eventsTags.getAllItems(),
 				map(lambda x: (self.unknownToken,) + x, self.unknownCounter.items())))
 
-	def getQ (self, word, paramList):
-		""" compute q(t_n|t_1,t_2,...t_n-1) """
-		pass
+	def getQ (self, params, hyperParam = None):
+		""" compute q(t_n|t_1,t_2,...t_n-1)
+		based on the folowing equation:
+		"""
 
-	def getE (self, s, t):
-		""" compute e(s|t) """
-		pass
+		if not hyperParam:
+			hyperParam = (1,)+(0,)*self.nOrder
+
+		if sum(hyperParam) != 1:
+			raise self.INVALID_INTERPOLATION()
+
+		getTagVal = self.tagsTransitions.getValue
+		length = min(self.nOrder + 1, len(params))
+		countValues = map(lambda i: getTagVal(params[i:]) / (getTagVal(params[i:-1]) or 1),
+			range(length))
+		return sum(np.array(hyperParam) * np.fromiter(countValues, float))
+
+	# result = 0
+	# for i in range(min(self.nOrder, len(paramList)-1)):
+	# 	result += hyperParam[i]*self.tagsTransitions.getValue(paramList[
+	# 	i:])/self.tagsTransitions.getValue(paramList[i:-1])
+
+	def getE (self, w, t):
+		""" compute e(w|t) """
+		return self.wordTags.getCount(w, t) / (self.tagsTransitions.getValue((t,) or 1))
