@@ -28,10 +28,13 @@ class HmmModel:
     def computeFromFile(self, filePath):
         endTags = [self.endTag] * self.nOrder
         startTags = [self.startTag] * self.nOrder
+        total = 0
         for tags in TagsParser().parseFile(filePath):
+            total += len(tags)
             self.tagsTransitions.addFromList(startTags + [t[-1] for t in tags] + endTags)
             self.wordTags.addFromIterable(self._getWordsCheckSignatures(tags))
         self.unknownCounter = dict(self.wordTags.computeUnknown(self.unkThreshold))
+        self.tagsTransitions.setValue((), total)
 
     def reComputeUnknown(self, newThreshold=5):
         if newThreshold != self.unkThreshold:
@@ -50,8 +53,9 @@ class HmmModel:
         parser = StorageParser()
         for key, value in parser.Load(QfilePath):
             self.tagsTransitions.setValue(key, value)
-            if len(key) == 1:
+            if len(key) == 1 and key[0] not in (self.startTag, self.endTag):
                 self.tagsTransitions.updateValue((), value)
+
         for key, value in parser.Load(EfilePath):
             if key[0] == self.unknownToken:
                 self.unknownCounter[key[1]] = value
