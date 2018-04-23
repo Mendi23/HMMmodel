@@ -29,7 +29,7 @@ class Tree(defaultdict):
         return reduce(lambda acc, i: acc[i], index, self)
 
     def getItems(self, index=None):
-        return map(lambda x: (x[0], x[1]._value), self._getDirectIndex(index).items())
+        return ((tag, val._value) for tag, val in self._getDirectIndex(index).items())
 
     def _getAllItemsRec(self, cur):
         m = [cur + (self._value,)]
@@ -72,8 +72,8 @@ class EmissionTable:
 
     def computeUnknown(self, threshold):
         return filter(lambda x: x[1] > 0,
-                      [(tag, sum(filter(lambda x: x < threshold, counter.values())))
-                       for tag, counter in self._counter.items()])
+                      ((tag, sum(filter(lambda x: x < threshold, counter.values())))
+                       for tag, counter in self._counter.items()))
 
     def getAllItems(self):
         for tag in self._counter.keys():

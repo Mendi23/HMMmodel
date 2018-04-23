@@ -39,8 +39,10 @@ class HmmModel:
     def _getWordsCheckSignatures(self, tags):
         for word, tag in tags:
             yield (word.lower(), tag)
-            self.eventsTags.addFromIterable(map(lambda x: (x[0], tag),
-                                                filter(lambda r: r[1].search(word), self.signatures.items())))
+            self.eventsTags.addFromIterable((
+                (signature[0], tag) for signature in
+                filter(lambda r: r[1].search(word), self.signatures.items())
+            ))
 
     def loadTransitions(self, QfilePath=None, EfilePath=None):
         parser = StorageParser()
@@ -77,8 +79,8 @@ class HmmModel:
 
         getTagValue = self.tagsTransitions.getValue
         length = min(self.nOrder + 1, len(params))
-        countValues = map(lambda i: getTagValue(params[i:]) / (getTagValue(params[i:-1]) or 1),
-                          range(length))
+        countValues = (getTagValue(params[i:]) / (getTagValue(params[i:-1]) or 1)
+                       for i in range(length))
         return sum(np.array(hyperParam) * np.fromiter(countValues, float))
 
     # result = 0
