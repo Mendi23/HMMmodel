@@ -21,10 +21,7 @@ if __name__ == '__main__':
     print(x.getQ(("NNP", "POS", "NNP"), (0.2, 0.2, 0.6)))
 
 
-    exit()
     tagger = GreedyTagger(x)
     with OutputParser(out_file) as outF:
         for wordsLine in TestParser().parseFile(input_file):
             tagger.tagLine(wordsLine, outF)
-
-

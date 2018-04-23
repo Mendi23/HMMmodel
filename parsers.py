@@ -33,7 +33,7 @@ class TestParser():
     def parseFile(self, filePath):
         with open(filePath) as f:
             for line in f:
-                yield from re.split(f"[{self.wordDelim}]", line.strip())
+                yield re.split(f"[{self.wordDelim}]", line.strip())
 
 
 class StorageParser:
@@ -59,6 +59,7 @@ class OutputParser:
         self.filePath = filePath
         self.tagDelim = tagDelim
         self.wordDelim = wordDelim
+        self.first = True
 
     def __enter__(self):
         self.fd = open(self.filePath, 'w')
@@ -67,10 +68,12 @@ class OutputParser:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.fd.close()
 
-    def append(self, word, tag, first=False):
-        if not first:
+    def append(self, word, tag):
+        if not self.first:
             self.fd.write(self.wordDelim)
         self.fd.write(f"{word}{self.tagDelim}{tag}")
+        self.first = False
 
     def breakLine(self):
+        self.first = True
         self.fd.write("\n")

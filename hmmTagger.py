@@ -16,19 +16,23 @@ class GreedyTagger:
         self._queue = deque(self._startQ)
 
     def tagLine(self, wordsLine, outParser: OutputParser):
-        q = self._queue
-        first = True
         for word in wordsLine:
-            q.popleft()
+            self._queue.popleft()
+
             argmax = max(self._allTags,
                          key=lambda tag: self._calcQ(tag) * self._calcE(word, tag))
-            q.append(argmax)
-            outParser.append(word, argmax, first)
-            first = False
+            self._queue.append(argmax)
+            outParser.append(word, argmax)
 
+            if argmax == self._endLineTag:
+                self._queue = deque(self._startQ)
+        outParser.breakLine()
 
     def _calcE(self, word, tag):
-        return self._model.getE(word, tag)
+        word = word.lower()
+        if self._model.wordExists(word):
+            return self._model.getE(word, tag)
+        return self._model.getBySignature(word, tag) or self._model.getUnknownTag(tag)
 
     def _calcQ(self, tag):
         return self._model.getQ(tuple(self._queue) + (tag,), self.hyperParams)

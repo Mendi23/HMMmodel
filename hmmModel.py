@@ -113,6 +113,6 @@ class HmmModel:
                           for sig in self._signaturesFilterOnWord(word)]
         return max(possibleScores + [0, ])
 
-    def getUnknownTag(self):
-        return self._unknownCounter.most_common(1)[0]
+    def getUnknownTag(self, tag):
+        return self._unknownCounter[tag]
 
