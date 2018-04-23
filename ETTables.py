@@ -59,16 +59,16 @@ class EmissionTable:
     def __init__(self):
         self._counter = defaultdict(Counter)
 
-    """
-    items: iterable items must be a tuple of (word, tag)
-    """
 
     def getCount(self, word, tag):
         return self._counter[tag][word]
 
     def addFromIterable(self, items, value=1):
+        """
+        items: iterable items must be a tuple of (word, tag)
+        """
         for pair in items:
-            tag, word = pair
+            word, tag = pair
             self._counter[tag][word] += value
 
     def computeUnknown(self, threshold):
