@@ -6,35 +6,45 @@ class TagsParser:
     """
     :param wordDelim: regex of all charectars used for spliting words (def: " ")
     :param tagDelim: charectar reprents deliminator between word and its tag (def: '/')
-    :param endLineTag: tuple of tags used to represend end of sentence. if empty, using endLine as
-    sentence deliminator (def: empty)
+    :param stopTags: tuple of tags used to represend end of sentence. (def: empty)
+    :param newLineDelim: newLine in file used as deliminator between sentences
     """
 
-    def __init__ (self, endLineTag = (), wordDelim = " ", tagDelim = '/'):
-        self.endLine = endLineTag
+    def __init__ (self, stopTags = (), wordDelim = " ", tagDelim = '/', newLineDelim = True):
+        self.endLine = stopTags
+        self.lineDelim = newLineDelim
         self.wordDelim = wordDelim
         self.tagDelim = tagDelim
+        self.endLineToken = "$END$"
 
     def parseFile (self, filePath):
         tags = []
+        for item in self._parseFilesWords(filePath):
+            if item[-1] == self.endLineToken:
+                yield tags
+                tags = []
+            else:
+                tags.append(item)
+        yield tags
+
+    def parseTagsFromFile (self, filePath):
+        return filter(lambda tag: tag != self.endLineToken, map(lambda t: t[-1],
+            self._parseFilesWords(filePath)))
+
+    def _parseFilesWords (self, filePath):
         with open(filePath) as f:
             for line in f:
                 t = re.split(f"[{self.wordDelim}]", line.strip())
                 for word in t:
-                    processedWord = self.processWord(word)
-                    tags.append(processedWord)
-                    if self.isEndLine(processedWord):
-                        yield tags
-                        tags = []
-                if len(self.endLine) == 0:
-                    yield tags
-                    tags = []
+                    pair = self.processWord(word)
+                    yield pair
+                    if pair[-1] in self.endLine:
+                        yield (self.endLineToken,) * 2
+                if self.lineDelim:
+                    yield (self.endLineToken,) * 2
 
     def processWord (self, word):
         return tuple(word.rsplit(self.tagDelim, 1))
-
-    def isEndLine (self, tagsPair):
-        return tagsPair[-1] in self.endLine
 
 
 class TestParser:

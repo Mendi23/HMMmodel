@@ -1,5 +1,5 @@
-start	79664
-start start	39832
+start	79666
+start start	39833
 start start IN	5071
 start start NNP	8036
 start start DT	8645
@@ -41,6 +41,7 @@ start start ''	16
 start start )	1
 start start WP$	1
 start start #	1
+start start END	1
 start IN	5071
 start IN DT	2002
 start IN PRP$	130
@@ -652,6 +653,8 @@ start WP$	1
 start WP$ NNP	1
 start #	1
 start # CD	1
+start END	1
+start END END	1
 IN	107862
 IN DT	34865
 IN DT NNP	4625
