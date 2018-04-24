@@ -22,9 +22,13 @@ class HmmModel:
         self.startTag = "start"
         self.unknownToken = "*UNK*"
         self.eventChar = eventChart = '^'
-        self.signatures = {eventChart + 'Aa': re.compile("^[A-Z][a-z]"),
-                           eventChart + 'ing': re.compile("ing$"),
-                           eventChart + 'ought': re.compile("ought$"), }
+        self.signatures = {
+            eventChart + 'Aa': re.compile("^[A-Z][a-z]"),
+            eventChart + 'ing': re.compile("ing$", re.I),
+            eventChart + 'ought': re.compile("ought$", re.I),
+            eventChart + 'AA': re.compile("^[A-Z]+$"),
+            eventChart + '$$': re.compile("[^a-z]", re.I),
+        }
 
     def computeFromFile(self, filePath):
         endTags = [self.endTag] * self.nOrder
@@ -115,4 +119,3 @@ class HmmModel:
 
     def getUnknownTag(self, tag):
         return self._unknownCounter[tag]
-
