@@ -52,29 +52,36 @@ class NgramTransitions(Tree):
 
 class EmissionTable:
     def __init__(self):
-        self._countersByTag = defaultdict(Counter)
-        self._words = set()
+        self._countersByWord = defaultdict(Counter)
 
     def getCount(self, word, tag):
-        return self._countersByTag[tag][word]
+        return self._countersByWord[word][tag]
 
     def addFromIterable(self, items, value=1):
         """
         items: iterable items must be a tuple of (word, tag)
         """
         for word, tag in items:
-            self._countersByTag[tag][word] += value
-            self._words.add(word)
+            self._countersByWord[word][tag] += value
 
     def computeUnknown(self, threshold):
-        return filter(lambda x: x[1] > 0,
-                      ((tag, sum(filter(lambda x: x < threshold, counter.values())))
-                       for tag, counter in self._countersByTag.items()))
+        # return filter(lambda x: x[1] > 0,
+        #               ((tag, sum(filter(lambda x: x < threshold, counter.values())))
+        #                for word, counter in self._countersByWord.items()))
+        def _addToDict(dictionary, pair):
+            key, val = pair
+            dictionary[key] += val
+            return dictionary
+
+        leastWordsWithTag = (max(counter.items(), key=lambda pair: pair[1])
+                             for word, counter in self._countersByWord.items()
+                             if sum(counter.values()) < threshold)
+        return reduce(_addToDict, leastWordsWithTag, defaultdict(lambda: 0))
 
     def getAllItems(self):
-        for tag in self._countersByTag.keys():
-            for word, count in self._countersByTag[tag].items():
+        for word, tagsCounter in self._countersByWord.items():
+            for tag, count in tagsCounter.items():
                 yield (word, tag, count)
 
     def wordExists(self, word):
-        return word in self._words
+        return word in self._countersByWord

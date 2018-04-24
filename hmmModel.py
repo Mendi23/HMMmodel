@@ -34,12 +34,12 @@ class HmmModel:
             total += len(tags)
             self._tagsTransitions.addFromList(startTags + [t[-1] for t in tags] + endTags)
             self._wordTags.addFromIterable(self._getWordsCheckSignatures(tags))
-        self._unknownCounter = Counter(dict(self._wordTags.computeUnknown(self.unkThreshold)))
+        self._unknownCounter = Counter(self._wordTags.computeUnknown(self.unkThreshold))
         self._tagsTransitions.setValue((), total)
 
     def reComputeUnknown(self, newThreshold=5):
         if newThreshold != self.unkThreshold:
-            self._unknownCounter = Counter(dict(self._wordTags.computeUnknown(newThreshold)))
+            self._unknownCounter = Counter(self._wordTags.computeUnknown(newThreshold))
             self.unkThreshold = newThreshold
 
     def _signaturesFilterOnWord(self, word):
