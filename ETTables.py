@@ -6,33 +6,33 @@ from collections import defaultdict, Iterable, Counter
 # FIX: need to add field "sum of words".
 
 class Tree(defaultdict):
-    def __init__(self):
+    def __init__ (self):
         super(Tree, self).__init__(Tree)
         self._value = 0
 
-    def updateValue(self, indexes, val=1):
+    def updateValue (self, indexes, val = 1):
         it = self
         it._value += val
         for i in indexes:
             it = it[i]
             it._value += val
 
-    def setValue(self, indexes, val):
+    def setValue (self, val, indexes = None):
         self._getDirectIndex(indexes)._value = val
 
-    def getValue(self, indexes=None):
+    def getValue (self, indexes = None):
         return self._getDirectIndex(indexes)._value
 
-    def _getDirectIndex(self, indexes=None):
+    def _getDirectIndex (self, indexes = None):
         if not indexes:
             return self
         assert isinstance(indexes, Iterable)
         return reduce(lambda acc, i: acc[i], indexes, self)
 
-    # def getItems(self, indexes=None):
-    #     return ((tag, val._value) for tag, val in self._getDirectIndex(indexes).items())
+    def getItems (self, indexes = None):
+        return ((tag, val._value) for tag, val in self._getDirectIndex(indexes).items())
 
-    def getAllItems(self, cur=()):
+    def getAllItems (self, cur = ()):
         if cur:
             yield cur + (self._value,)
         for k in self.keys():
@@ -40,48 +40,38 @@ class Tree(defaultdict):
 
 
 class NgramTransitions(Tree):
-    def __init__(self, k=3):
+    def __init__ (self, k = 3):
         super(NgramTransitions, self).__init__()
         self._k = k
 
-    def addFromList(self, items):
+    def addFromList (self, items):
         itemsLen = len(items)
         for j in range(0, itemsLen - self._k + 1):
             self.updateValue(items[j: j + self._k])
 
 
 class EmissionTable:
-    def __init__(self):
+    def __init__ (self):
         self._countersByWord = defaultdict(Counter)
 
-    def getCount(self, word, tag):
+    def getCount (self, word, tag):
         return self._countersByWord[word][tag]
 
-    def addFromIterable(self, items, value=1):
+    def addFromIterable (self, items, value = 1):
         """
         items: iterable items must be a tuple of (word, tag)
         """
         for word, tag in items:
             self._countersByWord[word][tag] += value
 
-    def computeUnknown(self, threshold):
-        # return filter(lambda x: x[1] > 0,
-        #               ((tag, sum(filter(lambda x: x < threshold, counter.values())))
-        #                for word, counter in self._countersByWord.items()))
-        def _addToDict(dictionary, pair):
-            key, val = pair
-            dictionary[key] += val
-            return dictionary
+    def computeUnknown (self, threshold):
+        return reduce((lambda x, y: x + y), map(lambda x: x[1],
+            filter(lambda x: sum(x[1].values()) < threshold, self._countersByWord.items())))
 
-        leastWordsWithTag = (max(counter.items(), key=lambda pair: pair[1])
-                             for word, counter in self._countersByWord.items()
-                             if sum(counter.values()) < threshold)
-        return reduce(_addToDict, leastWordsWithTag, defaultdict(lambda: 0))
-
-    def getAllItems(self):
+    def getAllItems (self):
         for word, tagsCounter in self._countersByWord.items():
             for tag, count in tagsCounter.items():
                 yield (word, tag, count)
 
-    def wordExists(self, word):
+    def wordExists (self, word):
         return word in self._countersByWord

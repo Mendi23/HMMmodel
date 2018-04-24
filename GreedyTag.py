@@ -3,8 +3,9 @@ from parsers import TestParser, OutputParser
 
 
 class Tagger:
-    def __init__(self):
+    def __init__ (self):
         pass
+
 
 if __name__ == '__main__':
     """ command line: 
@@ -17,11 +18,10 @@ if __name__ == '__main__':
 
     x = HmmModel(2)
     x.loadTransitions(q_mle, e_mle)
-    print(x.getE("an", "DT"))
-    print(x.getQ(("NNP", "POS", "NNP"), (0.2, 0.2, 0.6)))
-
 
     tagger = GreedyTagger(x)
     with OutputParser(out_file) as outF:
         for wordsLine in TestParser().parseFile(input_file):
             tagger.tagLine(wordsLine, outF)
+
+    
