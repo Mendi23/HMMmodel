@@ -4,9 +4,9 @@ from collections import deque
 
 class TagsParser:
     """
+    :param stopTags: tuple of tags used to represend end of sentence. (def: empty)
     :param wordDelim: regex of all charectars used for spliting words (def: " ")
     :param tagDelim: charectar reprents deliminator between word and its tag (def: '/')
-    :param stopTags: tuple of tags used to represend end of sentence. (def: empty)
     :param newLineDelim: newLine in file used as deliminator between sentences (def: true)
     """
 
@@ -20,7 +20,7 @@ class TagsParser:
     def parseFile (self, filePath):
         tags = []
         for item in self._parseFileWords(filePath):
-            if item[-1] == self.endLineToken:
+            if item == self.endLineToken:
                 yield tags
                 tags = []
             else:
@@ -28,8 +28,9 @@ class TagsParser:
         yield tags
 
     def parseTagsFromFile (self, filePath):
-        return filter(lambda tag: tag != self.endLineToken, map(lambda t: t[-1],
-            self._parseFileWords(filePath)))
+        return map(lambda t: t[-1],
+                   filter(lambda pair: pair != self.endLineToken,
+                          self._parseFileWords(filePath)))
 
     def _parseFileWords (self, filePath):
         with open(filePath) as f:
@@ -39,9 +40,9 @@ class TagsParser:
                     pair = self.processWord(word)
                     yield pair
                     if pair[-1] in self.endLine:
-                        yield (self.endLineToken,) * 2
+                        yield self.endLineToken
                 if self.lineDelim:
-                    yield (self.endLineToken,) * 2
+                    yield self.endLineToken
 
     def processWord (self, word):
         return tuple(word.rsplit(self.tagDelim, 1))
