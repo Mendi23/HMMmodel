@@ -7,7 +7,7 @@ class TagsParser:
     :param wordDelim: regex of all charectars used for spliting words (def: " ")
     :param tagDelim: charectar reprents deliminator between word and its tag (def: '/')
     :param stopTags: tuple of tags used to represend end of sentence. (def: empty)
-    :param newLineDelim: newLine in file used as deliminator between sentences
+    :param newLineDelim: newLine in file used as deliminator between sentences (def: true)
     """
 
     def __init__ (self, stopTags = (), wordDelim = " ", tagDelim = '/', newLineDelim = True):
@@ -19,7 +19,7 @@ class TagsParser:
 
     def parseFile (self, filePath):
         tags = []
-        for item in self._parseFilesWords(filePath):
+        for item in self._parseFileWords(filePath):
             if item[-1] == self.endLineToken:
                 yield tags
                 tags = []
@@ -29,9 +29,9 @@ class TagsParser:
 
     def parseTagsFromFile (self, filePath):
         return filter(lambda tag: tag != self.endLineToken, map(lambda t: t[-1],
-            self._parseFilesWords(filePath)))
+            self._parseFileWords(filePath)))
 
-    def _parseFilesWords (self, filePath):
+    def _parseFileWords (self, filePath):
         with open(filePath) as f:
             for line in f:
                 t = re.split(f"[{self.wordDelim}]", line.strip())
