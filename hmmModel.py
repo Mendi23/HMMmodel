@@ -86,7 +86,7 @@ class HmmModel:
     def getAllTags (self):
         return list(filter(lambda tag: tag != self.startTag, self._tagsTransitions.keys()))
 
-    @lru_cache()
+    @lru_cache(maxsize=8)
     def _getHyperParam(self, hyperParam, size):
         """ if not declared - declare hyper params in Descending order """
         if not hyperParam:
@@ -94,7 +94,7 @@ class HmmModel:
 
         return scaleArray(hyperParam)[:size]
 
-    @lru_cache()
+    # @lru_cache(maxsize=2048)
     def getQ (self, params, hyperParam = None):
         """
         compute q(t_n|t_1,t_2,...t_n-1)
@@ -110,7 +110,7 @@ class HmmModel:
                        for i in range(min(paramsSize, len(params))))
         return sum(hyperParam * np.fromiter(countValues, float))
 
-    @lru_cache()
+    # @lru_cache(maxsize=1024)
     def getE (self, w, t):
         """ compute e(w|t) """
         return self._wordTags.getCount(w, t) / (self._tagsTransitions.getValue((t,)) or 1)
@@ -118,7 +118,6 @@ class HmmModel:
     def wordExists (self, word):
         return self._wordTags.wordExists(word)
 
-    @lru_cache()
     def getBySignature (self, word, tag, hyperParam = None):
         hyperParam = self._getHyperParam(hyperParam, len(self.signatures))
 
