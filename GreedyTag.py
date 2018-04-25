@@ -19,7 +19,6 @@ if __name__ == '__main__':
     input_file, q_mle, e_mle, out_file, extra = argv[1:]
 
     starttime = time()
-    print(starttime)
     x = HmmModel(2)
     x.loadTransitions(q_mle, e_mle)
 
@@ -28,4 +27,4 @@ if __name__ == '__main__':
         for wordsLine in TestParser().parseFile(input_file):
             tagger.tagLine(wordsLine, outF)
 
-    print(time()-starttime)
+    print("total {}s".format(time() - starttime))

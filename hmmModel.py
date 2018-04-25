@@ -48,7 +48,7 @@ class HmmModel:
             self._unknownCounter = self._wordTags.computeUnknown(newThreshold)
             self.unkThreshold = newThreshold
 
-    @lru_cache()
+    @lru_cache(maxsize=2**10)
     def _signaturesFilterOnWord (self, word):
         return [(sig, regex.search(word)) for sig, regex in self.signatures.items()]
 
@@ -94,7 +94,7 @@ class HmmModel:
 
         return scaleArray(hyperParam)[:size]
 
-    # @lru_cache(maxsize=2048)
+    @lru_cache(maxsize=2**17)
     def getQ (self, params, hyperParam = None):
         """
         compute q(t_n|t_1,t_2,...t_n-1)
@@ -110,7 +110,7 @@ class HmmModel:
                        for i in range(min(paramsSize, len(params))))
         return sum(hyperParam * np.fromiter(countValues, float))
 
-    # @lru_cache(maxsize=1024)
+    @lru_cache(maxsize=2**12)
     def getE (self, w, t):
         """ compute e(w|t) """
         return self._wordTags.getCount(w, t) / (self._tagsTransitions.getValue((t,)) or 1)
