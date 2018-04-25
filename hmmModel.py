@@ -113,9 +113,8 @@ class HmmModel:
     @lru_cache()
     def getE (self, w, t):
         """ compute e(w|t) """
-        return self._wordTags.getCount(w, t) / (self._tagsTransitions.getValue((t,) or 1))
+        return self._wordTags.getCount(w, t) / (self._tagsTransitions.getValue((t,)) or 1)
 
-    @lru_cache()
     def wordExists (self, word):
         return self._wordTags.wordExists(word)
 
@@ -123,10 +122,9 @@ class HmmModel:
     def getBySignature (self, word, tag, hyperParam = None):
         hyperParam = self._getHyperParam(hyperParam, len(self.signatures))
 
-        possibleScores = (self._eventsTags.getCount(sig[0], tag) if match else 0
+        possibleScores = ((self._eventsTags.getCount(sig, tag) if match else 0)
                           for sig, match in self._signaturesFilterOnWord(word))
         return sum(np.fromiter(possibleScores, float) * hyperParam)
 
-    @lru_cache()
     def getUnknownTag (self, tag):
-        return self._unknownCounter[tag]
+        return self._unknownCounter[tag] / sum(self._unknownCounter.values())

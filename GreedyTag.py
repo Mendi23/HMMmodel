@@ -23,3 +23,4 @@ if __name__ == '__main__':
     with OutputParser(out_file) as outF:
         for wordsLine in TestParser().parseFile(input_file):
             tagger.tagLine(wordsLine, outF)
+
