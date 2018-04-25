@@ -76,7 +76,7 @@ class StorageParser:
 
 
 class OutputParser:
-    def __init__ (self, filePath, wordDelim = " ", tagDelim = "/", threshold = 64):
+    def __init__ (self, filePath, wordDelim = " ", tagDelim = "/", threshold = 128):
         self.threshold = threshold
         self.filePath = filePath
         self.tagDelim = tagDelim

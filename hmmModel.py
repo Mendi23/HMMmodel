@@ -29,6 +29,7 @@ class HmmModel:
         self.unknownToken = "*UNK*"
         self.eventChar = eventChart = '^'
         self.signatures = {
+            eventChart + '[0-9]+': self.WordEvent(re.compile("^[0-9]+$", re.I)),
             eventChart + 'ought': self.WordEvent(re.compile("ought$", re.I)),
             eventChart + 'ing': self.WordEvent(re.compile("ing$", re.I)),
             eventChart + 'Aa': self.WordEvent(re.compile("^[A-Z][a-z]")),
