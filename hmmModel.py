@@ -2,14 +2,18 @@ import re
 from collections import Counter
 from functools import lru_cache
 from itertools import chain
+
+import numpy as np
+
 from ETTables import EmissionTable, NgramTransitions
 from parsers import TagsParser, StorageParser
-import numpy as np
+
+def scaleArray(arr, start = 0, end = 1):
+    """ scale numbers inside an np.arr to be between "start" to "end" """
+    return np.interp(arr, (0, sum(arr)), (start, end))
 
 
 class HmmModel:
-    class INVALID_INTERPOLATION(ValueError):
-        pass
 
     def __init__ (self, nOrder = 2, unkThreshold = 5):
         self._tagsTransitions = NgramTransitions(k = nOrder + 1)
@@ -24,13 +28,12 @@ class HmmModel:
         self.unknownToken = "*UNK*"
         self.eventChar = eventChart = '^'
         self.signatures = {
-            eventChart + 'Aa': re.compile("^[A-Z][a-z]"),
-            eventChart + 'ing': re.compile("ing$", re.I),
             eventChart + 'ought': re.compile("ought$", re.I),
+            eventChart + 'ing': re.compile("ing$", re.I),
+            eventChart + 'Aa': re.compile("^[A-Z][a-z]"),
             eventChart + 'AA': re.compile("^[A-Z]+$"),
             eventChart + '$$': re.compile("[^a-z]", re.I),
         }
-        self.signatures_scores = np.full(len(self.signatures), 1./len(self.signatures))
 
     def computeFromFile (self, filePath):
         endTags = [self.endTag] * self.nOrder
@@ -47,13 +50,13 @@ class HmmModel:
 
     @lru_cache()
     def _signaturesFilterOnWord (self, word):
-        return [sig for sig, regex in self.signatures.items() if regex.search(word)]
+        return [(sig, regex.search(word)) for sig, regex in self.signatures.items()]
 
     def _getWordsCheckSignatures (self, tags):
         for word, tag in tags:
             yield (word.lower(), tag)
             self._eventsTags.addFromIterable((
-                (signature, tag) for signature in self._signaturesFilterOnWord(word)))
+                (signature, tag) for signature, match in self._signaturesFilterOnWord(word) if match))
 
     def loadTransitions (self, QfilePath = None, EfilePath = None):
         parser = StorageParser()
@@ -80,40 +83,49 @@ class HmmModel:
                 self._eventsTags.getAllItems(),
                 ((self.unknownToken,) + keyVal for keyVal in self._unknownCounter.items())))
 
+    def getAllTags (self):
+        return list(filter(lambda tag: tag != self.startTag, self._tagsTransitions.keys()))
+
+    @lru_cache()
+    def _getHyperParam(self, hyperParam, size):
+        """ if not declared - declare hyper params in Descending order """
+        if not hyperParam:
+            hyperParam = np.arange(size, 0, -1)
+
+        return scaleArray(hyperParam)[:size]
+
     @lru_cache()
     def getQ (self, params, hyperParam = None):
-        """ compute q(t_n|t_1,t_2,...t_n-1)
-        based on the folowing equation:
         """
-
-        if not hyperParam:
-            hyperParam = (1,) + (0,) * self.nOrder
-
-        if sum(hyperParam) != 1:
-            raise self.INVALID_INTERPOLATION()
+        compute q(t_n|t_1,t_2,...t_n-1)
+        based on the folowing equation:
+        w_i * Score(params[i:]) / Score(params[i:-1])
+        :parameter hyperParam: should be with same len as params and sums up to 1.
+        """
+        paramsSize = self.nOrder + 1
+        hyperParam = self._getHyperParam(hyperParam, paramsSize)
 
         getTagValue = self._tagsTransitions.getValue
         countValues = (getTagValue(params[i:]) / (getTagValue(params[i:-1]) or 1)
-            for i in range(min(self.nOrder + 1, len(params))))
-        return sum(np.array(hyperParam) * np.fromiter(countValues, float))
+                       for i in range(min(paramsSize, len(params))))
+        return sum(hyperParam * np.fromiter(countValues, float))
 
     @lru_cache()
     def getE (self, w, t):
         """ compute e(w|t) """
         return self._wordTags.getCount(w, t) / (self._tagsTransitions.getValue((t,) or 1))
 
-    def getAllTags (self):
-        return list(filter(lambda tag: tag != self.startTag, self._tagsTransitions.keys()))
-
     @lru_cache()
     def wordExists (self, word):
         return self._wordTags.wordExists(word)
 
     @lru_cache()
-    def getBySignature (self, word, tag):
-        possibleScores = [self._eventsTags.getCount(sig[0], tag)
-            for sig in self._signaturesFilterOnWord(word)]
-        return max(possibleScores + [0, ])
+    def getBySignature (self, word, tag, hyperParam = None):
+        hyperParam = self._getHyperParam(hyperParam, len(self.signatures))
+
+        possibleScores = (self._eventsTags.getCount(sig[0], tag) if match else 0
+                          for sig, match in self._signaturesFilterOnWord(word))
+        return sum(np.fromiter(possibleScores, float) * hyperParam)
 
     @lru_cache()
     def getUnknownTag (self, tag):

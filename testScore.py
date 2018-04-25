@@ -18,6 +18,8 @@ if __name__ == '__main__':
     binazier.fit(out)
 
     s1 = classification_report(binazier.transform(out), binazier.transform(expected))
+    print(accuracy_score(binazier.transform(["NN", "NNS", "NNP"]),
+                         binazier.transform(["NNP", "NNP", "NN"])))
     score = accuracy_score(binazier.transform(out), binazier.transform(expected))
     print(score)
 

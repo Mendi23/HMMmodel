@@ -25,7 +25,8 @@ class TagsParser:
                 tags = []
             else:
                 tags.append(item)
-        yield tags
+        if tags:
+            yield tags
 
     def parseTagsFromFile (self, filePath):
         return map(lambda t: t[-1],
@@ -48,14 +49,12 @@ class TagsParser:
         return tuple(word.rsplit(self.tagDelim, 1))
 
 
-class TestParser:
+class TestParser(TagsParser):
     def __init__ (self, wordDelim = " "):
-        self.wordDelim = wordDelim
+        super().__init__(wordDelim=wordDelim, newLineDelim=True, stopTags=())
 
-    def parseFile (self, filePath):
-        with open(filePath) as f:
-            for line in f:
-                yield re.split(f"[{self.wordDelim}]", line.strip())
+    def processWord(self, word):
+        return word
 
 
 class StorageParser:
