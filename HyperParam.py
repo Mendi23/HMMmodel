@@ -4,8 +4,11 @@ Hyper Parameters need Tuning:
 reComputeUnknown, newThreshold
 getQ, hyperParam
 """
-from hmmModel import HmmModel
 
+if __name__ == '__main__':
+    from hmmModel import HmmModel
+    from sys import argv
 
-class ParametersLearning:
-    pass
+    x = HmmModel(2)
+    x.computeFromFile(argv[1])
+
