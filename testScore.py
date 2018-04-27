@@ -17,7 +17,7 @@ if __name__ == '__main__':
     binazier = MultiLabelBinarizer()
     binazier.fit(set(expected + out))
 
-    s1 = classification_report(binazier.transform(out), binazier.transform(expected))
+    #s1 = classification_report(binazier.transform(out), binazier.transform(expected))
 
     score = accuracy_score(binazier.transform(out), binazier.transform(expected))
     print(score)

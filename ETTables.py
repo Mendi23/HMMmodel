@@ -1,7 +1,6 @@
 from functools import reduce
 from collections import defaultdict, Iterable, Counter
 
-
 # BUG: it setValue when loading transitions, root.value is not updates
 # FIX: need to add field "sum of words".
 
@@ -76,3 +75,6 @@ class EmissionTable:
 
     def wordExists (self, word):
         return word in self._countersByWord
+
+    def wordCount(self, word):
+        return sum(self._countersByWord[word].values())
