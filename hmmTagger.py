@@ -4,6 +4,8 @@ from hmmModel import HmmModel
 from parsers import OutputParser
 from functools import lru_cache
 
+#BUG: "." is a WordEvent! not have to be end line. ("Dr.", "Mr." etc)
+
 
 def scaleArray (arr, start = 0, end = 1):
     """ scale numbers inside an np.arr to be between "start" to "end" """

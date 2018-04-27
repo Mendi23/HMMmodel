@@ -1,9 +1,6 @@
 from functools import reduce
 from collections import defaultdict, Iterable, Counter
 
-# BUG: it setValue when loading transitions, root.value is not updates
-# FIX: need to add field "sum of words".
-
 class Tree(defaultdict):
     def __init__ (self):
         super(Tree, self).__init__(Tree)
