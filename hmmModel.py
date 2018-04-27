@@ -105,10 +105,10 @@ class HmmModel:
     @lru_cache(maxsize = 2 ** 12)
     def getE (self, w, t):
         """ compute e(w|t) """
-        return self._wordTags.getCount(w, t) / (self._tagsTransitions.getValue((t,)) or 1)
+        return self._wordTags.getCount(w.lower(), t) / (self._tagsTransitions.getValue((t,)) or 1)
 
     def wordExists (self, word):
-        return self._wordTags.wordExists(word)
+        return self._wordTags.wordExists(word.lower())
 
     def getSignatureTagRatio (self, sig, tag):
         return self._eventsTags.getCount(sig, tag) / (self.signatures[sig].count or 1)
