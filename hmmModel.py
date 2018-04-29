@@ -1,5 +1,5 @@
 import re
-from collections import Counter
+from collections import Counter, namedtuple
 from functools import lru_cache
 from itertools import chain
 
@@ -16,7 +16,7 @@ class HmmModel:
             self.count = count
 
     def __init__ (self, nOrder = 2, unkThreshold = 5):
-        self._tagsTransitions = NgramTransitions(k = nOrder + 1)
+        self._tagsTransitions = NgramTransitions(k=nOrder + 1)
         self._wordTags = EmissionTable()
         self._eventsTags = EmissionTable()
         self._unknownCounter = Counter()
@@ -28,7 +28,7 @@ class HmmModel:
         self.startTag = "start"
         self.unknownToken = "*UNK*"
         self.eventChar = eventChart = '^'
-        self.signatures = {
+        self._eventsActions = {
             eventChart + '[0-9]+': self.WordEvent(re.compile("^[0-9]+$", re.I)),
             eventChart + 'ought': self.WordEvent(re.compile("ought$", re.I)),
             eventChart + 'ing': self.WordEvent(re.compile("ing$", re.I)),
@@ -42,7 +42,7 @@ class HmmModel:
         startTags = [self.startTag] * self.nOrder
         for tags in TagsParser().parseFile(filePath):
             self._tagsTransitions.addFromList(startTags + [t[-1] for t in tags] + endTags)
-            self._eventsTags.addFromIterable(self._getWordsCheckSignatures(tags))
+            self._eventsTags.addFromIterable(self._getWordsAppliedEvents(tags))
             self._wordTags.addFromIterable((word.lower(), tag) for word, tag in tags)
         self._unknownCounter = self._wordTags.computeUnknown(self.unkThreshold)
         self._totalUnknown = sum(self._unknownCounter.values())
@@ -53,11 +53,10 @@ class HmmModel:
             self.unkThreshold = newThreshold
             self._totalUnknown = sum(self._unknownCounter.values())
 
-
-    def _getWordsCheckSignatures (self, tags):
+    def _getWordsAppliedEvents (self, tags):
         for word, tag in tags:
-            for signature in self._signaturesFilterOnWord(word):
-                self.signatures[signature].count += 1
+            for signature in self._eventsFilterOnWord(word):
+                self._eventsActions[signature].count += 1
                 yield signature, tag
 
     def loadTransitions (self, QfilePath = None, EfilePath = None):
@@ -74,7 +73,7 @@ class HmmModel:
                 self._totalUnknown += value
             elif key[0].startswith(self.eventChar):
                 self._eventsTags.addFromIterable((key,), value)
-                self.signatures[key[0]].count += value
+                self._eventsActions[key[0]].count += value
             else:
                 self._wordTags.addFromIterable((key,), value)
 
@@ -83,14 +82,14 @@ class HmmModel:
 
     def writeE (self, filePath):
         StorageParser().Save(filePath,
-            chain(self._wordTags.getAllItems(),
-                self._eventsTags.getAllItems(),
-                ((self.unknownToken,) + keyVal for keyVal in self._unknownCounter.items())))
+                             chain(self._wordTags.getAllItems(),
+                                   self._eventsTags.getAllItems(),
+                                   ((self.unknownToken,) + keyVal for keyVal in self._unknownCounter.items())))
 
     def getAllTags (self):
         return list(filter(lambda tag: tag != self.startTag, self._tagsTransitions.keys()))
 
-    @lru_cache(maxsize = 2 ** 17)
+    @lru_cache(maxsize=2 ** 17)
     def getQ (self, params, hyperParam):
         """
         compute q(t_n|t_1,t_2,...t_n-1)
@@ -100,10 +99,10 @@ class HmmModel:
         """
         getTagValue = self._tagsTransitions.getValue
         countValues = (getTagValue(params[i:]) / (getTagValue(params[i:-1]) or 1)
-            for i in range(min(self.nOrder + 1, len(params))))
+                       for i in range(min(self.nOrder + 1, len(params))))
         return sum(hyperParam * np.fromiter(countValues, float))
 
-    @lru_cache(maxsize = 2 ** 12)
+    @lru_cache(maxsize=2 ** 12)
     def getE (self, w, t):
         """ compute e(w|t) """
         return self._wordTags.getCount(w.lower(), t) / (self._tagsTransitions.getValue((t,)) or 1)
@@ -111,21 +110,22 @@ class HmmModel:
     def wordExists (self, word):
         return self._wordTags.wordExists(word.lower())
 
-    def getSignatureTagRatio (self, sig, tag):
-        return self._eventsTags.getCount(sig, tag) / (self.signatures[sig].count or 1)
+    @lru_cache()
+    def getEventTagRatio (self, eventKey, tag):
+        return self._eventsTags.getCount(eventKey, tag) / (self._eventsActions[eventKey].count or 1)
 
-    @lru_cache(maxsize = 64)
     def getUnknownTagRatio (self, tag):
         return self._unknownCounter[tag] / self._totalUnknown or 1
 
-    def getTagRatioTuple (self, tag):
-        return tuple((self.getSignatureTagRatio(sig, tag) for sig in self.signatures.keys()))
+    def getEventRatioTuple (self, tag):
+        return tuple((self.getEventTagRatio(eventKey, tag) for eventKey in self._eventsActions.keys()))
 
     def getNumOfEvents (self):
-        return len(self.signatures)
+        return len(self._eventsActions)
 
-    def _signaturesFilterOnWord (self, word):
-        return filter(lambda x: self.signatures[x].regex.search(word), self.signatures.keys())
+    @lru_cache(maxsize=2 ** 10)
+    def _eventsFilterOnWord (self, word):
+        return [key for key, action in self._eventsActions.items() if action.regex.search(word)]
 
     def getWordEventMask (self, word):
-        return tuple((bool(val.regex.search(word)) for val in self.signatures.values()))
+        return tuple((bool(val.regex.search(word)) for val in self._eventsActions.values()))

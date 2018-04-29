@@ -47,7 +47,7 @@ class GreedyTagger:
             return self._model.getE(word, tag)
 
         hyperParam = self._calcHPunkWord(word)
-        tagProb = self._model.getTagRatioTuple(tag) + (self._model.getUnknownTagRatio(tag),)
+        tagProb = self._model.getEventRatioTuple(tag) + (self._model.getUnknownTagRatio(tag),)
         return sum(hyperParam * tagProb)
 
     def _calcQ (self, tag):
