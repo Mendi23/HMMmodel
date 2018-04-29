@@ -57,3 +57,14 @@ class GreedyTagger:
     def _calcHPunkWord (self, word):
         return scaleArray((self._model.getWordEventMask(word) +
                            (not self._model.wordExists(word),)) * self.unkSigHP)
+
+class ViterbiTagger(GreedyTagger):
+    def __init__ (self, hmmmodel: HmmModel, k = 3, endLineTag = ".",
+                  QHyperParam = (0.4, 0.4, 0.2), unkSigHyperParam = None):
+        super().__init__(hmmmodel, k, endLineTag, QHyperParam, unkSigHyperParam)
+
+        self._viterbiTable = []
+        # TODO: construct the 3 dimensional array which will hold the results for all tags using _calcQ
+
+    def tagLine(self, wordsLine, outParser: OutputParser):
+        pass # TODO use the _viterbiTable and _calcE for tagging
