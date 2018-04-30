@@ -62,6 +62,13 @@ class ViterbiTagger(GreedyTagger):
     TagVal = namedtuple("TagVal", "prev tag val")
     zeroTagVal = TagVal(None, "empty", -np.inf)
 
+    @staticmethod
+    def TagValVal(tagVal):
+        return tagVal.val
+    @staticmethod
+    def TagValPrev(tagVal):
+        return tagVal.prev
+
     def __init__ (self, hmmmodel: HmmModel, k = 3, endLineTag = ".",
             QHyperParam = (0.4, 0.4, 0.2), unkSigHyperParam = None):
         super().__init__(hmmmodel, k, endLineTag, QHyperParam, unkSigHyperParam)
@@ -75,7 +82,7 @@ class ViterbiTagger(GreedyTagger):
         lineLength = len(line)
         vTable = [
             defaultdict(lambda: defaultdict(lambda: self.zeroTagVal))
-            for _ in range(lineLength + 1 + 2)
+            for _ in range(lineLength + 1)
         ]
 
         vTable[0][self.startTag][self.startTag] = self.TagVal(None, "start", np.log(1.0))
@@ -87,23 +94,18 @@ class ViterbiTagger(GreedyTagger):
             possibleRs = [self.startTag] if i <= 2 else self._model.getWordTags(word)
             assert possibleTs and possibleRs
             for t, r in product(possibleTs, possibleRs):
-                # cell = vTable[i][t][r] = self._calcTagVal(vTable, i, t, r, line)
-
                 cell = vTable[i][t][r] = max(
-            (self._calcVTableCell(vTable[i-1][it][t], it, t, r, word) for it in vTable[i-1].keys()),
-            key=lambda tv: tv.val)
+                    (self._calcVTableCell(vTable[i - 1][it][t], it, t, r, word)
+                     for it in vTable[i - 1].keys()),
+                    key=self.TagValVal)
 
                 if i == lineLength:
-                    maxTagVal = max(maxTagVal, cell, key=lambda tv: tv.val)
+                    maxTagVal = max(maxTagVal, cell, key=self.TagValVal)
 
         m = vTable
 
-    # def _calcTagVal (self, vTable, i, t, r, line):
-    #     assert i <= len(line)
-    #     word = line[i-1]
-    #     return max(
-    #         (self._calcVTableCell(vTable, i, it, t, r, word) for it in self._model.getWordTags(word)),
-    #         key=lambda tv: tv.val)
+        # reversed((tagval for tagval in iter()))
+        # outParser.append()
 
     def _calcVTableCell (self, VCell, it, t, r, word):
         q = self._calcQ((it, t, r))
