@@ -77,4 +77,6 @@ class EmissionTable:
         return sum(self._countersByWord[word].values())
 
     def wordTags(self, word):
-        return self._countersByWord[word].keys()
+        if self.wordExists(word):
+            return self._countersByWord[word].keys()
+        return None

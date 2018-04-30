@@ -74,6 +74,24 @@ class StorageParser:
             for tags in items:
                 f.write(f"{self.wordDelim.join(tags[:-1])}{self.valueDelim}{tags[-1]}\n")
 
+class OutParser:
+    def __init__ (self, filePath, wordDelim = " ", tagDelim = "/"):
+        self.filePath = filePath
+        self.tagDelim = tagDelim
+        self.wordDelim = wordDelim
+
+    def __enter__ (self):
+        self.fd = open(self.filePath, 'w')
+        return self
+
+    def printLine(self, resultLine):
+        self.fd.write(self.wordDelim.join(self.tagDelim.join(wordTag) for wordTag in resultLine))
+        self.fd.write("\n")
+
+    def __exit__ (self, exc_type, exc_val, exc_tb):
+        self.fd.close()
+
+
 
 class OutputParser:
     def __init__ (self, filePath, wordDelim = " ", tagDelim = "/", threshold = 128):

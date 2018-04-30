@@ -20,6 +20,9 @@ if __name__ == '__main__':
     tagger = GreedyTagger(x)
     with OutputParser(out_file) as outF:
         for wordsLine in TestParser().parseFile(input_file):
-            tagger.tagLine(wordsLine, outF)
+            out = tagger.tagLine(wordsLine)
+            for word, tag in out:
+                outF.append(word, tag)
+            outF.breakLine()
 
     print("total {}s".format(time() - starttime))

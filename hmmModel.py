@@ -92,13 +92,9 @@ class HmmModel:
     def getWordTags(self, word):
         tags = self._wordTags.wordTags(word)
         if not tags:
-            tags = list(self._unknownCounter.keys()) + \
-                   list(reduce(
-                       lambda a1, a2: a1 + a2,
-                       (list(self._eventsTags.wordTags(key)) for key in self._eventsFilterOnWord(word)),
-                       []
-                   ))
-        return tags
+            eventsTags = (self._eventsTags.wordTags(key) for key in self._eventsFilterOnWord(word))
+            tags = chain(chain.from_iterable(eventsTags), self._unknownCounter.keys())
+        return set(tags)
 
     @lru_cache(maxsize=2 ** 17)
     def getQ (self, params, hyperParam):

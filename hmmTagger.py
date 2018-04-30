@@ -14,7 +14,7 @@ def scaleArray (arr, start = 0, end = 1):
 
 class GreedyTagger:
     def __init__ (self, hmmmodel: HmmModel, k = 3, endLineTag = ".",
-                  QHyperParam = (0.4, 0.4, 0.2), unkSigHyperParam = None):
+            QHyperParam = (0.4, 0.4, 0.2), unkSigHyperParam = None):
         self.QHyperParam = QHyperParam
         self.unkSigHP = unkSigHyperParam
         self._k = k
@@ -28,19 +28,20 @@ class GreedyTagger:
             self.unkSigHP = (2,) * hmmmodel.getNumOfEvents() + (1,)
         self.unkSigHP = scaleArray(self.unkSigHP)
 
-    def tagLine (self, wordsLine, outParser: OutputParser):
+    def tagLine (self, wordsLine):
+        output = []
         for word in wordsLine:
             self._queue.popleft()
 
             argmax = max(self._allTags,
-                         key=lambda tag: self._calcQ(tuple(self._queue) + (tag,)) * self._calcE(word, tag))
+                key = lambda tag: self._calcQ(tuple(self._queue) + (tag,)) * self._calcE(word, tag))
 
             self._queue.append(argmax)
-            outParser.append(word, argmax)
+            output.append((word, argmax))
 
             if argmax == self._endLineTag:
                 self._queue = deque(self._startQ)
-        outParser.breakLine()
+        return output
 
     def _calcE (self, word, tag):
         if self._model.wordExists(word):
@@ -53,7 +54,7 @@ class GreedyTagger:
     def _calcQ (self, tags):
         return self._model.getQ(tags, self.QHyperParam)
 
-    @lru_cache(maxsize=64)
+    @lru_cache(maxsize = 64)
     def _calcHPunkWord (self, word):
         return scaleArray((self._model.getWordEventMask(word) +
                            (not self._model.wordExists(word),)) * self.unkSigHP)
@@ -68,15 +69,14 @@ class ViterbiTagger(GreedyTagger):
         return tagVal.val
 
     def __init__ (self, hmmmodel: HmmModel, k = 3, endLineTag = ".",
-                  QHyperParam = (0.4, 0.4, 0.2), unkSigHyperParam = None):
+            QHyperParam = (0.4, 0.4, 0.2), unkSigHyperParam = None):
         super().__init__(hmmmodel, k, endLineTag, QHyperParam, unkSigHyperParam)
 
         self.startTag = self._model.startTag
 
-    def tagLine (self, line, outParser: OutputParser):
+    def tagLine (self, line):
         if not line:
-            outParser.breakLine()
-
+            return None
         lineLength = len(line)
         vTable = [
             defaultdict(lambda: defaultdict(lambda: self.zeroTagVal))
@@ -87,25 +87,23 @@ class ViterbiTagger(GreedyTagger):
 
         maxTagVal = self.zeroTagVal
         for i, word in enumerate(line, 1):
-            possibleIts = list([self.startTag] if i <= 2 else vTable[i - 1].keys())
-            possibleTs = list([self.startTag] if i == 1 else self._model.getWordTags(line[i - 2]))
-            possibleRs = list(self._model.getWordTags(word))
-            assert possibleTs and possibleRs and possibleIts
-            nonempty = None
+            possibleIts = [self.startTag] if i <= 2 else vTable[i - 1].keys()
+            possibleTs = [self.startTag] if i == 1 else self._model.getWordTags(line[i - 2])
+            possibleRs = self._model.getWordTags(word)
+            # assert possibleTs and possibleRs and possibleIts
             for t, r in product(possibleTs, possibleRs):
                 possibleValues = (self._calcVTableCell(vTable[i - 1][it][t], (it, t, r), word)
-                                  for it in possibleIts)
-                cell = vTable[i][t][r] = max(possibleValues, key=self.TagValVal)
+                    for it in possibleIts)
+
+                cell = vTable[i][t][r] = max(possibleValues, key = self.TagValVal)
 
                 if i == lineLength:
-                    maxTagVal = max(maxTagVal, cell, key=self.TagValVal)
+                    maxTagVal = max(maxTagVal, cell, key = self.TagValVal)
 
-                nonempty = cell if cell.val > -np.inf else nonempty
-            assert nonempty
-
-        print("maxTagVal: {}, {}".format(maxTagVal.tag, maxTagVal.val))
-        self._appendSelectedTags(maxTagVal, line, len(line) - 1, outParser)
-        outParser.breakLine()
+        # print("maxTagVal: {}, {}".format(maxTagVal.tag, maxTagVal.val))
+        output = []
+        self._appendSelectedTags(maxTagVal, line, len(line) - 1, output)
+        return output
 
     def _calcVTableCell (self, VCell, tagsTriplet, word):
         q = self._calcQ(tagsTriplet)
@@ -116,7 +114,7 @@ class ViterbiTagger(GreedyTagger):
         val = np.sum(np.log((q, e))) + VCell.val
         return self.TagVal(VCell, tagsTriplet[-1], val)
 
-    def _appendSelectedTags (self, tagVal, line, i, outParser):
+    def _appendSelectedTags (self, tagVal, line, i, output):
         if i > 0 and tagVal.prev:
-            self._appendSelectedTags(tagVal.prev, line, i - 1, outParser)
-        outParser.append(line[i], tagVal.tag)
+            self._appendSelectedTags(tagVal.prev, line, i - 1, output)
+        output.append((line[i], tagVal.tag))
