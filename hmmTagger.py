@@ -14,7 +14,7 @@ def scaleArray (arr, start = 0, end = 1):
 
 class GreedyTagger:
     def __init__ (self, hmmmodel: HmmModel, k = 3, endLineTag = ".",
-            QHyperParam = (0.4, 0.4, 0.2), unkSigHyperParam = None):
+                  QHyperParam = (0.4, 0.4, 0.2), unkSigHyperParam = None):
         self.QHyperParam = QHyperParam
         self.unkSigHP = unkSigHyperParam
         self._k = k
@@ -33,7 +33,7 @@ class GreedyTagger:
             self._queue.popleft()
 
             argmax = max(self._allTags,
-                key = lambda tag: self._calcQ(tuple(self._queue) + (tag,)) * self._calcE(word, tag))
+                         key=lambda tag: self._calcQ(tuple(self._queue) + (tag,)) * self._calcE(word, tag))
 
             self._queue.append(argmax)
             outParser.append(word, argmax)
@@ -53,24 +53,22 @@ class GreedyTagger:
     def _calcQ (self, tags):
         return self._model.getQ(tags, self.QHyperParam)
 
-    @lru_cache(maxsize = 64)
+    @lru_cache(maxsize=64)
     def _calcHPunkWord (self, word):
         return scaleArray((self._model.getWordEventMask(word) +
                            (not self._model.wordExists(word),)) * self.unkSigHP)
+
 
 class ViterbiTagger(GreedyTagger):
     TagVal = namedtuple("TagVal", "prev tag val")
     zeroTagVal = TagVal(None, "empty", -np.inf)
 
     @staticmethod
-    def TagValVal(tagVal):
+    def TagValVal (tagVal):
         return tagVal.val
-    @staticmethod
-    def TagValPrev(tagVal):
-        return tagVal.prev
 
     def __init__ (self, hmmmodel: HmmModel, k = 3, endLineTag = ".",
-            QHyperParam = (0.4, 0.4, 0.2), unkSigHyperParam = None):
+                  QHyperParam = (0.4, 0.4, 0.2), unkSigHyperParam = None):
         super().__init__(hmmmodel, k, endLineTag, QHyperParam, unkSigHyperParam)
 
         self.startTag = self._model.startTag
@@ -89,29 +87,36 @@ class ViterbiTagger(GreedyTagger):
 
         maxTagVal = self.zeroTagVal
         for i, word in enumerate(line, 1):
-            prevWord = line[i-2]
-            possibleTs = [self.startTag] if i == 1 else self._model.getWordTags(prevWord)
-            possibleRs = [self.startTag] if i <= 2 else self._model.getWordTags(word)
-            assert possibleTs and possibleRs
+            possibleIts = list([self.startTag] if i <= 2 else vTable[i - 1].keys())
+            possibleTs = list([self.startTag] if i == 1 else self._model.getWordTags(line[i - 2]))
+            possibleRs = list(self._model.getWordTags(word))
+            assert possibleTs and possibleRs and possibleIts
+            nonempty = None
             for t, r in product(possibleTs, possibleRs):
-                cell = vTable[i][t][r] = max(
-                    (self._calcVTableCell(vTable[i - 1][it][t], it, t, r, word)
-                     for it in vTable[i - 1].keys()),
-                    key=self.TagValVal)
+                possibleValues = (self._calcVTableCell(vTable[i - 1][it][t], (it, t, r), word)
+                                  for it in possibleIts)
+                cell = vTable[i][t][r] = max(possibleValues, key=self.TagValVal)
 
                 if i == lineLength:
                     maxTagVal = max(maxTagVal, cell, key=self.TagValVal)
 
-        m = vTable
+                nonempty = cell if cell.val > -np.inf else nonempty
+            assert nonempty
 
-        # reversed((tagval for tagval in iter()))
-        # outParser.append()
+        print("maxTagVal: {}, {}".format(maxTagVal.tag, maxTagVal.val))
+        self._appendSelectedTags(maxTagVal, line, len(line) - 1, outParser)
+        outParser.breakLine()
 
-    def _calcVTableCell (self, VCell, it, t, r, word):
-        q = self._calcQ((it, t, r))
-        e = self._calcE(word, r)
+    def _calcVTableCell (self, VCell, tagsTriplet, word):
+        q = self._calcQ(tagsTriplet)
+        e = self._calcE(word, tagsTriplet[-1])
         if 0 in (q, e):
             return self.zeroTagVal
 
         val = np.sum(np.log((q, e))) + VCell.val
-        return self.TagVal(VCell, r, val)
+        return self.TagVal(VCell, tagsTriplet[-1], val)
+
+    def _appendSelectedTags (self, tagVal, line, i, outParser):
+        if i > 0 and tagVal.prev:
+            self._appendSelectedTags(tagVal.prev, line, i - 1, outParser)
+        outParser.append(line[i], tagVal.tag)

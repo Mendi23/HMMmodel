@@ -18,6 +18,7 @@ if __name__ == '__main__':
 
     tagger = ViterbiTagger(x)
     with OutputParser(out_file) as outF:
+        print(".", end='')
         for wordsLine in TestParser().parseFile(input_file):
             tagger.tagLine(wordsLine, outF)
 
