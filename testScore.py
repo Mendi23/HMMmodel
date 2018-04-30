@@ -12,7 +12,7 @@ if __name__ == '__main__':
 
     out = list(TagsParser().parseTagsFromFile(output_file))
     expected = list(TagsParser().parseTagsFromFile(expected_result_file))
-    print(len(expected)-len(out))
+    #print(len(expected)-len(out))
 
 
     binazier = MultiLabelBinarizer()
