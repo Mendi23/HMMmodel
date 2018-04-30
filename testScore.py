@@ -1,5 +1,5 @@
 from parsers import TagsParser
-from sklearn.metrics import accuracy_score, classification_report
+from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import MultiLabelBinarizer
 if __name__ == '__main__':
     """ command line: 
@@ -12,6 +12,7 @@ if __name__ == '__main__':
 
     out = list(TagsParser().parseTagsFromFile(output_file))
     expected = list(TagsParser().parseTagsFromFile(expected_result_file))
+    print(len(expected)-len(out))
 
 
     binazier = MultiLabelBinarizer()
