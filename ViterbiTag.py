@@ -1,8 +1,7 @@
 from time import time
 
-from hmmTagger import GreedyTagger
+from hmmTagger import ViterbiTagger
 from parsers import TestParser, OutputParser
-
 
 if __name__ == '__main__':
     """ command line: 
@@ -17,7 +16,7 @@ if __name__ == '__main__':
     x = HmmModel(2)
     x.loadTransitions(q_mle, e_mle)
 
-    tagger = GreedyTagger(x)
+    tagger = ViterbiTagger(x)
     with OutputParser(out_file) as outF:
         for wordsLine in TestParser().parseFile(input_file):
             tagger.tagLine(wordsLine, outF)
