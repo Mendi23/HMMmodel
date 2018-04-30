@@ -130,9 +130,9 @@ class HmmModel:
     def getNumOfEvents (self):
         return len(self._eventsActions)
 
-    @lru_cache(maxsize=2 ** 10)
+    #@lru_cache(maxsize=2 ** 10)
     def _eventsFilterOnWord (self, word):
-        return [key for key, action in self._eventsActions.items() if action.regex.search(word)]
+        return (key for key, action in self._eventsActions.items() if action.regex.search(word))
 
     def getWordEventMask (self, word):
         return tuple((bool(val.regex.search(word)) for val in self._eventsActions.values()))
