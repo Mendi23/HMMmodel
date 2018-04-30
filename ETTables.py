@@ -75,3 +75,6 @@ class EmissionTable:
 
     def wordCount(self, word):
         return sum(self._countersByWord[word].values())
+
+    def wordTags(self, word):
+        return self._countersByWord[word].keys()

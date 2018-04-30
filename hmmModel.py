@@ -1,6 +1,6 @@
 import re
 from collections import Counter, namedtuple
-from functools import lru_cache
+from functools import lru_cache, reduce
 from itertools import chain
 
 import numpy as np
@@ -88,6 +88,17 @@ class HmmModel:
 
     def getAllTags (self):
         return list(filter(lambda tag: tag != self.startTag, self._tagsTransitions.keys()))
+
+    def getWordTags(self, word):
+        tags = self._wordTags.wordTags(word)
+        if tags:
+            return tags
+        return list(self._unknownCounter.keys()) + \
+               list(reduce(
+                   lambda a1, a2: a1 + a2,
+                   (list(self._eventsTags.wordTags(key)) for key in self._eventsFilterOnWord(word)),
+                   []
+               ))
 
     @lru_cache(maxsize=2 ** 17)
     def getQ (self, params, hyperParam):

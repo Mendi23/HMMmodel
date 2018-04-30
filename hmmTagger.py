@@ -1,11 +1,10 @@
 from collections import deque, namedtuple, defaultdict
+from itertools import product
+
 import numpy as np
 from hmmModel import HmmModel
 from parsers import OutputParser
 from functools import lru_cache
-
-
-# BUG: "." is a WordEvent! not have to be end line. ("Dr.", "Mr." etc)
 
 
 def scaleArray (arr, start = 0, end = 1):
@@ -60,44 +59,57 @@ class GreedyTagger:
                            (not self._model.wordExists(word),)) * self.unkSigHP)
 
 class ViterbiTagger(GreedyTagger):
-    TagVal = namedtuple("TagVal", "t r val")
-    zeroTagVal = TagVal("empty", "empty", 0.0)
+    TagVal = namedtuple("TagVal", "prev tag val")
+    zeroTagVal = TagVal(None, "empty", -np.inf)
 
     def __init__ (self, hmmmodel: HmmModel, k = 3, endLineTag = ".",
             QHyperParam = (0.4, 0.4, 0.2), unkSigHyperParam = None):
         super().__init__(hmmmodel, k, endLineTag, QHyperParam, unkSigHyperParam)
 
-        self._allTags = self._allTags
+        self.startTag = self._model.startTag
 
     def tagLine (self, line, outParser: OutputParser):
+        if not line:
+            outParser.breakLine()
+
+        lineLength = len(line)
         vTable = [
             defaultdict(lambda: defaultdict(lambda: self.zeroTagVal))
-            for _ in range(len(line) + 1)]
+            for _ in range(lineLength + 1 + 2)
+        ]
 
-        vTable[0][self._model.startTag][self._model.startTag] = self.TagVal("start", "start", 1.0)
+        vTable[0][self.startTag][self.startTag] = self.TagVal(None, "start", np.log(1.0))
 
+        maxTagVal = self.zeroTagVal
         for i, word in enumerate(line, 1):
-            for t in [self._model.startTag,] + self._allTags:
-                for r in self._allTags:
-                    vTable[i][t][r] = self._calcTagVal(vTable, i, t, r, word)
+            prevWord = line[i-2]
+            possibleTs = [self.startTag] if i == 1 else self._model.getWordTags(prevWord)
+            possibleRs = [self.startTag] if i <= 2 else self._model.getWordTags(word)
+            assert possibleTs and possibleRs
+            for t, r in product(possibleTs, possibleRs):
+                # cell = vTable[i][t][r] = self._calcTagVal(vTable, i, t, r, line)
+
+                cell = vTable[i][t][r] = max(
+            (self._calcVTableCell(vTable[i-1][it][t], it, t, r, word) for it in vTable[i-1].keys()),
+            key=lambda tv: tv.val)
+
+                if i == lineLength:
+                    maxTagVal = max(maxTagVal, cell, key=lambda tv: tv.val)
 
         m = vTable
 
-    def _calcTagVal (self, vTable, i, t, r, word):
-        # start_tag = self._model.startTag
-        # if i == 0 and t == r == start_tag:
-        #     return self.TagVal(start_tag, start_tag, val = 1)
-        # elif \
-        #         i == 0 \
-        #         or (t == r == start_tag) \
-        #         or (t != start_tag and
-        #             (i == 1 or r == start_tag)):
-        #     return self.TagVal(t, r, val = 0)
+    # def _calcTagVal (self, vTable, i, t, r, line):
+    #     assert i <= len(line)
+    #     word = line[i-1]
+    #     return max(
+    #         (self._calcVTableCell(vTable, i, it, t, r, word) for it in self._model.getWordTags(word)),
+    #         key=lambda tv: tv.val)
 
-        return max(
-            (self.TagVal(it, t, self._calcVTableVal(vTable, i, it, t, r, word))
-                for it in [self._model.startTag,] + self._allTags),
-            key = lambda tv: tv.val)
+    def _calcVTableCell (self, VCell, it, t, r, word):
+        q = self._calcQ((it, t, r))
+        e = self._calcE(word, r)
+        if 0 in (q, e):
+            return self.zeroTagVal
 
-    def _calcVTableVal (self, vTable, i, it, t, r, word):
-        return vTable[i - 1][it][t].val * self._calcQ((it, t, r)) * self._calcE(word, r)
+        val = np.sum(np.log((q, e))) + VCell.val
+        return self.TagVal(VCell, r, val)
