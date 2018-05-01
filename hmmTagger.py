@@ -90,7 +90,7 @@ class ViterbiTagger(GreedyTagger):
             possibleIts = [self.startTag] if i <= 2 else vTable[i - 1].keys()
             possibleTs = [self.startTag] if i == 1 else self._model.getWordTags(line[i - 2])
             possibleRs = self._model.getWordTags(word)
-            # assert possibleTs and possibleRs and possibleIts
+
             for t, r in product(possibleTs, possibleRs):
                 possibleValues = (self._calcVTableCell(vTable[i - 1][it][t], (it, t, r), word)
                     for it in possibleIts)
@@ -100,7 +100,6 @@ class ViterbiTagger(GreedyTagger):
                 if i == lineLength:
                     maxTagVal = max(maxTagVal, cell, key = self.TagValVal)
 
-        # print("maxTagVal: {}, {}".format(maxTagVal.tag, maxTagVal.val))
         output = []
         self._appendSelectedTags(maxTagVal, line, len(line) - 1, output)
         return output

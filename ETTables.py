@@ -71,7 +71,7 @@ class EmissionTable:
                 yield (word, tag, count)
 
     def wordExists (self, word):
-        return word in self._countersByWord
+        return word in self._countersByWord and len(self._countersByWord[word]) > 0
 
     def wordCount(self, word):
         return sum(self._countersByWord[word].values())

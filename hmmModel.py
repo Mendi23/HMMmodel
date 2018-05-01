@@ -90,7 +90,7 @@ class HmmModel:
         return list(filter(lambda tag: tag != self.startTag, self._tagsTransitions.keys()))
 
     def getWordTags(self, word):
-        tags = self._wordTags.wordTags(word)
+        tags = self._wordTags.wordTags(word.lower())
         if not tags:
             eventsTags = (self._eventsTags.wordTags(key) for key in self._eventsFilterOnWord(word))
             tags = chain(chain.from_iterable(eventsTags), self._unknownCounter.keys())
@@ -130,9 +130,9 @@ class HmmModel:
     def getNumOfEvents (self):
         return len(self._eventsActions)
 
-    #@lru_cache(maxsize=2 ** 10)
+    @lru_cache(maxsize=2 ** 10)
     def _eventsFilterOnWord (self, word):
-        return (key for key, action in self._eventsActions.items() if action.regex.search(word))
+        return [key for key, action in self._eventsActions.items() if action.regex.search(word)]
 
     def getWordEventMask (self, word):
         return tuple((bool(val.regex.search(word)) for val in self._eventsActions.values()))
