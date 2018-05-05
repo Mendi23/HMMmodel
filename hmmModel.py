@@ -30,11 +30,13 @@ class HmmModel:
         self.eventChar = eventChart = '^'
         self._eventsActions = {
             eventChart + '[0-9]+': self.WordEvent(re.compile("^[0-9]+$", re.I)),
-            eventChart + 'ought': self.WordEvent(re.compile("ought$", re.I)),
-            eventChart + 'ing': self.WordEvent(re.compile("ing$", re.I)),
+            eventChart + '_ought': self.WordEvent(re.compile("ought$", re.I)),
+            eventChart + '_ing': self.WordEvent(re.compile("ing$", re.I)),
             eventChart + 'Aa': self.WordEvent(re.compile("^[A-Z][a-z]")),
             eventChart + 'AA': self.WordEvent(re.compile("^[A-Z]+$")),
-            eventChart + '$$': self.WordEvent(re.compile("[^a-z]", re.I)),
+            eventChart + '_es': self.WordEvent(re.compile("es$", re.I)),
+            eventChart + '_ed': self.WordEvent(re.compile("ed$", re.I)),
+            eventChart + '$$': self.WordEvent(re.compile("[^a-z0-9]", re.I)),
         }
 
     def computeFromFile (self, filePath):

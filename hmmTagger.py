@@ -13,7 +13,7 @@ def scaleArray (arr, start = 0, end = 1):
 
 class GreedyTagger:
     def __init__ (self, hmmmodel: HmmModel, k = 3, endLineTag = ".",
-            QHyperParam = (0.4, 0.4, 0.2), unkSigHyperParam = None):
+            QHyperParam = (0.6, 0.3, 0.1), unkSigHyperParam = None):
         self.QHyperParam = QHyperParam
         self.unkSigHP = unkSigHyperParam
         self._k = k
@@ -68,7 +68,7 @@ class ViterbiTrigramTagger(GreedyTagger):
         return tagVal.val
 
     def __init__ (self, hmmmodel: HmmModel, endLineTag = ".",
-            QHyperParam = (0.4, 0.4, 0.2), unkSigHyperParam = None):
+            QHyperParam = (0.6, 0.3, 0.1), unkSigHyperParam = None):
         super().__init__(hmmmodel, 3, endLineTag, QHyperParam, unkSigHyperParam)
 
         self.startTag = self._model.startTag

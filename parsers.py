@@ -105,7 +105,7 @@ class InputParser:
 
 
 # class OutputParser:
-#     def __init__ (self, filePath, wordDelim = " ", tagDelim = "/", threshold = 128):
+#     def __init__ (self, filePath, wordDelim = " ", tagDelim = "/", threshold = 5):
 #         self.threshold = threshold
 #         self.filePath = filePath
 #         self.tagDelim = tagDelim
