@@ -2,22 +2,26 @@ import MEMM.Features as Features
 import parsers
 import inspect
 
+import sys
+
+def processLine(allFeatures, words, tags):
+    for i in range(len(line)):
+        featuresvals = ({"name": feature[0], "val": feature[1](words, tags, i)}
+                        for feature in allFeatures)
+
+        yield "{tag} {features}".format(
+            tag=tags[i],
+            features=' '.join("{name}={val}".format(**v) for v in featuresvals))
+
 if __name__ == '__main__':
     allFeatures = inspect.getmembers(Features, inspect.isfunction)
 
-    print("Feature names:", end="\n  ")
-    print(', '.join((feature[0] for feature in allFeatures)))
+    # inputfilename, outputfilename = sys.argv[1:]
+    inputfilename, outputfilename = "../DataSets/ass1-tagger-train", "features_file"
 
-    input("press enter to print all lines...")
+    with open(outputfilename, "w") as output:
+        for line in parsers.TagsParser().parseFile(inputfilename):
+            words, tags = tuple(zip(*line))
+            for out in processLine(allFeatures, words, tags):
+                output.write(f"{out}\n")
 
-    for line in parsers.TagsParser().parseFile("../DataSets/ass1-tagger-train"):
-        words, tags = tuple(zip(*line))
-
-        for i in range(len(line)):
-            featuresvals = filter(lambda v: v["val"],
-                                  ({"name": feature[0], "val": feature[1](words, tags, i)}
-                                   for feature in allFeatures))
-
-            print("{tag} {features}".format(
-                tag=tags[i],
-                features=' '.join(v["name"]+"="+v["val"] for v in featuresvals)))
