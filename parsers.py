@@ -92,40 +92,51 @@ class OutParser:
         self.fd.close()
 
 
+class InputParser:
+    def __init__(self):
+        self.startTag = "start"
 
-class OutputParser:
-    def __init__ (self, filePath, wordDelim = " ", tagDelim = "/", threshold = 128):
-        self.threshold = threshold
-        self.filePath = filePath
-        self.tagDelim = tagDelim
-        self.wordDelim = wordDelim
-        self.first = True
-        self.buff = deque()
+    def getTriplets(self, filePath):
+        with open(filePath) as f:
+            startTags = "{} {}".format(self.startTag)
+            for line in f:
+                line = startTags + line
 
-    def __enter__ (self):
-        self.fd = open(self.filePath, 'w')
-        return self
 
-    def __exit__ (self, exc_type, exc_val, exc_tb):
-        self.flush()
-        self.fd.close()
 
-    def append (self, word, tag):
-        if not self.first:
-            self.buff.append(self.wordDelim)
-        self.buff.append(f"{word}{self.tagDelim}{tag}")
-        self.first = False
-        self._flushIfNeeded()
-
-    def breakLine (self):
-        self.first = True
-        self.buff.append("\n")
-        self._flushIfNeeded()
-
-    def flush (self):
-        self.fd.write(''.join(self.buff))
-        self.buff = deque()
-
-    def _flushIfNeeded (self):
-        if len(self.buff) > self.threshold:
-            self.flush()
+# class OutputParser:
+#     def __init__ (self, filePath, wordDelim = " ", tagDelim = "/", threshold = 128):
+#         self.threshold = threshold
+#         self.filePath = filePath
+#         self.tagDelim = tagDelim
+#         self.wordDelim = wordDelim
+#         self.first = True
+#         self.buff = deque()
+#
+#     def __enter__ (self):
+#         self.fd = open(self.filePath, 'w')
+#         return self
+#
+#     def __exit__ (self, exc_type, exc_val, exc_tb):
+#         self.flush()
+#         self.fd.close()
+#
+#     def append (self, word, tag):
+#         if not self.first:
+#             self.buff.append(self.wordDelim)
+#         self.buff.append(f"{word}{self.tagDelim}{tag}")
+#         self.first = False
+#         self._flushIfNeeded()
+#
+#     def breakLine (self):
+#         self.first = True
+#         self.buff.append("\n")
+#         self._flushIfNeeded()
+#
+#     def flush (self):
+#         self.fd.write(''.join(self.buff))
+#         self.buff = deque()
+#
+#     def _flushIfNeeded (self):
+#         if len(self.buff) > self.threshold:
+#             self.flush()

@@ -1,6 +1,6 @@
-from time import time
+#from time import time
 
-from hmmTagger import ViterbiTagger
+from hmmTagger import ViterbiTrigramTagger
 from parsers import TestParser, OutParser
 
 if __name__ == '__main__':
@@ -12,16 +12,12 @@ if __name__ == '__main__':
 
     input_file, q_mle, e_mle, out_file, extra = argv[1:]
 
-    starttime = time()
+    #starttime = time()
     x = HmmModel(2)
     x.loadTransitions(q_mle, e_mle)
 
-    tagger = ViterbiTagger(x)
+    tagger = ViterbiTrigramTagger(x)
     with OutParser(out_file) as outF:
-         # t = "`` Such agency ` self-help ' borrowing is unauthorized and expensive , far more expensive than direct Treasury borrowing , '' said Rep. Fortney Stark ( D. , Calif. ) , the bill 's chief sponsor ."
-        # inp = t.split(" ")
-        # out = tagger.tagLine(inp)
-        # print (out)
         for wordsLine in TestParser().parseFile(input_file):
             outF.printLine(tagger.tagLine(wordsLine))
-    print("total {}s".format(time() - starttime))
+    #print("total {}s".format(time() - starttime))

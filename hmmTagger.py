@@ -3,7 +3,6 @@ from itertools import product
 
 import numpy as np
 from hmmModel import HmmModel
-from parsers import OutputParser
 from functools import lru_cache
 
 
@@ -19,7 +18,7 @@ class GreedyTagger:
         self.unkSigHP = unkSigHyperParam
         self._k = k
         self._model = hmmmodel
-        self._allTags = hmmmodel.getAllTags()
+        self._allTags = list(hmmmodel.getAllTags())
         self._endLineTag = endLineTag
         self._startQ = [self._model.startTag] * self._k
         self._queue = deque(self._startQ)
@@ -60,7 +59,7 @@ class GreedyTagger:
                            (not self._model.wordExists(word),)) * self.unkSigHP)
 
 
-class ViterbiTagger(GreedyTagger):
+class ViterbiTrigramTagger(GreedyTagger):
     TagVal = namedtuple("TagVal", "prev tag val")
     zeroTagVal = TagVal(None, "empty", -np.inf)
 
@@ -68,9 +67,9 @@ class ViterbiTagger(GreedyTagger):
     def TagValVal (tagVal):
         return tagVal.val
 
-    def __init__ (self, hmmmodel: HmmModel, k = 3, endLineTag = ".",
+    def __init__ (self, hmmmodel: HmmModel, endLineTag = ".",
             QHyperParam = (0.4, 0.4, 0.2), unkSigHyperParam = None):
-        super().__init__(hmmmodel, k, endLineTag, QHyperParam, unkSigHyperParam)
+        super().__init__(hmmmodel, 3, endLineTag, QHyperParam, unkSigHyperParam)
 
         self.startTag = self._model.startTag
 
