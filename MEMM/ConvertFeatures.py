@@ -6,7 +6,7 @@ def transform_features_2(fname, fvec_out, fmap_out):
     tags_dict = {}
     features_dict = {}
     t,f = 1, 1
-    with open(features_file) as fIn, \
+    with open(fname) as fIn, \
         open(fvec_out, "w") as fOut, \
         open(fmap_out, "w") as mapOut:
         for line in fIn:
