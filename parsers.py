@@ -33,6 +33,10 @@ class TagsParser:
                    filter(lambda pair: pair != self.endLineToken,
                           self._parseFileWords(filePath)))
 
+    def parseAllFromFile (self, filePath):
+        return filter(lambda pair: pair != self.endLineToken,
+                          self._parseFileWords(filePath))
+
     def _parseFileWords (self, filePath):
         with open(filePath) as f:
             for line in f:

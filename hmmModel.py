@@ -1,7 +1,7 @@
 import re
 from collections import Counter
 from functools import lru_cache
-from itertools import chain
+from itertools import chain, product
 
 import numpy as np
 
@@ -30,13 +30,22 @@ class HmmModel:
         self.eventChar = eventChart = '^'
         self._eventsActions = {
             eventChart + '[0-9]+': self.WordEvent(re.compile("^[0-9]+$", re.I)),
-            eventChart + '_ought': self.WordEvent(re.compile("ought$", re.I)),
             eventChart + '_ing': self.WordEvent(re.compile("ing$", re.I)),
-            eventChart + 'Aa': self.WordEvent(re.compile("^[A-Z][a-z]")),
-            eventChart + 'AA': self.WordEvent(re.compile("^[A-Z]+$")),
+            eventChart + '_ought': self.WordEvent(re.compile("ought$", re.I)),
+            eventChart + '_ate': self.WordEvent(re.compile("ate$", re.I)),
             eventChart + '_es': self.WordEvent(re.compile("es$", re.I)),
             eventChart + '_ed': self.WordEvent(re.compile("ed$", re.I)),
+            eventChart + 'en_': self.WordEvent(re.compile("^en", re.I)),
+            eventChart + 'em_': self.WordEvent(re.compile("^em", re.I)),
+            eventChart + '_ous': self.WordEvent(re.compile("ous$", re.I)),
+            eventChart + '_cal': self.WordEvent(re.compile("cal$", re.I)),
+            eventChart + '_ish': self.WordEvent(re.compile("ish$", re.I)),
+            eventChart + 'adj_': self.WordEvent(re.compile("^(un|in|non)", re.I)),
+            eventChart + 'AA': self.WordEvent(re.compile("^[A-Z]+$")),
+            eventChart + 'Mr.': self.WordEvent(re.compile("[a-z]\.$", re.I)),
+            eventChart + 'Aa': self.WordEvent(re.compile("^[A-Z][a-z]")),
             eventChart + '$$': self.WordEvent(re.compile("[^a-z0-9]", re.I)),
+            eventChart + '[0-9]': self.WordEvent(re.compile("[0-9]", re.I)),
         }
 
     def computeFromFile (self, filePath):
@@ -97,6 +106,39 @@ class HmmModel:
             eventsTags = (self._eventsTags.wordTags(key) for key in self._eventsFilterOnWord(word))
             tags = chain(chain.from_iterable(eventsTags), self._unknownCounter.keys())
         return set(tags)
+
+    def deleted_interpolation(self):
+        getTagValue = self._tagsTransitions.getValue
+        lambda1 = lambda2 = lambda3 = 0
+
+        tags = tuple(self.getAllTags())
+        for a,b,c in product(tags, tags, tags):
+            v = getTagValue([a,b,c])
+            if v > 0:
+                try:
+                    c1 = float(v-1)/(getTagValue([a, b])-1)
+                except ZeroDivisionError:
+                    c1 = 0
+                try:
+                    c2 = float(getTagValue([b, c])-1)/(getTagValue([b,])-1)
+                except ZeroDivisionError:
+                    c2 = 0
+                try:
+                    c3 = float(getTagValue([c,])-1)/(getTagValue()-1)
+                except ZeroDivisionError:
+                    c3 = 0
+
+                k = np.argmax([c1, c2, c3])
+                if k == 0:
+                    lambda3 += v
+                if k == 1:
+                    lambda2 += v
+                if k == 2:
+                    lambda1 += v
+
+        weights = [lambda3, lambda2, lambda1]
+        norm_w = [float(a)/sum(weights) for a in weights]
+        return norm_w
 
     @lru_cache(maxsize=2 ** 17)
     def getQ (self, params, hyperParam):

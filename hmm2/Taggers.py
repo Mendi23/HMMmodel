@@ -13,9 +13,7 @@ def scaleArray (arr, start = 0, end = 1):
 
 class GreedyTagger:
     def __init__ (self, hmmmodel: HmmModel, k = 3, endLineTag = ".",
-            QHyperParam = (0.6, 0.3, 0.1), unkSigHyperParam = None):
-        self.QHyperParam = QHyperParam
-        self.unkSigHP = unkSigHyperParam
+            QHyperParam = None, unkSigHyperParam = None):
         self._k = k
         self._model = hmmmodel
         self._allTags = list(hmmmodel.getAllTags())
@@ -23,9 +21,14 @@ class GreedyTagger:
         self._startQ = [self._model.startTag] * self._k
         self._queue = deque(self._startQ)
 
+        if not QHyperParam:
+            QHyperParam = [0.58, 0.28, 0.13]
+        self.QHyperParam = tuple(scaleArray(QHyperParam))
         if not unkSigHyperParam:
-            self.unkSigHP = (2,) * hmmmodel.getNumOfEvents() + (1,)
-        self.unkSigHP = scaleArray(self.unkSigHP)
+            eventsLen = hmmmodel.getNumOfEvents()
+            # unkSigHyperParam = tuple(np.linspace(3, 2, eventsLen)) + (1,)
+            unkSigHyperParam = (2,) * eventsLen + (1,)
+        self.unkSigHP = np.array(unkSigHyperParam)
 
     def tagLine (self, wordsLine):
         output = []
@@ -68,7 +71,7 @@ class ViterbiTrigramTagger(GreedyTagger):
         return tagVal.val
 
     def __init__ (self, hmmmodel: HmmModel, endLineTag = ".",
-            QHyperParam = (0.6, 0.3, 0.1), unkSigHyperParam = None):
+            QHyperParam = None, unkSigHyperParam = None):
         super().__init__(hmmmodel, 3, endLineTag, QHyperParam, unkSigHyperParam)
 
         self.startTag = self._model.startTag
