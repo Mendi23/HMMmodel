@@ -1,6 +1,7 @@
 from functools import reduce
 from collections import defaultdict, Iterable, Counter
 
+
 class Tree(defaultdict):
     def __init__ (self):
         super(Tree, self).__init__(Tree)
@@ -73,10 +74,10 @@ class EmissionTable:
     def wordExists (self, word):
         return word in self._countersByWord and len(self._countersByWord[word]) > 0
 
-    def wordCount(self, word):
+    def wordCount (self, word):
         return sum(self._countersByWord[word].values())
 
-    def wordTags(self, word):
+    def wordTags (self, word):
         if self.wordExists(word):
             return self._countersByWord[word].keys()
         return None

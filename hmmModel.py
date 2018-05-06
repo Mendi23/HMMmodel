@@ -16,7 +16,7 @@ class HmmModel:
             self.count = count
 
     def __init__ (self, nOrder = 2, unkThreshold = 5):
-        self._tagsTransitions = NgramTransitions(k = nOrder + 1)
+        self._tagsTransitions = NgramTransitions(k=nOrder + 1)
         self._wordTags = EmissionTable()
         self._eventsTags = EmissionTable()
         self._unknownCounter = Counter()
@@ -84,9 +84,9 @@ class HmmModel:
 
     def writeE (self, filePath):
         StorageParser().Save(filePath,
-            chain(self._wordTags.getAllItems(),
-                self._eventsTags.getAllItems(),
-                ((self.unknownToken,) + keyVal for keyVal in self._unknownCounter.items())))
+                             chain(self._wordTags.getAllItems(),
+                                   self._eventsTags.getAllItems(),
+                                   ((self.unknownToken,) + keyVal for keyVal in self._unknownCounter.items())))
 
     def getAllTags (self):
         return filter(lambda tag: tag != self.startTag, self._tagsTransitions.keys())
@@ -98,7 +98,7 @@ class HmmModel:
             tags = chain(chain.from_iterable(eventsTags), self._unknownCounter.keys())
         return set(tags)
 
-    @lru_cache(maxsize = 2 ** 17)
+    @lru_cache(maxsize=2 ** 17)
     def getQ (self, params, hyperParam):
         """
         compute q(t_n|t_1,t_2,...t_n-1)
@@ -108,10 +108,10 @@ class HmmModel:
         """
         getTagValue = self._tagsTransitions.getValue
         countValues = (getTagValue(params[i:]) / (getTagValue(params[i:-1]) or 1)
-            for i in range(min(self.nOrder + 1, len(params))))
+                       for i in range(min(self.nOrder + 1, len(params))))
         return sum(hyperParam * np.fromiter(countValues, float))
 
-    @lru_cache(maxsize = 2 ** 12)
+    @lru_cache(maxsize=2 ** 12)
     def getE (self, w, t):
         """ compute e(w|t) """
         return self._wordTags.getCount(w.lower(), t) / (self._tagsTransitions.getValue((t,)) or 1)

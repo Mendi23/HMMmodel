@@ -53,7 +53,7 @@ class TestParser(TagsParser):
     def __init__ (self, wordDelim = " "):
         super().__init__(wordDelim=wordDelim, newLineDelim=True, stopTags=())
 
-    def processWord(self, word):
+    def processWord (self, word):
         return word
 
 
@@ -74,6 +74,7 @@ class StorageParser:
             for tags in items:
                 f.write(f"{self.wordDelim.join(tags[:-1])}{self.valueDelim}{tags[-1]}\n")
 
+
 class OutParser:
     def __init__ (self, filePath, wordDelim = " ", tagDelim = "/"):
         self.filePath = filePath
@@ -84,7 +85,7 @@ class OutParser:
         self.fd = open(self.filePath, 'w')
         return self
 
-    def printLine(self, resultLine):
+    def printLine (self, resultLine):
         self.fd.write(self.wordDelim.join(self.tagDelim.join(wordTag) for wordTag in resultLine))
         self.fd.write("\n")
 
@@ -93,50 +94,11 @@ class OutParser:
 
 
 class InputParser:
-    def __init__(self):
+    def __init__ (self):
         self.startTag = "start"
 
-    def getTriplets(self, filePath):
+    def getTriplets (self, filePath):
         with open(filePath) as f:
             startTags = "{} {}".format(self.startTag)
             for line in f:
                 line = startTags + line
-
-
-
-# class OutputParser:
-#     def __init__ (self, filePath, wordDelim = " ", tagDelim = "/", threshold = 5):
-#         self.threshold = threshold
-#         self.filePath = filePath
-#         self.tagDelim = tagDelim
-#         self.wordDelim = wordDelim
-#         self.first = True
-#         self.buff = deque()
-#
-#     def __enter__ (self):
-#         self.fd = open(self.filePath, 'w')
-#         return self
-#
-#     def __exit__ (self, exc_type, exc_val, exc_tb):
-#         self.flush()
-#         self.fd.close()
-#
-#     def append (self, word, tag):
-#         if not self.first:
-#             self.buff.append(self.wordDelim)
-#         self.buff.append(f"{word}{self.tagDelim}{tag}")
-#         self.first = False
-#         self._flushIfNeeded()
-#
-#     def breakLine (self):
-#         self.first = True
-#         self.buff.append("\n")
-#         self._flushIfNeeded()
-#
-#     def flush (self):
-#         self.fd.write(''.join(self.buff))
-#         self.buff = deque()
-#
-#     def _flushIfNeeded (self):
-#         if len(self.buff) > self.threshold:
-#             self.flush()
