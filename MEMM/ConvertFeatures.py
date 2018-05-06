@@ -1,37 +1,34 @@
 import sys
-import pandas
-from sklearn.preprocessing import MultiLabelBinarizer, LabelEncoder
+from collections import deque
+from time import time
 
-
-def train_features(features_file):
-    tags_set, features_set = set(), set()
-    with open(features_file) as fIn:
+def transform_features_2(fname, fvec_out, fmap_out):
+    tags_dict = {}
+    features_dict = {}
+    t,f = 1, 1
+    with open(features_file) as fIn, \
+        open(fvec_out, "w") as fOut, \
+        open(fmap_out, "w") as mapOut:
         for line in fIn:
             splitted = line.split()
             tag, features = splitted[0], splitted[1:]
-            tags_set.add(tag)
+
+            if tags_dict.setdefault(tag, t) == t:
+                t += 1
+            out_line = deque([f"{tags_dict[tag]}"])
+
             for feature in features:
-                features_set.add(feature)
-    tags_encoder = LabelEncoder()
-    features_encoder = LabelEncoder()
-    tags_encoder.fit(list(tags_set))
-    features_encoder.fit(list(features_set))
-    return tags_encoder, features_encoder
+                if features_dict.setdefault(feature, f) == f:
+                    mapOut.write(f"{feature} {f}\n")
+                    f += 1
+                out_line.append(f"{features_dict[feature]}:1")
 
+            fOut.write(f"{' '.join(out_line)}\n")
 
-def transform_features (tags_encoder, features_encoder, features_file, feature_vecs_file, feature_map_file):
-    with open(features_file) as fIn, open(feature_vecs_file, "w") as fOut:
-        for line in fIn:
-            splitted = line.split()
-            tag, features = splitted[0], splitted[1:]
-            fOut.write("{tagnum} {features}\n".format(
-                tagnum=tags_encoder.transform([tag])[0],
-                features=' '.join((f"{fnum}:1" for fnum in features_encoder.transform(features)))
-            ))
+        mapOut.write("-----Tags Mapping-----\n")
+        for tag, tag_num in tags_dict.items():
+            mapOut.write(f"{tag} {tag_num}\n")
 
-    with open(feature_map_file, "w") as fOut:
-        for name in features_encoder.classes_:
-            fOut.write(f"{name} {features_encoder.transform([name])[0]}\n")
 
 
 if __name__ == '__main__':
@@ -39,6 +36,5 @@ if __name__ == '__main__':
     # features_file, feature_vecs_file, feature_map_file = sys.argv[1:]
     features_file, feature_vecs_file, feature_map_file = "features_file", "feature_vecs_file", "feature_map_file"
 
-    tags_encoder, features_encoder = train_features(features_file)
+    transform_features_2(features_file, feature_vecs_file, feature_map_file)
 
-    transform_features(tags_encoder, features_encoder, features_file, feature_vecs_file, feature_map_file)
