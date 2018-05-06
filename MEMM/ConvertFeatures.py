@@ -45,8 +45,9 @@ def transform_features_2(fname, fvec_out, fmap_out):
 
 if __name__ == '__main__':
 
-    # features_file, feature_vecs_file, feature_map_file = sys.argv[1:]
-    features_file, feature_vecs_file, feature_map_file = "features_file", "feature_vecs_file", "feature_map_file"
+    features_file, feature_vecs_file, feature_map_file = sys.argv[1:]
+    #features_file, feature_vecs_file, feature_map_file = "features_file", "feature_vecs_file",
+    # "feature_map_file"
 
     transform_features_2(features_file, feature_vecs_file, feature_map_file)
 
