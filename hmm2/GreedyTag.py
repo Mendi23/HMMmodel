@@ -8,7 +8,7 @@ if root_path not in sys.path:
 # -------------------------
 
 
-from hmm2.hmmTagger import GreedyTagger
+from hmm2.Taggers import GreedyTagger
 from parsers import TestParser, OutParser
 
 

@@ -24,8 +24,7 @@ def processLine(allFeatures, words, tags):
 if __name__ == '__main__':
     allFeatures = inspect.getmembers(Features, inspect.isfunction)
 
-    # inputfilename, outputfilename = sys.argv[1:]
-    inputfilename, outputfilename = "../DataSets/ass1-tagger-train", "features_file"
+    inputfilename, outputfilename = sys.argv[1:]
 
     with open(outputfilename, "w") as output:
         for line in parsers.TagsParser().parseFile(inputfilename):
