@@ -1,6 +1,6 @@
 #from time import time
 
-from hmmTagger import ViterbiTrigramTagger
+from hmm2.hmmTagger import ViterbiTrigramTagger
 from parsers import TestParser, OutParser
 
 if __name__ == '__main__':

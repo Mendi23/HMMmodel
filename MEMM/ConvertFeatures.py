@@ -1,6 +1,14 @@
+# for importing local modules
 import sys
+from inspect import currentframe, getfile as i_getfile
+from os.path import realpath, abspath, split as p_split, join as p_join
+root_path = realpath(abspath(p_join(p_split(i_getfile(currentframe()))[0], "..")))
+if root_path not in sys.path:
+     sys.path.insert(0, root_path)
+# -------------------------
+
 from collections import deque
-from time import time
+
 
 def transform_features_2(fname, fvec_out, fmap_out):
     tags_dict = {}
@@ -15,15 +23,19 @@ def transform_features_2(fname, fvec_out, fmap_out):
 
             if tags_dict.setdefault(tag, t) == t:
                 t += 1
-            out_line = deque([f"{tags_dict[tag]}"])
 
             for feature in features:
                 if features_dict.setdefault(feature, f) == f:
                     mapOut.write(f"{feature} {f}\n")
                     f += 1
-                out_line.append(f"{features_dict[feature]}:1")
 
-            fOut.write(f"{' '.join(out_line)}\n")
+            sorted_features = sorted((features_dict[feature] for feature in features))
+            fOut.write("{tag} {features}\n".format(
+                tag=tags_dict[tag],
+                features=''.join((
+                    f"{num}:1" for num in sorted_features
+                ))
+            ))
 
         mapOut.write("-----Tags Mapping-----\n")
         for tag, tag_num in tags_dict.items():
