@@ -9,4 +9,4 @@ if __name__ == '__main__':
     lr.fit(x_train, y_train)
 
     with open(model_file, "w") as output:
-        output.write(lr.get_params())
+        output.write(str(lr.get_params()))
