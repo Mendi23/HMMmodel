@@ -12,9 +12,11 @@ if root_path not in sys.path:
 import MEMM.Features as Features
 import parsers
 import inspect
+from time import time
 
 
 if __name__ == '__main__':
+    starttime = time()
     inputfilename, outputfilename = sys.argv[1:]
     t = MemmTagger(inspect.getmembers(Features, inspect.isfunction))
 
@@ -22,3 +24,4 @@ if __name__ == '__main__':
         for line in parsers.TagsParser().parseFile(inputfilename):
             for tag, features in t.extractFeaturesFromTaggedLine(line):
                 output.write(f"{parsers.MappingParser.TagFeatToString(tag, features)}\n")
+    print(time()-starttime)

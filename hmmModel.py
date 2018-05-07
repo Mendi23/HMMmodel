@@ -10,7 +10,7 @@ from parsers import TagsParser, StorageParser
 
 
 class HmmModel:
-    class WordEvent:
+    class _WordEvent:
         def __init__ (self, regex, count = 0):
             self.regex = regex
             self.count = count
@@ -25,27 +25,27 @@ class HmmModel:
         self.unkThreshold = unkThreshold
 
         self.endTag = "*END*"
-        self.startTag = "start"
+        self.startTag = "*start*"
         self.unknownToken = "*UNK*"
         self.eventChar = eventChart = '^'
         self._eventsActions = {
-            eventChart + '[0-9]+': self.WordEvent(re.compile("^[0-9]+$", re.I)),
-            eventChart + '_ing': self.WordEvent(re.compile("ing$", re.I)),
-            eventChart + '_ought': self.WordEvent(re.compile("ought$", re.I)),
-            eventChart + '_ate': self.WordEvent(re.compile("ate$", re.I)),
-            eventChart + '_es': self.WordEvent(re.compile("es$", re.I)),
-            eventChart + '_ed': self.WordEvent(re.compile("ed$", re.I)),
-            eventChart + 'en_': self.WordEvent(re.compile("^en", re.I)),
-            eventChart + 'em_': self.WordEvent(re.compile("^em", re.I)),
-            eventChart + '_ous': self.WordEvent(re.compile("ous$", re.I)),
-            eventChart + '_cal': self.WordEvent(re.compile("cal$", re.I)),
-            eventChart + '_ish': self.WordEvent(re.compile("ish$", re.I)),
-            eventChart + 'adj_': self.WordEvent(re.compile("^(un|in|non)", re.I)),
-            eventChart + 'AA': self.WordEvent(re.compile("^[A-Z]+$")),
-            eventChart + 'Mr.': self.WordEvent(re.compile("[a-z]\.$", re.I)),
-            eventChart + 'Aa': self.WordEvent(re.compile("^[A-Z][a-z]")),
-            eventChart + '$$': self.WordEvent(re.compile("[^a-z0-9]", re.I)),
-            eventChart + '[0-9]': self.WordEvent(re.compile("[0-9]", re.I)),
+            eventChart + '[0-9]+': self._WordEvent(re.compile("^[0-9]+$", re.I)),
+            eventChart + '_ing': self._WordEvent(re.compile("ing$", re.I)),
+            eventChart + '_ought': self._WordEvent(re.compile("ought$", re.I)),
+            eventChart + '_ate': self._WordEvent(re.compile("ate$", re.I)),
+            eventChart + '_es': self._WordEvent(re.compile("es$", re.I)),
+            eventChart + '_ed': self._WordEvent(re.compile("ed$", re.I)),
+            eventChart + 'en_': self._WordEvent(re.compile("^en", re.I)),
+            eventChart + 'em_': self._WordEvent(re.compile("^em", re.I)),
+            eventChart + '_ous': self._WordEvent(re.compile("ous$", re.I)),
+            eventChart + '_cal': self._WordEvent(re.compile("cal$", re.I)),
+            eventChart + '_ish': self._WordEvent(re.compile("ish$", re.I)),
+            eventChart + 'adj_': self._WordEvent(re.compile("^(un|in|non)", re.I)),
+            eventChart + 'AA': self._WordEvent(re.compile("^[A-Z]+$")),
+            eventChart + 'Mr.': self._WordEvent(re.compile("[a-z]\.$", re.I)),
+            eventChart + 'Aa': self._WordEvent(re.compile("^[A-Z][a-z]")),
+            eventChart + '$$': self._WordEvent(re.compile("[^a-z0-9]", re.I)),
+            eventChart + '[0-9]': self._WordEvent(re.compile("[0-9]", re.I)),
         }
 
     def computeFromFile (self, filePath):
@@ -163,11 +163,11 @@ class HmmModel:
 
     @lru_cache()
     def getEventTagRatio (self, eventKey, tag):
-        return self._eventsTags.getCount(eventKey, tag) / (self._eventsActions[eventKey].count or 1)
-
+        return self._eventsTags.getCount(eventKey, tag) / (self._tagsTransitions.getValue((tag,
+                                                                                           )) or 1)
     @lru_cache()
     def getUnknownTagRatio (self, tag):
-        return self._unknownCounter[tag] / (self._totalUnknown or 1)
+        return self._unknownCounter[tag] / (self._tagsTransitions.getValue((tag,)) or 1)
 
     @lru_cache()
     def getEventRatioTuple (self, tag):

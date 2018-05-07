@@ -16,7 +16,7 @@ class MemmTagger:
         self.features_dict = {}
         self.t_i, self.f_i = 1, 1
         self.model = model
-        self.tags = []
+        self.tags = [None]
 
     def extractFeatures(self, words, tags, i):
         assert self._featuresFuncs
