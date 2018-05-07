@@ -29,7 +29,7 @@ class HmmModel:
         self.unknownToken = "*UNK*"
         self.eventChar = eventChart = '^'
         self._eventsActions = {
-            eventChart + 'num': self._WordEvent(re.compile("^[0-9]+(\.[0-9]+)?$", re.I)),
+            eventChart + 'num': self._WordEvent(re.compile("^[0-9\.]+$", re.I)),
             eventChart + '[0-9]': self._WordEvent(
                 re.compile(r"([0-9][^0-9\.]|[^0-9\.][0-9])", re.I)),
             eventChart + '_ought': self._WordEvent(re.compile("ought$", re.I)),

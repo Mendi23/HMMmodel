@@ -48355,7 +48355,9 @@ hardball NN	1
 ^$$ WDT	1
 ^$$ UH	1
 ^$$ RBR	1
-^num CD	22203
+^num CD	22208
+^num .	39020
+^num :	192
 ^num NNP	11
 ^num VBN	1
 ^num LS	20

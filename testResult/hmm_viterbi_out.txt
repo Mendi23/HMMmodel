@@ -1275,7 +1275,7 @@ TREASURY/NNP BILLS/NNS :/: Results/NNS of/IN the/DT Monday/NNP ,/, October/NNP 1
 FEDERAL/NNP HOME/NNP LOAN/NNP MORTGAGE/NNP CORP/NNP ./. (/( Freddie/NNP Mac/NNP )/) :/: Posted/VBN yields/NNS on/IN 30-year/JJ mortgage/NN commitments/NNS for/IN delivery/NN within/IN 30/CD days./NN
 9.83/CD %/NN ,/, standard/JJ conventional/JJ fixedrate/JJ mortgages/NNS ;/: 7.875/CD %/NN ,/, 2/CD %/NN rate/NN capped/VBD one-year/JJ adjustable/JJ rate/NN mortgages/NNS ./.
 Source/NN :/: Telerate/NNP Systems/NNPS Inc/NNP ./.
-FEDERAL/NNP NATIONAL/NNP MORTGAGE/NNP ASSOCIATION/NNP (/( Fannie/NNP Mae/NNP )/) :/: Posted/VBN yields/NNS on/IN 30/CD year/NN mortgage/NN commitments/NNS for/IN delivery/NN within/IN 30/CD days/NNS (/( priced/VBN at/IN par/NN )/) .9.82/, %/NN ,/, standard/JJ conventional/JJ fixed/JJ rate-mortgages/NNS ;/: 8.70/CD %/NN ,/, 6/2/CD rate/NN capped/VBD one-year/JJ adjustable/JJ rate/NN mortgages/NNS ./.
+FEDERAL/NNP NATIONAL/NNP MORTGAGE/NNP ASSOCIATION/NNP (/( Fannie/NNP Mae/NNP )/) :/: Posted/VBN yields/NNS on/IN 30/CD year/NN mortgage/NN commitments/NNS for/IN delivery/NN within/IN 30/CD days/NNS (/( priced/VBN at/IN par/NN )/) .9.82/CD %/NN ,/, standard/JJ conventional/JJ fixed/JJ rate-mortgages/NNS ;/: 8.70/CD %/NN ,/, 6/2/CD rate/NN capped/VBD one-year/JJ adjustable/JJ rate/NN mortgages/NNS ./.
 Source/NN :/: Telerate/NNP Systems/NNPS Inc/NNP ./.
 MERRILL/NNP LYNCH/NNP READY/NNP ASSETS/NNPS TRUST/NNP :/: 8.49/CD %/NN ./.
 Annualized/VBN average/JJ rate/NN of/IN return/NN after/IN expenses/NNS for/IN the/DT past/JJ 30/CD days/NNS ;/: not/RB a/DT forecast/NN of/IN future/JJ returns/NNS ./.

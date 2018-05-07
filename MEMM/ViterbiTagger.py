@@ -1,19 +1,27 @@
 
 import sys
+from timeit import timeit
+
+from utils.measuretime import measure
 from utils.parsers import MappingParser, TestParser, OutParser
-from MEMM.MEMMTaggers import ViterbiTrigramTagger
+from MEMM.MEMMTaggers import ViterbiTrigramTagger, ViterbiTrigramTagger_other
 import MEMM.Features as Features
 import inspect
 
-if __name__ == '__main__':
-    input_file_name, modelname, feature_map_file, out_file_name = sys.argv[1:]
-    tagger = ViterbiTrigramTagger(inspect.getmembers(Features, inspect.isfunction))
-    tagger.loadModelFromFile(modelname)
-    with open(feature_map_file) as mapf:
-        featuresDict, tagsDict = tuple(MappingParser.getDictsFromFile(feature_map_file))
-        tagger.setParams(tagsDict,featuresDict)
+@measure
+def main(inputf, modelfile, mapfile, outfilename, TAGGER=ViterbiTrigramTagger_other):
+    tagger = TAGGER(inspect.getmembers(Features, inspect.isfunction))
+    tagger.loadModelFromFile(modelfile)
+    featuresDict, tagsDict = tuple(MappingParser.getDictsFromFile(mapfile))
+    tagger.setParams(tagsDict, featuresDict)
 
-
-    with OutParser(out_file_name) as outF:
-        for wordsLine in TestParser().parseFile(input_file_name):
+    with OutParser(outfilename) as outF:
+        for i, wordsLine in enumerate(TestParser().parseFile(inputf)):
             outF.printLine(tagger.tagLine(wordsLine))
+            if i > 5: return
+
+
+if __name__ == '__main__':
+    input_file_name, modelname, feature_map_file, out_file_name = sys.argv[1:5]
+
+    main(input_file_name, modelname, feature_map_file, out_file_name)

@@ -103,7 +103,7 @@ class MappingParser:
 
     @staticmethod
     def TagFeatToString (tag, features):
-        return f"{tag}{MappingParser.delim}{features}"
+        return f"{tag}{MappingParser.delim}{' '.join(features)}"
 
     @staticmethod
     def TagVecToString (tag, featVect):
