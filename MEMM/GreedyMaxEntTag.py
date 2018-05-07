@@ -8,7 +8,6 @@ if __name__ == '__main__':
     input_file_name, modelname, feature_map_file, out_file_name = sys.argv[1:]
     tagger = GreedyTagger(inspect.getmembers(Features, inspect.isfunction))
     tagger.loadModelFromFile(modelname)
-
     featuresDict, tagsDict = tuple(MappingParser.getDictsFromFile(feature_map_file))
     tagger.setParams(tagsDict, featuresDict)
 
