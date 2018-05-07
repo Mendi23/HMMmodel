@@ -9,6 +9,11 @@ import scipy.sparse as sp
 import numpy as np
 import pickle
 
+from numpy.core.multiarray import ndarray
+from sklearn.linear_model import LogisticRegression
+
+from hmm2.Taggers import ViterbiTrigramTaggerAbstract
+
 
 class MemmTagger:
 
@@ -17,7 +22,7 @@ class MemmTagger:
         self.tags_dict = {}
         self.features_dict = {}
         self.t_i, self.f_i = 1, 1
-        self.model = model
+        self.model: LogisticRegression = model
         self.tags = [None]
 
     def extractFeatures(self, words, tags, i):
@@ -106,7 +111,8 @@ class GreedyTagger(MemmTagger):
         return zip(line, tags)
 
 
-class ViterbiTrigramTagger(GreedyTagger):
+
+class ViterbiTrigramTagger_NOGOOD:
     TagVal = namedtuple("TagVal", "prev tag val")
     zeroTagVal = TagVal(None, "empty", -np.inf)
     startTagVal = TagVal(None, '', np.log(1.0))
@@ -126,36 +132,44 @@ class ViterbiTrigramTagger(GreedyTagger):
 
         maxTagVal = self.zeroTagVal
         for i in range(len(line)):
-            for prevTags in product(self.tags, self.tags, [None]):
-                if None in prevTags[:-1]:
+            for it, t in product(self.tags, self.tags):
+                if None in (t, it):
                     continue
-                features_vec = self.transform(self.extractFeatures(line, prevTags, i))
+
+                tags_window = {i - 2: it, i - 1: t, i: None}
+                features_vec = self.transform(self.extractFeatures(line, tags_window, i))
                 all_props = self.model.predict_log_proba(features_vec)[0]
 
-                for tag, val in zip(self.tags, all_props):
-                    prevTags[-1] = tag
-                    t = prevTags[-2] if i > 0 else self.startTagVal.tag
-                    cell = vTable[i][t][tag] = self._calcVTableCell(vTable, i, prevTags, val)
+                max_i: int = np.argmax(all_props)
+                tag = self.tags[max_i + 1]
+                val = all_props[max_i]
+                cell = self._setVTableCell(vTable, i, (it, t, tag,), val)
 
-                    if i == len(line) - 1:
-                        maxTagVal = max(maxTagVal, cell, key=self.TagValVal)
+                if i == len(line) - 1:
+                    maxTagVal = max(maxTagVal, cell, key=self.TagValVal)
 
         output = []
         self._appendSelectedTags(maxTagVal, line, len(line) - 1, output)
         return output
 
     @staticmethod
-    def _calcVTableCell(vTable, i, tagsTriplet, val):
+    def _setVTableCell(vTable, i, tagsTriplet, val):
         _tagger = ViterbiTrigramTagger
         it, t, r = tagsTriplet
         if i == 0:
-            VCell = _tagger.startTagVal
+            prevCell = _tagger.startTagVal
+            t = prevCell.tag
         elif i == 1:
-            VCell = vTable[0][_tagger.startTagVal.tag][t]
+            prevCell = vTable[0][_tagger.startTagVal.tag][t]
         else:
-            VCell = vTable[i - 1][it][t]
+            prevCell = vTable[i - 1][it][t]
 
-        return _tagger.TagVal(VCell, r, val + VCell.val)
+        oldCell = vTable[i][t][r]
+        newCell = _tagger.TagVal(prevCell, r, val + prevCell.val)
+        cell = vTable[i][t][r] = max(oldCell, newCell, key=_tagger.TagValVal)
+        return cell
+
+
 
     def _appendSelectedTags(self, tagVal, line, i, output):
         if i > 0 and tagVal.prev:
