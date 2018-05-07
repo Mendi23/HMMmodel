@@ -1,6 +1,6 @@
 import sys
 from MEMM.MEMMTaggers import MemmTagger
-from parsers import MappingParser
+from utils.parsers import MappingParser
 from time import time
 
 if __name__ == '__main__':

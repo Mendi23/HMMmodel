@@ -8,7 +8,7 @@ if root_path not in sys.path:
     sys.path.insert(0, root_path)
 # -------------------------
 
-from hmmModel import HmmModel
+from utils.hmmModel import HmmModel
 from sys import argv
 
 if __name__ == '__main__':

@@ -1,6 +1,6 @@
 
 import sys
-from parsers import MappingParser, TestParser, OutParser
+from utils.parsers import MappingParser, TestParser, OutParser
 from MEMM.MEMMTaggers import ViterbiTrigramTagger
 import MEMM.Features as Features
 import inspect

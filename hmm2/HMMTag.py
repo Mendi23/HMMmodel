@@ -10,15 +10,13 @@ if root_path not in sys.path:
 
 
 from hmm2.Taggers import ViterbiTrigramTagger
-from parsers import TestParser, OutParser
-from hmmModel import HmmModel
+from utils.parsers import TestParser, OutParser
+from utils.hmmModel import HmmModel
 from sys import argv
 
 if __name__ == '__main__':
-    """ command line: 
-        GreedyTag.py input_file_name q_mle_filename e_mle_filename output_file_name extra_file_name
-    """
-    input_file, q_mle, e_mle, out_file, extra = argv[1:]
+
+    input_file, q_mle, e_mle, out_file = argv[1:5]
 
     x = HmmModel(2)
     x.loadTransitions(q_mle, e_mle)

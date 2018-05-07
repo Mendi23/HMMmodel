@@ -2,17 +2,16 @@
 features is zero based
 """
 
-from collections import OrderedDict, namedtuple, defaultdict
+from collections import namedtuple, defaultdict
 from itertools import product
 
 import scipy.sparse as sp
 import numpy as np
 import pickle
 
-from numpy.core.multiarray import ndarray
 from sklearn.linear_model import LogisticRegression
 
-from Viterbi import ViterbiTrigramTaggerAbstract
+from utils.Viterbi import ViterbiTrigramTaggerAbstract
 
 
 class MemmTagger:

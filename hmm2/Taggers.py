@@ -2,8 +2,8 @@ from collections import deque
 
 import numpy as np
 
-from Viterbi import ViterbiTrigramTaggerAbstract
-from hmmModel import HmmModel
+from utils.Viterbi import ViterbiTrigramTaggerAbstract
+from utils.hmmModel import HmmModel
 from functools import lru_cache
 
 
