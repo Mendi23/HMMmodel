@@ -25,7 +25,6 @@ class GreedyTagger:
         self.QHyperParam = tuple(scaleArray(QHyperParam))
         if not unkSigHyperParam:
             eventsLen = hmmmodel.getNumOfEvents()
-            # unkSigHyperParam = tuple(np.linspace(3, 2, eventsLen)) + (1,)
             unkSigHyperParam = (2,) * eventsLen + (1,)
         self.unkSigHP = np.array(unkSigHyperParam)
 

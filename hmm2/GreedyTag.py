@@ -19,7 +19,7 @@ if __name__ == '__main__':
     from hmmModel import HmmModel
     from sys import argv
 
-    input_file, q_mle, e_mle, out_file, extra = argv[1:]
+    input_file, q_mle, e_mle, out_file = argv[1:5]
 
     x = HmmModel(2)
     x.loadTransitions(q_mle, e_mle)

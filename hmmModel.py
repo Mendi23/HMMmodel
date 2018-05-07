@@ -1,7 +1,7 @@
 import re
 from collections import Counter
 from functools import lru_cache
-from itertools import chain, product
+from itertools import chain
 
 import numpy as np
 
@@ -29,8 +29,9 @@ class HmmModel:
         self.unknownToken = "*UNK*"
         self.eventChar = eventChart = '^'
         self._eventsActions = {
-            # eventChart + '[0-9]+': self._WordEvent(re.compile("^[0-9]+$", re.I)),
-            eventChart + '[0-9]': self._WordEvent(re.compile("[0-9]", re.I)),
+            eventChart + 'num': self._WordEvent(re.compile("^[0-9]+(\.[0-9]+)?$", re.I)),
+            eventChart + '[0-9]': self._WordEvent(
+                re.compile(r"([0-9][^0-9\.]|[^0-9\.][0-9])", re.I)),
             eventChart + '_ought': self._WordEvent(re.compile("ought$", re.I)),
             eventChart + '_ing': self._WordEvent(re.compile("ing$", re.I)),
             eventChart + '_ate': self._WordEvent(re.compile("ate$", re.I)),
@@ -46,7 +47,6 @@ class HmmModel:
             eventChart + 'Mr.': self._WordEvent(re.compile("[a-z]\.$", re.I)),
             eventChart + 'Aa': self._WordEvent(re.compile("^[A-Z][a-z]")),
             eventChart + '$$': self._WordEvent(re.compile("[^a-z0-9]", re.I)),
-            eventChart + '[0-9]': self._WordEvent(re.compile("[0-9]", re.I)),
         }
 
     def computeFromFile (self, filePath):
@@ -108,39 +108,6 @@ class HmmModel:
             tags = chain(chain.from_iterable(eventsTags), self._unknownCounter.keys())
         return set(tags)
 
-    def deleted_interpolation(self):
-        getTagValue = self._tagsTransitions.getValue
-        lambda1 = lambda2 = lambda3 = 0
-
-        tags = tuple(self.getAllTags())
-        for a,b,c in product(tags, tags, tags):
-            v = getTagValue([a,b,c])
-            if v > 0:
-                try:
-                    c1 = float(v-1)/(getTagValue([a, b])-1)
-                except ZeroDivisionError:
-                    c1 = 0
-                try:
-                    c2 = float(getTagValue([b, c])-1)/(getTagValue([b,])-1)
-                except ZeroDivisionError:
-                    c2 = 0
-                try:
-                    c3 = float(getTagValue([c,])-1)/(getTagValue()-1)
-                except ZeroDivisionError:
-                    c3 = 0
-
-                k = np.argmax([c1, c2, c3])
-                if k == 0:
-                    lambda3 += v
-                if k == 1:
-                    lambda2 += v
-                if k == 2:
-                    lambda1 += v
-
-        weights = [lambda3, lambda2, lambda1]
-        norm_w = [float(a)/sum(weights) for a in weights]
-        return norm_w
-
     @lru_cache(maxsize=2 ** 17)
     def getQ (self, params, hyperParam):
         """
@@ -159,8 +126,8 @@ class HmmModel:
         """ compute e(w|t) """
         return self._wordTags.getCount(w.lower(), t) / self._tagsTransitions.getValue((t,))
 
-    def wordExists (self, word):
-        return self._wordTags.wordExists(word.lower())
+    def wordExists (self, word, threshold=1):
+        return self._wordTags.wordExists(word.lower(), threshold)
 
     @lru_cache()
     def getEventTagRatio (self, eventKey, tag):
