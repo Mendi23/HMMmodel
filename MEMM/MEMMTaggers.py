@@ -3,6 +3,8 @@ features is zero based
 """
 
 from collections import OrderedDict, namedtuple, defaultdict
+from itertools import product
+
 import scipy.sparse as sp
 import numpy as np
 import pickle
@@ -102,58 +104,59 @@ class GreedyTagger(MemmTagger):
             tags.append(self.tags[int(self.model.predict(featVec)[0])])
         return zip(line, tags)
 
-# class ViterbiTrigramTagger(GreedyTagger):
-#     TagVal = namedtuple("TagVal", "prev tag val")
-#     zeroTagVal = TagVal(None, "empty", -np.inf)
-#
-#     @staticmethod
-#     def TagValVal (tagVal):
-#         return tagVal.val
-#
-#     def __init__ (self, featuresFuncs = None, model = None):
-#         super().__init__(featuresFuncs, model)
-#
-#         self.startTag = "start"
-#
-#     def tagLine (self, line):
-#         if not line:
-#             return None
-#         lineLength = len(line)
-#         vTable = [
-#             defaultdict(lambda: defaultdict(lambda: self.zeroTagVal))
-#             for _ in range(lineLength + 1)
-#         ]
-#         for i, word in enumerate(line, 1):
-#             for t, r in np.product(range(self.tagsLen), range(self.tagsLen)):
-#                 for it in range(self.tagsLen):
-#
-#
-#         vTable[0][self.startTag][self.startTag] = self.TagVal(None, "start", np.log(1.0))
-#
-#         maxTagVal = self.zeroTagVal
-#         for i, word in enumerate(line, 1):
-#             possibleIts = [self.startTag] if i <= 2 else vTable[i - 1].keys()
-#             possibleTs = [self.startTag] if i == 1 else self._model.getWordTags(line[i - 2])
-#             possibleRs = self._model.getWordTags(word)
-#
-#             for t, r in np.product(possibleTs, possibleRs):
-#                 possibleValues = (self._calcVTableCell(vTable[i - 1][it][t], (it, t, r), word)
-#                     for it in possibleIts)
-#
-#                 cell = vTable[i][t][r] = max(possibleValues, key = self.TagValVal)
-#
-#                 if i == lineLength:
-#                     maxTagVal = max(maxTagVal, cell, key = self.TagValVal)
-#
-#         output = []
-#         self._appendSelectedTags(maxTagVal, line, len(line) - 1, output)
-#         return output
-#
-#     def _calcVTableCell (self, VCell, tagsTriplet, word):
-#         val = self.model. + VCell.val
-#         return self.TagVal(VCell, tagsTriplet[-1], val)
-#
-#     def _appendSelectedTags (self, tagVal, line, i, output):
-#         if i > 0 and tagVal.prev:
-#             self._appendSelectedTags(tagVal.prev, line, i - 1, output)
-#         output.append((line[i], tagVal.tag))
+
+class ViterbiTrigramTagger(GreedyTagger):
+    TagVal = namedtuple("TagVal", "prev tag val")
+    zeroTagVal = TagVal(None, "empty", -np.inf)
+    startTagVal = TagVal(None, '', np.log(1.0))
+
+    @staticmethod
+    def TagValVal(tagVal):
+        return tagVal.val
+
+    def tagLine(self, line):
+        if not line:
+            return None
+        lineLength = len(line)
+        vTable = [
+            defaultdict(lambda: defaultdict(lambda: self.zeroTagVal))
+            for _ in range(lineLength + 1)
+        ]
+
+        maxTagVal = self.zeroTagVal
+        for i in range(len(line)):
+            for prevTags in product(self.tags, self.tags, [None]):
+                if None in prevTags[:-1]:
+                    continue
+                features_vec = self.transform(self.extractFeatures(line, prevTags, i))
+                all_props = self.model.predict_log_proba(features_vec)[0]
+
+                for tag, val in zip(self.tags, all_props):
+                    prevTags[-1] = tag
+                    t = prevTags[-2] if i > 0 else self.startTagVal.tag
+                    cell = vTable[i][t][tag] = self._calcVTableCell(vTable, i, prevTags, val)
+
+                    if i == len(line) - 1:
+                        maxTagVal = max(maxTagVal, cell, key=self.TagValVal)
+
+        output = []
+        self._appendSelectedTags(maxTagVal, line, len(line) - 1, output)
+        return output
+
+    @staticmethod
+    def _calcVTableCell(vTable, i, tagsTriplet, val):
+        _tagger = ViterbiTrigramTagger
+        it, t, r = tagsTriplet
+        if i == 0:
+            VCell = _tagger.startTagVal
+        elif i == 1:
+            VCell = vTable[0][_tagger.startTagVal.tag][t]
+        else:
+            VCell = vTable[i - 1][it][t]
+
+        return _tagger.TagVal(VCell, r, val + VCell.val)
+
+    def _appendSelectedTags(self, tagVal, line, i, output):
+        if i > 0 and tagVal.prev:
+            self._appendSelectedTags(tagVal.prev, line, i - 1, output)
+        output.append((line[i], tagVal.tag))

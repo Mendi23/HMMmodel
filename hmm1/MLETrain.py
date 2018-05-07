@@ -8,10 +8,10 @@ if root_path not in sys.path:
     sys.path.insert(0, root_path)
 # -------------------------
 
-if __name__ == '__main__':
-    from hmmModel import HmmModel
-    from sys import argv
+from hmmModel import HmmModel
+from sys import argv
 
+if __name__ == '__main__':
     inputfilename, qfilename, efilename = argv[1:]
     x = HmmModel(2)
     x.computeFromFile(inputfilename)

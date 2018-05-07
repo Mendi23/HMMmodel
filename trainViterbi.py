@@ -72,6 +72,8 @@ if __name__ == '__main__':
 
     print(np.average(act_e - exp_e))
     print(np.median(act_e - exp_e))
+    print(np.average(act_q - exp_q))
+    print(np.median(act_q - exp_q))
     exit()
     vec = np.vectorize(lambda x: 1 if x > 0 else -1)
 

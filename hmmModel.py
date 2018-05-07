@@ -29,9 +29,10 @@ class HmmModel:
         self.unknownToken = "*UNK*"
         self.eventChar = eventChart = '^'
         self._eventsActions = {
-            eventChart + '[0-9]+': self._WordEvent(re.compile("^[0-9]+$", re.I)),
-            eventChart + '_ing': self._WordEvent(re.compile("ing$", re.I)),
+            # eventChart + '[0-9]+': self._WordEvent(re.compile("^[0-9]+$", re.I)),
+            eventChart + '[0-9]': self._WordEvent(re.compile("[0-9]", re.I)),
             eventChart + '_ought': self._WordEvent(re.compile("ought$", re.I)),
+            eventChart + '_ing': self._WordEvent(re.compile("ing$", re.I)),
             eventChart + '_ate': self._WordEvent(re.compile("ate$", re.I)),
             eventChart + '_es': self._WordEvent(re.compile("es$", re.I)),
             eventChart + '_ed': self._WordEvent(re.compile("ed$", re.I)),
@@ -156,18 +157,17 @@ class HmmModel:
     @lru_cache(maxsize=2 ** 12)
     def getE (self, w, t):
         """ compute e(w|t) """
-        return self._wordTags.getCount(w.lower(), t) / (self._tagsTransitions.getValue((t,)) or 1)
+        return self._wordTags.getCount(w.lower(), t) / self._tagsTransitions.getValue((t,))
 
     def wordExists (self, word):
         return self._wordTags.wordExists(word.lower())
 
     @lru_cache()
     def getEventTagRatio (self, eventKey, tag):
-        return self._eventsTags.getCount(eventKey, tag) / (self._tagsTransitions.getValue((tag,
-                                                                                           )) or 1)
+        return self._eventsTags.getCount(eventKey, tag) / self._tagsTransitions.getValue((tag,))
     @lru_cache()
     def getUnknownTagRatio (self, tag):
-        return self._unknownCounter[tag] / (self._tagsTransitions.getValue((tag,)) or 1)
+        return self._unknownCounter[tag] / self._tagsTransitions.getValue((tag,))
 
     @lru_cache()
     def getEventRatioTuple (self, tag):
