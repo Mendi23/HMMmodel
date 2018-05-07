@@ -12,12 +12,11 @@ def scaleArray (arr, start = 0, end = 1):
 
 
 class GreedyTagger:
-    def __init__ (self, hmmmodel: HmmModel, k = 3, endLineTag = ".",
+    def __init__ (self, hmmmodel: HmmModel, k = 3,
             QHyperParam = None, unkSigHyperParam = None):
         self._k = k
         self._model = hmmmodel
         self._allTags = list(hmmmodel.getAllTags())
-        self._endLineTag = endLineTag
         self._startQ = [self._model.startTag] * self._k
         self._queue = deque(self._startQ)
 
@@ -32,6 +31,7 @@ class GreedyTagger:
 
     def tagLine (self, wordsLine):
         output = []
+        self._queue = deque(self._startQ)
         for word in wordsLine:
             self._queue.popleft()
 
@@ -41,8 +41,6 @@ class GreedyTagger:
             self._queue.append(argmax)
             output.append((word, argmax))
 
-            if argmax == self._endLineTag:
-                self._queue = deque(self._startQ)
         return output
 
     def _calcE (self, word, tag):
@@ -70,9 +68,9 @@ class ViterbiTrigramTagger(GreedyTagger):
     def TagValVal (tagVal):
         return tagVal.val
 
-    def __init__ (self, hmmmodel: HmmModel, endLineTag = ".",
+    def __init__ (self, hmmmodel: HmmModel,
             QHyperParam = None, unkSigHyperParam = None):
-        super().__init__(hmmmodel, 3, endLineTag, QHyperParam, unkSigHyperParam)
+        super().__init__(hmmmodel, 3, QHyperParam, unkSigHyperParam)
 
         self.startTag = self._model.startTag
 

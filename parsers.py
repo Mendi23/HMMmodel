@@ -30,8 +30,8 @@ class TagsParser:
 
     def parseTagsFromFile (self, filePath):
         return map(lambda t: t[-1],
-                   filter(lambda pair: pair != self.endLineToken,
-                          self._parseFileWords(filePath)))
+            filter(lambda pair: pair != self.endLineToken,
+                self._parseFileWords(filePath)))
 
     def parseAllFromFile (self, filePath):
         return filter(lambda pair: pair != self.endLineToken,
@@ -55,7 +55,7 @@ class TagsParser:
 
 class TestParser(TagsParser):
     def __init__ (self, wordDelim = " "):
-        super().__init__(wordDelim=wordDelim, newLineDelim=True, stopTags=())
+        super().__init__(wordDelim = wordDelim, newLineDelim = True, stopTags = ())
 
     def processWord (self, word):
         return word
@@ -97,12 +97,40 @@ class OutParser:
         self.fd.close()
 
 
-class InputParser:
-    def __init__ (self):
-        self.startTag = "start"
+class MappingParser:
+    seperator = "-----Tags Mapping-----"
+    delim = " "
 
-    def getTriplets (self, filePath):
-        with open(filePath) as f:
-            startTags = "{} {}".format(self.startTag)
-            for line in f:
-                line = startTags + line
+    @staticmethod
+    def TagFeatToString (tag, features):
+        return f"{tag}{MappingParser.delim}{features}"
+
+    @staticmethod
+    def TagVecToString (tag, featVect):
+        return "{tag}{delim}{features}\n".format(
+            tag = tag,
+            delim = MappingParser.delim,
+            features = ' '.join((
+                f"{num}:1" for num in featVect
+            ))
+        )
+
+    @staticmethod
+    def saveDictsToFile (dicts, outFile):
+        with open(outFile, "w") as fOut:
+            for dict_t in dicts:
+                for key, value in dict_t.items():
+                    fOut.write(f"{key}{MappingParser.delim}{value}\n")
+                fOut.write(f"{MappingParser.seperator}\n")
+    @staticmethod
+    def getDictsFromFile (inFile):
+        with open(inFile) as fIn:
+            resultDict = {}
+            for line in fIn:
+                line = line.strip()
+                if line == MappingParser.seperator:
+                    yield resultDict
+                    resultDict = {}
+                else:
+                    key, val = line.rsplit(MappingParser.delim, 1)
+                    resultDict[key] = int(val)
