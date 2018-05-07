@@ -10,36 +10,36 @@ import pickle
 
 class MemmTagger:
 
-    def __init__ (self, featuresFuncs = None, model = None):
+    def __init__(self, featuresFuncs=None, model=None):
         self._featuresFuncs = featuresFuncs
-        self.tags_dict = OrderedDict()
-        self.features_dict = OrderedDict()
+        self.tags_dict = {}
+        self.features_dict = {}
         self.t_i, self.f_i = 1, 1
         self.model = model
         self.tags = []
 
-    def extractFeatures (self, words, tags, i):
-        if not self._featuresFuncs:
-            return None
+    def extractFeatures(self, words, tags, i):
+        assert self._featuresFuncs
+        return ' '.join(
+            '='.join(pair) for pair in
+            filter(lambda x: x[1], (
+                (feature[0], feature[1](words, tags, i))
+                for feature in self._featuresFuncs)))
 
-        return "{features}".format(
-            features = ' '.join(
-                f"{feature[0]}={feature[1](words, tags, i)}" for feature in self._featuresFuncs))
-
-    def transform (self, features):
+    def transform(self, features):
         sorted_features = sorted(filter(lambda x: x, (self.features_dict.get(feature, None) for \
-            feature in features.split())))
+                                                      feature in features.split())))
         featCount = len(sorted_features)
         indptr = [0, featCount]
         data = np.ones(featCount)
-        return sp.csr_matrix((data, sorted_features, indptr), shape = (1, len(self.features_dict)))
+        return sp.csr_matrix((data, sorted_features, indptr), shape=(1, len(self.features_dict)))
 
-    def extractFeaturesFromTaggedLine (self, line):
+    def extractFeaturesFromTaggedLine(self, line):
         words, tags = tuple(zip(*line))
         for i in range(len(line)):
             yield tags[i], self.extractFeatures(words, tags, i)
 
-    def fitFeatures (self, inputFile, transform = True):
+    def fitFeatures(self, inputFile, transform=True):
         with open(inputFile) as fIn:
             for line in fIn:
                 splitted = line.split()
@@ -59,30 +59,33 @@ class MemmTagger:
         if not transform:
             return ()
 
-    def getTagsMapping (self):
+    def getTagsMapping(self):
         return self.tags_dict
 
-    def getFeaturesMapping (self):
+    def getFeaturesMapping(self):
         return self.features_dict
 
-    def getModelParams (self):
+    def getModelParams(self):
         if self.model:
             return self.model.get_params()
 
-    def saveModelTofile (self, filePath):
+    def saveModelTofile(self, filePath):
         pickle.dump(self.model, open(filePath, 'wb'))
 
-    def loadModelFromFile (self, filePath):
+    def loadModelFromFile(self, filePath):
         self.model = pickle.load(open(filePath, 'rb'))
 
-    def fitModel (self, x_train, y_train):
+    def fitModel(self, x_train, y_train):
         assert self.model
         self.model.fit(x_train, y_train)
 
-    def setParams (self, tagsMapping, featuresMapping, modelParams = None):
+    def setParams(self, tagsMapping, featuresMapping, modelParams=None):
         self.tags_dict = tagsMapping
         self.features_dict = featuresMapping
         self.t_i, self.f_i = len(tagsMapping), len(featuresMapping)
+        self.tags = [None] * (len(self.tags_dict) + 1)
+        for key, value in self.tags_dict.items():
+            self.tags[value] = key
         if modelParams:
             assert self.model
             self.model.set_params(**modelParams)
@@ -90,16 +93,14 @@ class MemmTagger:
 
 class GreedyTagger(MemmTagger):
 
-    def tagLine (self, line):
+    def tagLine(self, line):
         assert self.model
-
         lineLength = len(line)
         tags = []
         for i in range(lineLength):
             featVec = self.transform(self.extractFeatures(line, tags, i))
-            print (self.model.predict(featVec))
             tags.append(self.tags[int(self.model.predict(featVec)[0])])
-
+        return zip(line, tags)
 
 # class ViterbiTrigramTagger(GreedyTagger):
 #     TagVal = namedtuple("TagVal", "prev tag val")

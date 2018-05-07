@@ -20,5 +20,5 @@ if __name__ == '__main__':
 
     with open(outputfilename, "w") as output:
         for line in parsers.TagsParser().parseFile(inputfilename):
-            tag, features = t.extractFeaturesFromTaggedLine(line)
-            output.write(f"{parsers.MappingParser.TagFeatToString(tag, features)}\n")
+            for tag, features in t.extractFeaturesFromTaggedLine(line):
+                output.write(f"{parsers.MappingParser.TagFeatToString(tag, features)}\n")

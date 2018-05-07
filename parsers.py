@@ -98,7 +98,7 @@ class OutParser:
 
 
 class MappingParser:
-    seperator = "-----Tags Mapping-----"
+    seperator = "------------------"
     delim = " "
 
     @staticmethod
