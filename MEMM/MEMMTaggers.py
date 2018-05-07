@@ -32,9 +32,9 @@ class MemmTagger:
         sorted_features = sorted(filter(lambda x: x, (self.features_dict.get(feature, None) for \
                                                       feature in features.split())))
         featCount = len(sorted_features)
-        indptr = [0, featCount]
         data = np.ones(featCount)
-        return sp.csr_matrix((data, sorted_features, indptr), shape=(1, len(self.features_dict)))
+        rows = np.zeros(featCount)
+        return sp.csr_matrix((data, (rows, sorted_features)), shape=(1, len(self.features_dict)+1), dtype=np.int64)
 
     def extractFeaturesFromTaggedLine(self, line):
         words, tags = tuple(zip(*line))
