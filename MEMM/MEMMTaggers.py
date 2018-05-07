@@ -12,7 +12,7 @@ import pickle
 from numpy.core.multiarray import ndarray
 from sklearn.linear_model import LogisticRegression
 
-from hmm2.Taggers import ViterbiTrigramTaggerAbstract
+from Viterbi import ViterbiTrigramTaggerAbstract
 
 
 class MemmTagger:
@@ -110,9 +110,29 @@ class GreedyTagger(MemmTagger):
             tags.append(self.tags[int(self.model.predict(featVec)[0])])
         return zip(line, tags)
 
+class ViterbiTrigramTagger(GreedyTagger):
+    def __init__(self, featuresFuncs=None, model=None):
+        super().__init__(featuresFuncs, model)
+        self._viterbi = ViterbiTrigramTaggerAbstract('*start*',
+                                                     self._getPossibleTsOrRs,
+                                                     self._getPossibleTsOrRs,
+                                                     self._getCellVal)
 
+    def tagLine(self, line):
+        return self._viterbi.tagLine(line)
 
-class ViterbiTrigramTagger_NOGOOD:
+    def _getPossibleTsOrRs(self, line, i):
+        return filter(lambda t: t, self.tags)
+
+    def _getCellVal(self, line, i, tagsTriplet):
+        tags_window = {i: t for i, t in zip(range(i - 2, i + 1), tagsTriplet)}
+
+        features_vec = self.transform(self.extractFeatures(line, tags_window, i))
+        all_props = self.model.predict_log_proba(features_vec)[0]
+        tag_i = self.tags_dict[tagsTriplet[-1]]
+        return all_props[tag_i - 1]
+
+class ViterbiTrigramTagger_NOGOOD(GreedyTagger):
     TagVal = namedtuple("TagVal", "prev tag val")
     zeroTagVal = TagVal(None, "empty", -np.inf)
     startTagVal = TagVal(None, '', np.log(1.0))
