@@ -17,9 +17,7 @@ def main(inputf, modelfile, mapfile, outfilename, emle):
     tagger = ViterbiTrigramTagger(
         featuresFuncs=inspect.getmembers(Features, inspect.isfunction),
         hmmModel=x)
-    tagger.loadModelFromFile(modelfile)
-    featuresDict, tagsDict = tuple(MappingParser.getDictsFromFile(mapfile))
-    tagger.setParams(tagsDict, featuresDict)
+    tagger.loadParams(mapfile, modelfile)
 
     with OutParser(outfilename) as outF:
         for i, wordsLine in enumerate(TestParser().parseFile(inputf)):
@@ -28,5 +26,4 @@ def main(inputf, modelfile, mapfile, outfilename, emle):
 
 if __name__ == '__main__':
     input_file_name, modelname, feature_map_file, e_mle_file, out_file_name = sys.argv[1:6]
-
     main(input_file_name, modelname, feature_map_file, out_file_name, e_mle_file)
