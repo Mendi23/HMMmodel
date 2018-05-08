@@ -1,7 +1,7 @@
 from utils.parsers import TagsParser
 from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import MultiLabelBinarizer
-
+from glob import glob
 
 def main (outputfile, expectedfile):
     out = list(TagsParser().parseTagsFromFile(outputfile))
@@ -20,9 +20,8 @@ if __name__ == '__main__':
     """ command line: 
         output_file, expected_result_file
     """
-    from sys import argv
-
-    output_file, expected_result_file = argv[1:]
-
-    score = main(output_file, expected_result_file)
-    print(score)
+    #from sys import argv
+    #output_file, expected_result_file = argv[1:]
+    for file in glob("testResult/*"):
+        score = main(file, "DataSets/ass1-tagger-test")
+        print(f"{file}: {score}")

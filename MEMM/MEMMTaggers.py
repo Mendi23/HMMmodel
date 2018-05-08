@@ -13,6 +13,7 @@ import pickle
 from sklearn.linear_model import LogisticRegression
 
 from utils.Viterbi import ViterbiTrigramTaggerAbstract
+from utils.parsers import MappingParser
 
 
 class MemmTagger:
@@ -27,16 +28,15 @@ class MemmTagger:
 
     def extractFeatures(self, words, tags, i):
         assert self._featuresFuncs
-        return ('='.join(pair)
-                for pair in (
-                    (feature[0], feature[1](words, tags, i))
-                    for feature in self._featuresFuncs
-                ) if pair[1])
+        return MappingParser.featuresToString(
+            MappingParser.featureValue(feat, val) for feat, val in
+            filter(lambda x: x[1], ((feature[0], feature[1](words, tags, i))
+                                    for feature in self._featuresFuncs)))
 
-    def transform(self, features):
-        sorted_features = list(filter(lambda x: x,
-                                      (self.features_dict.get(feature, None)
-                                       for feature in features)))
+    def transformToLiblinear(self, features):
+        sorted_features = sorted(filter(lambda x: x, (self.features_dict.get(feature, None) for \
+                                                      feature in
+                                                      MappingParser.splitFeatures(features))))
 
         # sparse = sp.dok_matrix((1, len(self.features_dict) + 1), dtype=np.int64)
         # sparse[0, sorted_features] = 1
@@ -48,30 +48,40 @@ class MemmTagger:
         return sp.coo_matrix((data, (rows, sorted_features)),
             shape=(1, len(self.features_dict) + 1), dtype=np.int64)
 
+    def transformTaggedToLiblinear(self, line):
+        tag, features = MappingParser.splitTagFeatures(line)
+        return self.tags_dict[tag], self.transformToLiblinear(features)
+
     def extractFeaturesFromTaggedLine(self, line):
         words, tags = tuple(zip(*line))
         for i in range(len(line)):
-            yield tags[i], self.extractFeatures(words, tags, i)
+            yield MappingParser.TagFeatToString(tags[i], self.extractFeatures(words, tags, i))
 
-    def fitFeatures(self, inputFile, transform=True):
+    def fitFeatures(self, inputiter, transform=True):
+        result = []
+        for line in inputiter:
+            tag, features = MappingParser.splitTagFeatures(line)
+            features = MappingParser.splitFeatures(features)
+            if self.tags_dict.setdefault(tag, self.t_i) == self.t_i:
+                self.tags.append(tag)
+                self.t_i += 1
+
+            for feature in features:
+                if self.features_dict.setdefault(feature, self.f_i) == self.f_i:
+                    self.f_i += 1
+
+            if transform:
+                sorted_features = sorted((self.features_dict[feature] for feature in features))
+                result.append(MappingParser.TagVecToString(self.tags_dict[tag], sorted_features))
+
+        return result
+
+    def fitFeaturesFromFile(self, inputFile, transform=True):
         with open(inputFile) as fIn:
-            for line in fIn:
-                splitted = line.split()
-                tag, features = splitted[0], splitted[1:]
-                if self.tags_dict.setdefault(tag, self.t_i) == self.t_i:
-                    self.tags.append(tag)
-                    self.t_i += 1
+            return self.fitFeatures(fIn, transform)
 
-                for feature in features:
-                    if self.features_dict.setdefault(feature, self.f_i) == self.f_i:
-                        self.f_i += 1
-
-                if transform:
-                    sorted_features = sorted((self.features_dict[feature] for feature in features))
-                    yield self.tags_dict[tag], sorted_features
-
-        if not transform:
-            return ()
+    def fitFeaturesFromList(self, inputList, transform=True):
+        return self.fitFeatures(inputList, transform)
 
     def getTagsMapping(self):
         return self.tags_dict
@@ -93,16 +103,20 @@ class MemmTagger:
         assert self.model
         self.model.fit(x_train, y_train)
 
-    def setParams(self, tagsMapping, featuresMapping, modelParams=None):
-        self.tags_dict = tagsMapping
-        self.features_dict = featuresMapping
-        self.t_i, self.f_i = len(tagsMapping), len(featuresMapping)
+    def saveParams(self, filePath, modelFile=None):
+        MappingParser.saveDictsToFile([self.features_dict, self.tags_dict], filePath)
+        if modelFile:
+            assert self.model
+            self.saveModelTofile(modelFile)
+
+    def loadParams(self, filePath, modelFile=None):
+        self.features_dict, self.tags_dict = tuple(MappingParser.getDictsFromFile(filePath))
+        self.t_i, self.f_i = len(self.tags_dict), len(self.features_dict)
         self.tags = [None] * (len(self.tags_dict) + 1)
         for key, value in self.tags_dict.items():
             self.tags[value] = key
-        if modelParams:
-            assert self.model
-            self.model.set_params(**modelParams)
+        if modelFile:
+            self.loadModelFromFile(modelFile)
 
 
 class GreedyTagger(MemmTagger):
@@ -112,17 +126,18 @@ class GreedyTagger(MemmTagger):
         lineLength = len(line)
         tags = []
         for i in range(lineLength):
-            featVec = self.transform(self.extractFeatures(line, tags, i))
+            featVec = self.transformToLiblinear(self.extractFeatures(line, tags, i))
             tags.append(self.tags[int(self.model.predict(featVec)[0])])
         return zip(line, tags)
+
 
 class ViterbiTrigramTagger(GreedyTagger):
     def __init__(self, featuresFuncs=None, model=None):
         super().__init__(featuresFuncs, model)
         self._viterbi = ViterbiTrigramTaggerAbstract('*start*',
-                                                     self._getPossibleTsOrRs,
-                                                     self._getPossibleTsOrRs,
-                                                     self._getCellVal)
+            self._getPossibleTsOrRs,
+            self._getPossibleTsOrRs,
+            self._getCellVal)
 
     def tagLine(self, line):
         self.tagsZeroBased = list(filter(lambda t: t, self.tags))
@@ -134,7 +149,7 @@ class ViterbiTrigramTagger(GreedyTagger):
     def _getCellVal(self, line, i, tagsTriplet):
         tags_window = {i: t for i, t in zip(range(i - 2, i + 1), tagsTriplet)}
 
-        features_vec = self.transform(self.extractFeatures(line, tags_window, i))
+        features_vec = self.transformToLiblinear(self.extractFeatures(line, tags_window, i))
         all_props = np.array(self.model.predict_log_proba(features_vec)[0])
 
         tag_i = self.tags_dict[tagsTriplet[-1]] - 1
@@ -169,7 +184,7 @@ class ViterbiTrigramTagger_other(GreedyTagger):
             for t, it in product(self.tagsZeroBased, self.tagsZeroBased):
 
                 tags_window = {i - 2: it, i - 1: t, i: None}
-                features_vec = self.transform(self.extractFeatures(line, tags_window, i))
+                features_vec = self.transformToLiblinear(self.extractFeatures(line, tags_window, i))
                 all_props = self.model.predict_log_proba(features_vec)[0]
 
                 # max_i: int = np.argmax(all_props)

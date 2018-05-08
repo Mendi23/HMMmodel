@@ -99,19 +99,34 @@ class OutParser:
 
 class MappingParser:
     seperator = "------------------"
-    delim = " "
+    col_delim = ' '
+    feat_val_delim = '='
+    label_delim = ' '
+    converted_delim = ':'
 
     @staticmethod
     def TagFeatToString (tag, features):
-        return f"{tag}{MappingParser.delim}{' '.join(features)}"
+        return f"{tag}{MappingParser.label_delim}{features}"
+
+    @staticmethod
+    def featuresToString(features):
+        return MappingParser.col_delim.join(features)
+
+    @staticmethod
+    def featureValue(feature, value):
+        return f"{feature}{MappingParser.feat_val_delim}{value}"
+
+    @staticmethod
+    def splitFeatures(features):
+        return features.split(MappingParser.col_delim)
 
     @staticmethod
     def TagVecToString (tag, featVect):
         return "{tag}{delim}{features}\n".format(
             tag = tag,
-            delim = MappingParser.delim,
-            features = ' '.join((
-                f"{num}:1" for num in featVect
+            delim = MappingParser.label_delim,
+            features = MappingParser.col_delim.join((
+                f"{num}{MappingParser.converted_delim}1" for num in featVect
             ))
         )
 
@@ -120,7 +135,7 @@ class MappingParser:
         with open(outFile, "w") as fOut:
             for dict_t in dicts:
                 for key, value in dict_t.items():
-                    fOut.write(f"{key}{MappingParser.delim}{value}\n")
+                    fOut.write(f"{key}{MappingParser.col_delim}{value}\n")
                 fOut.write(f"{MappingParser.seperator}\n")
     @staticmethod
     def getDictsFromFile (inFile):
@@ -132,5 +147,15 @@ class MappingParser:
                     yield resultDict
                     resultDict = {}
                 else:
-                    key, val = line.rsplit(MappingParser.delim, 1)
+                    key, val = line.rsplit(MappingParser.col_delim, 1)
                     resultDict[key] = int(val)
+
+    @staticmethod
+    def splitTagFeatures(line):
+        return line.split(MappingParser.label_delim, 1)
+
+
+    # @staticmethod
+    # def splitConvTagFeatures(line):
+    #     #tag, features =
+    #     return line.split(MappingParser.label_delim, 1)

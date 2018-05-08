@@ -1,15 +1,20 @@
 import sys
 from MEMM.MEMMTaggers import MemmTagger
-from utils.parsers import MappingParser
 from time import time
+
+
+
+def main(featuresf, vectorf, mapfile):
+    with open(vectorf, "w") as fOut:
+        t = MemmTagger()
+        for tagFeatures in t.fitFeaturesFromFile(featuresf):
+            fOut.write(tagFeatures + '\n')
+    t.saveParams(mapfile)
+
 
 if __name__ == '__main__':
     starttime = time()
     features_file, feature_vecs_file, feature_map_file = sys.argv[1:]
 
-    with open(feature_vecs_file, "w") as fOut:
-        t = MemmTagger()
-        for tag, featVector in t.fitFeatures(features_file):
-            fOut.write(MappingParser.TagVecToString(tag, featVector))
-    MappingParser.saveDictsToFile([t.getFeaturesMapping(), t.getTagsMapping()], feature_map_file)
+    main(features_file, feature_vecs_file, feature_map_file)
     print(time()-starttime)

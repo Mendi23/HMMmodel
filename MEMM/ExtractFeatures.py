@@ -10,18 +10,22 @@ if root_path not in sys.path:
 # -------------------------
 
 import MEMM.Features as Features
-from utils.parsers import MappingParser, TagsParser
+from utils.parsers import TagsParser
 import inspect
 from time import time
+
+
+def main(inf, outf):
+    global tag, features
+    t = MemmTagger(inspect.getmembers(Features, inspect.isfunction))
+    with open(outf, "w") as output:
+        for line in TagsParser().parseFile(inf):
+            for tagFeatures in t.extractFeaturesFromTaggedLine(line):
+                output.write(tagFeatures + '\n')
 
 
 if __name__ == '__main__':
     starttime = time()
     inputfilename, outputfilename = sys.argv[1:]
-    t = MemmTagger(inspect.getmembers(Features, inspect.isfunction))
-
-    with open(outputfilename, "w") as output:
-        for line in TagsParser().parseFile(inputfilename):
-            for tag, features in t.extractFeaturesFromTaggedLine(line):
-                output.write(f"{MappingParser.TagFeatToString(tag, features)}\n")
+    main(inputfilename, outputfilename)
     print(time()-starttime)
