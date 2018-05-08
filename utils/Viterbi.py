@@ -12,16 +12,14 @@ class ViterbiTrigramTaggerAbstract:
     def TagValVal(tagVal):
         return tagVal.val
 
-    def __init__(self, startTag, _getPossibleTs, _getPossibleRs, _getCellVal):
+    def __init__(self, startTag, _getPossibleTags, _getCellVal):
         """
 
         :type _getCellVal: function(line: [], i: int, tagsTriplet: tuple[3]) -> logaritmic probability
-        :type _getPossibleRs: function(line: [], i: int) -> iter
-        :type _getPossibleTs: function(line: [], i: int) -> iter
+        :type _getPossibleTags: function(line: [], i: int) -> iter
         """
         self.startTag = startTag
-        self._getPossibleRs = _getPossibleRs
-        self._getPossibleTs = _getPossibleTs
+        self._getPossibleTags = _getPossibleTags
         self._getCellVal = _getCellVal
 
     def tagLine(self, line):
@@ -33,14 +31,16 @@ class ViterbiTrigramTaggerAbstract:
             for _ in range(lineLength + 1)
         ]
 
+        possibleTs = [self.startTag]
+        possibleRs = [self.startTag]
         vTable[0][self.startTag][self.startTag] = self.TagVal(None, "start", np.log(1.0))
 
         maxTagVal = self.zeroTagVal
         for i in range(len(line)):
             table_i = i + 1
-            possibleIts = [self.startTag] if i <= 1 else vTable[table_i - 1].keys()
-            possibleTs = [self.startTag] if i == 0 else self._getPossibleTs(line, i)
-            possibleRs = self._getPossibleRs(line, i)
+            possibleIts = possibleTs
+            possibleTs = possibleRs
+            possibleRs = self._getPossibleTags(line, i)
 
             for t, r in product(possibleTs, possibleRs):
                 possibleValues = (self._calcVTableCell(vTable[table_i - 1][it][t], (it, t, r), line, i)

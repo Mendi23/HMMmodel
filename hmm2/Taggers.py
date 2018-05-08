@@ -64,18 +64,14 @@ class ViterbiTrigramTagger(GreedyTagger):
     def __init__(self, hmmmodel: HmmModel, QHyperParam=None, unkSigHyperParam=None):
         super().__init__(hmmmodel, 3, QHyperParam, unkSigHyperParam)
         self._viterbi = ViterbiTrigramTaggerAbstract(self._model.startTag,
-                                                     self._getPossibleTs,
-                                                     self._getPossibleRs,
+                                                     self._getPossibleTags,
                                                      self._getCellVal)
 
     def tagLine(self, wordsLine):
         return self._viterbi.tagLine(wordsLine)
 
-    def _getPossibleRs(self, line, i):
+    def _getPossibleTags(self, line, i):
         return self._model.getWordTags(line[i])
-
-    def _getPossibleTs(self, line, i):
-        return self._model.getWordTags(line[i - 1])
 
     def _getCellVal(self, line, i, tagsTriplet):
         q = self._calcQ(tagsTriplet)
