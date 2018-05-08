@@ -15,6 +15,6 @@ def main(vec_file, modelf):
 
 if __name__ == '__main__':
     starttime = time()
-    feature_vec_file, model_file = sys.argv[1:]
+    feature_vec_file, model_file = sys.argv[1:3]
     main(feature_vec_file, model_file)
     print(time() - starttime)

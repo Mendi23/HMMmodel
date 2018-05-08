@@ -17,3 +17,4 @@ if __name__ == '__main__':
     x.computeFromFile(inputfilename)
     x.writeQ(qfilename)
     x.writeE(efilename)
+    # print(x._eventsFilterOnWord.cache_info())

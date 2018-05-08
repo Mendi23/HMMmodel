@@ -31,8 +31,8 @@ class HmmModel:
         self.eventChar = eventChart = '^'
         self._eventsActions = {
             eventChart + 'num': self._WordEvent(re.compile("^[0-9\.]+$", re.I)),
-            eventChart + '[0-9]': self._WordEvent(
-                re.compile(r"([0-9][^0-9\.]|[^0-9\.][0-9])", re.I)),
+            # eventChart + '[0-9]': self._WordEvent(
+            #     re.compile(r"([0-9][^0-9\.]|[^0-9\.][0-9])", re.I)),
             eventChart + '_ought': self._WordEvent(re.compile("ought$", re.I)),
             eventChart + '_ing': self._WordEvent(re.compile("ing$", re.I)),
             eventChart + '_ate': self._WordEvent(re.compile("ate$", re.I)),

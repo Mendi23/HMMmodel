@@ -48374,12 +48374,6 @@ hardball NN	1
 ^_es IN	2
 ^_es VB	1
 ^_es VBD	1
-^[0-9] CD	1017
-^[0-9] JJ	546
-^[0-9] NNS	33
-^[0-9] NN	51
-^[0-9] NNP	50
-^[0-9] RB	3
 ^AA NNP	818
 ^AA DT	5
 ^AA PRP	6
