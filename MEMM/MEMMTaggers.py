@@ -33,7 +33,7 @@ class MemmTagger:
     """
     def extractFeatures(self, words, tags, i):
         assert self._featuresFuncs
-        return (MappingParser.featureValue(feat, val).lower() for feat, val in
+        return tuple(MappingParser.featureValue(feat, val).lower() for feat, val in
                 filter(lambda x: x[1], ((feature[0], feature[1](words, tags, i))
                                         for feature in self._featuresFuncs)))
 
@@ -42,19 +42,24 @@ class MemmTagger:
     output: list: sparse matrix libLinear
     """
     def transformToLiblinear(self, features):
-        sorted_features = list(filter(lambda x: x,
-            (self.features_dict.get(feature, None)
-             for feature in features)))
+        found_features = list(filter(lambda x: x,
+                                      (self.features_dict.get(feature, None)
+                                       for feature in features)))
+        vector_shape = (1, len(self.features_dict) + 1)
 
-        # sparse = sp.dok_matrix((1, len(self.features_dict) + 1), dtype=np.int64)
-        # sparse[0, sorted_features] = 1
+        # vector = np.zeros(vector_shape)
+        # vector[0, found_features] = 1
+        # return vector
+
+        # sparse = sp.dok_matrix(vector_shape, dtype=np.int64)
+        # sparse[0, found_features] = 1
         # return sparse
 
-        featCount = len(sorted_features)
+        featCount = len(found_features)
         data = np.ones(featCount)
         rows = np.zeros(featCount)
-        return sp.coo_matrix((data, (rows, sorted_features)),
-            shape=(1, len(self.features_dict) + 1), dtype=np.int64)
+        return sp.coo_matrix((data, (rows, found_features)),
+                             shape=vector_shape, dtype=np.int64)
 
     """
     input: string: tag, list: string of "feat=val"
@@ -139,7 +144,7 @@ class MemmTagger:
             self.saveModelTofile(modelFile)
 
     def loadParams(self, filePath, modelFile=None):
-        self.features_dict, self.tags_dict = tuple(MappingParser.getDictsFromFile(filePath))
+        self.features_dict, self.tags_dict = MappingParser.getDictsFromFile(filePath)[:2]
         self.t_i, self.f_i = len(self.tags_dict), len(self.features_dict)
         self.tags = [None] * (len(self.tags_dict) + 1)
         for key, value in self.tags_dict.items():

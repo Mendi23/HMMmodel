@@ -1,10 +1,12 @@
 import sys
+
+from utils.measuretime import measure
 from utils.parsers import TestParser, OutParser
 from MEMM.MEMMTaggers import GreedyTagger
 import MEMM.Features as Features
 import inspect
 
-
+@measure
 def main(infile, modelfile, mapfile, outfile):
     tagger = GreedyTagger(inspect.getmembers(Features, inspect.isfunction))
     tagger.loadParams(mapfile, modelfile)

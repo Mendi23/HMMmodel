@@ -23,6 +23,7 @@ def main(inputf, modelfile, mapfile, outfilename, emle):
         for i, wordsLine in enumerate(TestParser().parseFile(inputf)):
             outF.printLine(tagger.tagLine(wordsLine))
 
+    print(tagger._getProba.cache_info())
 
 if __name__ == '__main__':
     input_file_name, modelname, feature_map_file, e_mle_file, out_file_name = sys.argv[1:6]

@@ -153,16 +153,18 @@ class MappingParser:
                 fOut.write(f"{MappingParser.seperator}\n")
     @staticmethod
     def getDictsFromFile (inFile):
+        result = []
         with open(inFile) as fIn:
             resultDict = {}
             for line in fIn:
                 line = line.strip()
                 if line == MappingParser.seperator:
-                    yield resultDict
+                    result.append(resultDict)
                     resultDict = {}
                 else:
                     key, val = line.rsplit(MappingParser.col_delim, 1)
                     resultDict[key] = int(val)
+        return result
 
     @staticmethod
     def splitTagFeatures(line):

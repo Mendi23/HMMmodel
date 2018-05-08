@@ -12,7 +12,7 @@ from utils.hmmModel import HmmModel
 from sys import argv
 
 if __name__ == '__main__':
-    inputfilename, qfilename, efilename = argv[1:]
+    inputfilename, qfilename, efilename = argv[1:4]
     x = HmmModel(2)
     x.computeFromFile(inputfilename)
     x.writeQ(qfilename)

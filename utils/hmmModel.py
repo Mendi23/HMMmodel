@@ -6,6 +6,7 @@ from itertools import chain
 import numpy as np
 
 from utils.ETTables import EmissionTable, NgramTransitions
+from utils.measuretime import measure
 from utils.parsers import TagsParser, StorageParser
 
 
@@ -49,6 +50,7 @@ class HmmModel:
             eventChart + '$$': self._WordEvent(re.compile("[^a-z0-9]", re.I)),
         }
 
+    @measure
     def computeFromFile(self, filePath):
         endTags = [self.endTag] * self.nOrder
         startTags = [self.startTag] * self.nOrder
