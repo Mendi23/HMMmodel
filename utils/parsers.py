@@ -33,6 +33,16 @@ class TagsParser:
             filter(lambda pair: pair != self.endLineToken,
                 self._parseFileWords(filePath)))
 
+    def parseWordsFromFile (self, filePath):
+        return map(lambda t: t[:-1],
+            filter(lambda pair: pair != self.endLineToken,
+                self._parseFileWords(filePath)))
+
+    # def _parseFromFile(self, filePath, index):
+    #     return map(lambda t: t[-1],
+    #         filter(lambda pair: pair != self.endLineToken,
+    #             self._parseFileWords(filePath)))
+
     def parseAllFromFile (self, filePath):
         return filter(lambda pair: pair != self.endLineToken,
                           self._parseFileWords(filePath))
@@ -54,10 +64,13 @@ class TagsParser:
 
 
 class TestParser(TagsParser):
-    def __init__ (self, wordDelim = " "):
+    def __init__ (self, wordDelim = " ", splitWord = False):
         super().__init__(wordDelim = wordDelim, newLineDelim = True, stopTags = ())
+        self.splitWord = splitWord
 
     def processWord (self, word):
+        if self.splitWord:
+            return "".join(word.rsplit(self.tagDelim, 1)[:-1])
         return word
 
 
@@ -106,6 +119,7 @@ class MappingParser:
 
     @staticmethod
     def TagFeatToString (tag, features):
+        features = MappingParser.featuresToString(features)
         return f"{tag}{MappingParser.label_delim}{features}"
 
     @staticmethod

@@ -1,9 +1,9 @@
 import sys
 from MEMM.MEMMTaggers import MemmTagger
-from time import time
+from utils.measuretime import measure
 
 
-
+@measure
 def main(featuresf, vectorf, mapfile):
     with open(vectorf, "w") as fOut:
         t = MemmTagger()
@@ -13,8 +13,5 @@ def main(featuresf, vectorf, mapfile):
 
 
 if __name__ == '__main__':
-    starttime = time()
-    features_file, feature_vecs_file, feature_map_file = sys.argv[1:]
-
+    features_file, feature_vecs_file, feature_map_file = sys.argv[1:4]
     main(features_file, feature_vecs_file, feature_map_file)
-    print(time()-starttime)
