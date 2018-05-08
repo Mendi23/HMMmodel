@@ -54,7 +54,6 @@ class GreedyTagger:
     def _calcQ(self, tags):
         return self._model.getQ(tags, self.QHyperParam)
 
-    @lru_cache(maxsize=64)
     def _calcHPunkWord(self, word):
         return scaleArray((self._model.getWordEventMask(word) +
                            (not self._model.wordExists(word),)) * self.unkSigHP)

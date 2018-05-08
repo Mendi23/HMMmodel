@@ -33,7 +33,7 @@ class MemmTagger:
     """
     def extractFeatures(self, words, tags, i):
         assert self._featuresFuncs
-        return (MappingParser.featureValue(feat, val) for feat, val in
+        return (MappingParser.featureValue(feat, val).lower() for feat, val in
                 filter(lambda x: x[1], ((feature[0], feature[1](words, tags, i))
                                         for feature in self._featuresFuncs)))
 
@@ -167,25 +167,17 @@ class ViterbiTrigramTagger(GreedyTagger):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._viterbi = ViterbiTrigramTaggerAbstract('*start*',
-                                                     self._getPossibleTs,
-                                                     self._getPossibleRs,
+                                                     self._getPossibleTags,
                                                      self._getCellVal_proba)
         assert self.hmmModel
 
     def tagLine(self, line):
-        self.tagsZeroBased = list(filter(lambda t: t, self.tags))
         return self._viterbi.tagLine(line)
 
-    def _getPossibleTsOrRs(self, line, i):
-        return self.tagsZeroBased
-
-    def _getPossibleRs(self, line, i):
+    def _getPossibleTags(self, line, i):
         return self.hmmModel.getWordTags(line[i])
 
-    def _getPossibleTs(self, line, i):
-        return self.hmmModel.getWordTags(line[i - 1])
-
-    @lru_cache(maxsize=2**12)
+    @lru_cache(maxsize=None)
     def _getProba(self, features):
         features_vec = self.transformToLiblinear(features)
         return np.array(self.model.predict_log_proba(features_vec)[0])
@@ -199,168 +191,3 @@ class ViterbiTrigramTagger(GreedyTagger):
         all_props = self._getProba(features)
         return all_props[tag_i]
 
-    def _getCellVal_score(self, line, i, tagsTriplet):
-        tags_window = {i: t for i, t in zip(range(i - 2, i + 1), tagsTriplet)}
-
-        tag_i = self.tags_dict[tagsTriplet[-1]]
-        features_vec = self.transformToLiblinear(self.extractFeatures(line, tags_window, i))
-        score = self.model.score(features_vec, [tag_i])
-
-        return np.log(score) if score > 0 else -np.inf
-
-class ViterbiTrigramTagger_other(GreedyTagger):
-    START_TAG = ''
-
-    @total_ordering
-    class TagVal:
-        def __init__(self, prev, tag, val):
-            self.prev = prev
-            self.tag = tag
-            self.val = val
-
-        def __eq__(self, other):
-            return (self.val, self.tag) == (other.val, other.tag)
-
-        def __lt__(self, other):
-            return self.val < other.val
-
-        def __repr__(self):
-            return f"TagVal({self.val}, {self.tag})"
-
-    zeroTagVal = TagVal(None, "empty", -np.inf)
-    startTagVal = TagVal(None, START_TAG, np.log(1.0))
-
-    def tagLine(self, line):
-        self.tagsZeroBased = list(filter(lambda t: t, self.tags))
-
-        if not line:
-            return None
-        lineLength = len(line)
-        vTable = [
-            defaultdict(lambda: defaultdict(lambda: self.zeroTagVal))
-            for _ in range(lineLength + 1)
-        ]
-
-        maxTagVal = self.zeroTagVal
-        for i in range(lineLength):
-            for t, it in product(self.tagsZeroBased, self.tagsZeroBased):
-                tags_window = {i - 2: it, i - 1: t, i: None}
-                features = self.extractFeatures(line, tags_window, i)
-                all_props = self._getProba(features)
-
-                # max_i: int = np.argmax(all_props)
-                for tag_i, val in enumerate(all_props):
-                    tag = self.tags[tag_i + 1]
-                    # val = all_props[tag_i]
-                    cell = self._setVTableCell(vTable, i, (it, t, tag,), val)
-
-                    if i == lineLength - 1:
-                        maxTagVal = max(maxTagVal, cell)
-
-        output = []
-        self._appendSelectedTags(maxTagVal, line, lineLength - 1, output)
-        return output
-
-    def _getProba(self, features):
-        features_vec = self.transformToLiblinear(features)
-        all_props = self.model.predict_log_proba(features_vec)[0]
-        return all_props
-
-    @staticmethod
-    def _setVTableCell(vTable, i, tagsTriplet, val):
-        _tagger = ViterbiTrigramTagger_other
-        it, t, r = tagsTriplet
-        if i == 0:
-            prevCell = _tagger.startTagVal
-            t = _tagger.START_TAG
-        elif i == 1:
-            prevCell = vTable[0][_tagger.START_TAG][t]
-        else:
-            prevCell = vTable[i - 1][it][t]
-
-        oldCell = vTable[i][t][r]
-        newCell = _tagger.TagVal(prevCell, r, val + prevCell.val)
-        cell = vTable[i][t][r] = max(oldCell, newCell)
-        return cell
-
-
-    def _appendSelectedTags(self, tagVal, line, i, output):
-        if i > 0 and tagVal.prev:
-            self._appendSelectedTags(tagVal.prev, line, i - 1, output)
-        output.append((line[i], tagVal.tag))
-
-
-class ViterbiTrigramTagger_other2(GreedyTagger):
-    @total_ordering
-    class TagVal:
-        def __init__(self, prev, tag, val):
-            self.prev = prev
-            self.tag = tag
-            self.val = val
-        def __eq__(self, other):
-            return (self.val, self.tag) == (other.val, other.tag)
-        def __lt__(self, other):
-            return self.val < other.val
-        def __repr__(self):
-            return f"TagVal({self.val}, {self.tag})"
-
-    START_TAG = ''
-    zeroTagVal = TagVal(None, "empty", -np.inf)
-    startTagVal = TagVal(None, START_TAG, np.log(1.0))
-
-    def tagLine(self, line):
-        self.tagsZeroBased = list(filter(lambda t: t, self.tags))
-
-        if not line:
-            return None
-        lineLength = len(line)
-        vTable = [
-            {} for _ in range(lineLength + 1)
-        ]
-
-        maxTagVal = self.zeroTagVal
-        for i in range(lineLength):
-            possibleTs = self.tagsZeroBased if i > 0 else [self.START_TAG]
-            for t in possibleTs:
-                maxoptions = [self.zeroTagVal]*len(self.tags)
-                for it in self.tagsZeroBased:
-
-                    tags_window = {i - 2: it, i - 1: t, i: None}
-                    features_vec = self.transformToLiblinear(self.extractFeatures(line, tags_window, i))
-                    all_props = self.model.predict_log_proba(features_vec)[0]
-
-                    options = list(
-                        map(self._setVTableCell(vTable, self.tags, it, t),
-                            enumerate(all_props)))
-                    maxoptions = np.maximum(options, maxoptions)
-
-                vTable[i][t] = {opt.tag:opt for opt in maxoptions}
-
-                if i == lineLength - 1:
-                    maxTagVal = max(maxTagVal, *vTable[i][t].values())
-
-        output = []
-        self._appendSelectedTags(maxTagVal, line, lineLength - 1, output)
-        return output
-
-    @staticmethod
-    def _setVTableCell(vTable, tags, it, t):
-        _tagger = ViterbiTrigramTagger_other2
-        def _inner(pair):
-            i, val = pair
-            r = tags[i + 1]
-            if i == 0:
-                prevCell = _tagger.startTagVal
-            elif i == 1:
-                prevCell = vTable[0][_tagger.START_TAG][t]
-            else:
-                prevCell = vTable[i - 1][it][t]
-
-            return _tagger.TagVal(prevCell, r, val + prevCell.val)
-        return _inner
-
-
-    def _appendSelectedTags(self, tagVal, line, i, output):
-        if i > 0 and tagVal.prev:
-            self._appendSelectedTags(tagVal.prev, line, i - 1, output)
-        output.append((line[i], tagVal.tag))

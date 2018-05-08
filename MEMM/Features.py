@@ -1,51 +1,51 @@
 import re
 
 def form(words:[], tags:[], i:int):
-    return words[i].lower()
+    return words[i] #.lower()
 
 # suffixes
 
 def suf4(words:[], tags:[], i:int):
     if len(words[i]) < 4:
         return ''
-    return words[i][-4:].lower()
+    return words[i][-4:] #.lower()
 
 def suf3(words:[], tags:[], i:int):
     if len(words[i]) < 3:
         return ''
-    return words[i][-3:].lower()
+    return words[i][-3:] #.lower()
 
 def suf2(words:[], tags:[], i:int):
     if len(words[i]) < 2:
         return ''
-    return words[i][-2:].lower()
+    return words[i][-2:] #.lower()
 
 def suf1(words:[], tags:[], i:int):
     if len(words[i]) < 1:
         return ''
-    return words[i][-1:].lower()
+    return words[i][-1:] #.lower()
 
 # prefixes
 
 def pref4(words, tags, i):
     if len(words[i]) < 4:
         return ''
-    return words[i][:4].lower()
+    return words[i][:4] #.lower()
 
 def pref3(words, tags, i):
     if len(words[i]) < 3:
         return ''
-    return words[i][:3].lower()
+    return words[i][:3] #.lower()
 
 def pref2(words, tags, i):
     if len(words[i]) < 2:
         return ''
-    return words[i][:2].lower()
+    return words[i][:2] #.lower()
 
 def pref1(words, tags, i):
     if len(words[i]) < 1:
         return ''
-    return words[i][:1].lower()
+    return words[i][:1] #.lower()
 
 # prev tags
 
@@ -66,24 +66,24 @@ def pt21(words, tags, i):
 def pw1(words, tags, i):
     if i < 1:
         return ''
-    return words[i-1].lower()
+    return words[i-1] #.lower()
 
 def pw2(words, tags, i):
     if i < 2:
         return ''
-    return words[i-2].lower()
+    return words[i-2] #.lower()
 
 # forward word
 
 def fw1(words, tags, i):
     if i >=  len(words) - 1:
         return ''
-    return words[i+1].lower()
+    return words[i+1] #.lower()
 
 def fw2(words, tags, i):
     if i >=  len(words) - 2:
         return ''
-    return words[i+2].lower()
+    return words[i+2] #.lower()
 
 # kuku
 

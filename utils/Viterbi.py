@@ -1,20 +1,32 @@
 from collections import namedtuple, defaultdict
+from functools import total_ordering
 from itertools import product
 
 import numpy as np
 
 
-class ViterbiTrigramTaggerAbstract:
-    TagVal = namedtuple("TagVal", "prev tag val")
-    zeroTagVal = TagVal(None, "empty", -np.inf)
+@total_ordering
+class TagVal:
+    def __init__(self, prev, tag, val):
+        self.prev = prev
+        self.tag = tag
+        self.val = val
 
-    @staticmethod
-    def TagValVal(tagVal):
-        return tagVal.val
+    def __eq__(self, other):
+        return (self.val, self.tag) == (other.val, other.tag)
+
+    def __lt__(self, other):
+        return self.val < other.val
+
+    def __repr__(self):
+        return f"TagVal({self.val}, {self.tag})"
+
+
+class ViterbiTrigramTaggerAbstract:
+    zeroTagVal = TagVal(None, "empty", -np.inf)
 
     def __init__(self, startTag, _getPossibleTags, _getCellVal):
         """
-
         :type _getCellVal: function(line: [], i: int, tagsTriplet: tuple[3]) -> logaritmic probability
         :type _getPossibleTags: function(line: [], i: int) -> iter
         """
@@ -26,14 +38,11 @@ class ViterbiTrigramTaggerAbstract:
         if not line:
             return None
         lineLength = len(line)
-        vTable = [
-            defaultdict(lambda: defaultdict(lambda: self.zeroTagVal))
-            for _ in range(lineLength + 1)
-        ]
+        vTable = [{} for _ in range(lineLength + 1)]
 
         possibleTs = [self.startTag]
         possibleRs = [self.startTag]
-        vTable[0][self.startTag][self.startTag] = self.TagVal(None, "start", np.log(1.0))
+        vTable[0][self.startTag] = {self.startTag: TagVal(None, "start", np.log(1.0))}
 
         maxTagVal = self.zeroTagVal
         for i in range(len(line)):
@@ -42,19 +51,21 @@ class ViterbiTrigramTaggerAbstract:
             possibleTs = possibleRs
             possibleRs = self._getPossibleTags(line, i)
 
-            for t, r in product(possibleTs, possibleRs):
-                possibleValues = (self._calcVTableCell(vTable[table_i - 1][it][t], (it, t, r), line, i)
-                                  for it in possibleIts)
+            for t in possibleTs:
+                result_dict = {}
+                for r in possibleRs:
+                    possibleValues = (self._calcVTableCell(vTable[table_i - 1][it][t], (it, t, r), line, i)
+                                      for it in possibleIts)
 
-                cell = max(possibleValues, key=self.TagValVal)
-                if not np.isneginf(cell.val):
-                    vTable[table_i][t][r] = cell
+                    cell = result_dict[r] = max(possibleValues)
 
-                if i == lineLength - 1:
-                    maxTagVal = max(maxTagVal, cell, key=self.TagValVal)
+                    if i == lineLength - 1:
+                        maxTagVal = max(maxTagVal, cell)
+
+                vTable[table_i][t] = result_dict
 
         output = []
-        self._appendSelectedTags(maxTagVal, line, len(line) - 1, output)
+        self._appendSelectedTags(maxTagVal, line, lineLength - 1, output)
         return output
 
     def _calcVTableCell(self, VCell, tagsTriplet, line, i):
@@ -62,7 +73,7 @@ class ViterbiTrigramTaggerAbstract:
         if val == -np.inf:
             return self.zeroTagVal
 
-        return self.TagVal(VCell, tagsTriplet[-1], val + VCell.val)
+        return TagVal(VCell, tagsTriplet[-1], val + VCell.val)
 
     def _appendSelectedTags(self, tagVal, line, i, output):
         if i > 0 and tagVal.prev:

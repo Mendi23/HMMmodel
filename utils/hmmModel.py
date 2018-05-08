@@ -11,11 +11,11 @@ from utils.parsers import TagsParser, StorageParser
 
 class HmmModel:
     class _WordEvent:
-        def __init__ (self, regex, count = 0):
+        def __init__(self, regex, count=0):
             self.regex = regex
             self.count = count
 
-    def __init__ (self, nOrder = 2, unkThreshold = 5):
+    def __init__(self, nOrder=2, unkThreshold=5):
         self._tagsTransitions = NgramTransitions(k=nOrder + 1)
         self._wordTags = EmissionTable()
         self._eventsTags = EmissionTable()
@@ -49,7 +49,7 @@ class HmmModel:
             eventChart + '$$': self._WordEvent(re.compile("[^a-z0-9]", re.I)),
         }
 
-    def computeFromFile (self, filePath):
+    def computeFromFile(self, filePath):
         endTags = [self.endTag] * self.nOrder
         startTags = [self.startTag] * self.nOrder
         for tags in TagsParser().parseFile(filePath):
@@ -59,19 +59,19 @@ class HmmModel:
         self._unknownCounter = self._wordTags.computeUnknown(self.unkThreshold)
         self._totalUnknown = sum(self._unknownCounter.values())
 
-    def reComputeUnknown (self, newThreshold = 5):
+    def reComputeUnknown(self, newThreshold=5):
         if newThreshold != self.unkThreshold:
             self._unknownCounter = self._wordTags.computeUnknown(newThreshold)
             self.unkThreshold = newThreshold
             self._totalUnknown = sum(self._unknownCounter.values())
 
-    def _getWordsAppliedEvents (self, tags):
+    def _getWordsAppliedEvents(self, tags):
         for word, tag in tags:
             for signature in self._eventsFilterOnWord(word):
                 self._eventsActions[signature].count += 1
                 yield signature, tag
 
-    def loadTransitions (self, QfilePath, EfilePath):
+    def loadTransitions(self, QfilePath, EfilePath):
         parser = StorageParser()
         for key, value in parser.Load(QfilePath):
             self._tagsTransitions.setValue(value, key)
@@ -89,27 +89,27 @@ class HmmModel:
             else:
                 self._wordTags.addFromIterable((key,), value)
 
-    def writeQ (self, filePath):
+    def writeQ(self, filePath):
         StorageParser().Save(filePath, self._tagsTransitions.getAllItems())
 
-    def writeE (self, filePath):
+    def writeE(self, filePath):
         StorageParser().Save(filePath,
                              chain(self._wordTags.getAllItems(),
                                    self._eventsTags.getAllItems(),
                                    ((self.unknownToken,) + keyVal for keyVal in self._unknownCounter.items())))
 
-    def getAllTags (self):
+    def getAllTags(self):
         return filter(lambda tag: tag != self.startTag, self._tagsTransitions.keys())
 
-    def getWordTags (self, word):
+    def getWordTags(self, word):
         tags = self._wordTags.wordTags(word.lower())
         if not tags:
             eventsTags = (self._eventsTags.wordTags(key) for key in self._eventsFilterOnWord(word))
             tags = chain(chain.from_iterable(eventsTags), self._unknownCounter.keys())
         return set(tags)
 
-    @lru_cache(maxsize=2 ** 17)
-    def getQ (self, params, hyperParam):
+    @lru_cache(maxsize=None)
+    def getQ(self, params, hyperParam):
         """
         compute q(t_n|t_1,t_2,...t_n-1)
         based on the folowing equation:
@@ -121,31 +121,33 @@ class HmmModel:
                        for i in range(min(self.nOrder + 1, len(params))))
         return sum(hyperParam * np.fromiter(countValues, float))
 
-    @lru_cache(maxsize=2 ** 12)
-    def getE (self, w, t):
+    @lru_cache(maxsize=None)
+    def getE(self, w, t):
         """ compute e(w|t) """
         return self._wordTags.getCount(w.lower(), t) / self._tagsTransitions.getValue((t,))
 
-    def wordExists (self, word, threshold=1):
+    def wordExists(self, word, threshold=1):
         return self._wordTags.wordExists(word.lower(), threshold)
 
-    @lru_cache()
-    def getEventTagRatio (self, eventKey, tag):
+    def getEventTagRatio(self, eventKey, tag):
         return self._eventsTags.getCount(eventKey, tag) / self._tagsTransitions.getValue((tag,))
-    @lru_cache()
-    def getUnknownTagRatio (self, tag):
+
+    @lru_cache(maxsize=None)
+    def getUnknownTagRatio(self, tag):
         return self._unknownCounter[tag] / self._tagsTransitions.getValue((tag,))
 
-    @lru_cache()
-    def getEventRatioTuple (self, tag):
+    @lru_cache(maxsize=None)
+    def getEventRatioTuple(self, tag):
         return tuple(
             (self.getEventTagRatio(eventKey, tag) for eventKey in self._eventsActions.keys()))
 
-    def getNumOfEvents (self):
+    def getNumOfEvents(self):
         return len(self._eventsActions)
 
-    def _eventsFilterOnWord (self, word):
+    @lru_cache(maxsize=None)
+    def _eventsFilterOnWord(self, word):
         return (key for key, action in self._eventsActions.items() if action.regex.search(word))
 
-    def getWordEventMask (self, word):
+    @lru_cache(maxsize=None)
+    def getWordEventMask(self, word):
         return tuple((bool(val.regex.search(word)) for val in self._eventsActions.values()))
