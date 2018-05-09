@@ -15,6 +15,4 @@ if __name__ == '__main__':
     inputfilename, qfilename, efilename = argv[1:4]
     x = HmmModel(2)
     x.computeFromFile(inputfilename)
-    x.writeQ(qfilename)
-    x.writeE(efilename)
-    # print(x._eventsFilterOnWord.cache_info())
+    x.saveTransitions(qfilename, efilename)

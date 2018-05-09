@@ -2,7 +2,7 @@ import inspect
 from glob import glob
 
 from sklearn.linear_model import LogisticRegression
-from hmm2 import Taggers as hmm_tg
+from hmm2 import hmm_Taggers as hmm_tg
 from MEMM import MEMMTaggers as hemm_tg, Features
 from sys import argv
 

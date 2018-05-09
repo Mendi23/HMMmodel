@@ -2,78 +2,81 @@ import re
 from collections import Counter
 from functools import lru_cache
 from itertools import chain
-
 import numpy as np
 
 from utils.ETTables import EmissionTable, NgramTransitions
-from utils.measuretime import measure
 from utils.parsers import TagsParser, StorageParser
 
 
 class HmmModel:
-    class _WordEvent:
-        def __init__(self, regex, count=0):
-            self.regex = regex
-            self.count = count
-
     def __init__(self, nOrder=2, unkThreshold=5):
         self._tagsTransitions = NgramTransitions(k=nOrder + 1)
         self._wordTags = EmissionTable()
         self._eventsTags = EmissionTable()
         self._unknownCounter = Counter()
-        self._totalUnknown = 0
         self.nOrder = nOrder
-        self.unkThreshold = unkThreshold
+        self._unkThreshold = unkThreshold
 
         self.endTag = "*END*"
         self.startTag = "*start*"
         self.unknownToken = "*UNK*"
         self.eventChar = eventChart = '^'
-        self._eventsActions = {
-            eventChart + 'num': self._WordEvent(re.compile("^[0-9\.]+$", re.I)),
-            # eventChart + '[0-9]': self._WordEvent(
-            #     re.compile(r"([0-9][^0-9\.]|[^0-9\.][0-9])", re.I)),
-            eventChart + '_ought': self._WordEvent(re.compile("ought$", re.I)),
-            eventChart + '_ing': self._WordEvent(re.compile("ing$", re.I)),
-            eventChart + '_ate': self._WordEvent(re.compile("ate$", re.I)),
-            eventChart + '_es': self._WordEvent(re.compile("es$", re.I)),
-            eventChart + '_ed': self._WordEvent(re.compile("ed$", re.I)),
-            eventChart + 'en_': self._WordEvent(re.compile("^en", re.I)),
-            eventChart + 'em_': self._WordEvent(re.compile("^em", re.I)),
-            eventChart + '_ous': self._WordEvent(re.compile("ous$", re.I)),
-            eventChart + '_cal': self._WordEvent(re.compile("cal$", re.I)),
-            eventChart + '_ish': self._WordEvent(re.compile("ish$", re.I)),
-            eventChart + 'adj_': self._WordEvent(re.compile("^(un|in|non)", re.I)),
-            eventChart + 'AA': self._WordEvent(re.compile("^[A-Z]+$")),
-            eventChart + 'Mr.': self._WordEvent(re.compile("[a-z]\.$", re.I)),
-            eventChart + 'Aa': self._WordEvent(re.compile("^[A-Z][a-z]")),
-            eventChart + '$$': self._WordEvent(re.compile("[^a-z0-9]", re.I)),
+        self._wordEvents = {
+            eventChart + 'num': re.compile("^[0-9\.]+$", re.I),
+            eventChart + '_ought': re.compile("ought$", re.I),
+            eventChart + '_ing': re.compile("ing$", re.I),
+            eventChart + '_ate': re.compile("ate$", re.I),
+            eventChart + '_es': re.compile("es$", re.I),
+            eventChart + '_ed': re.compile("ed$", re.I),
+            eventChart + 'en_': re.compile("^en", re.I),
+            eventChart + 'em_': re.compile("^em", re.I),
+            eventChart + '_ous': re.compile("ous$", re.I),
+            eventChart + '_cal': re.compile("cal$", re.I),
+            eventChart + '_ish': re.compile("ish$", re.I),
+            eventChart + 'adj_': re.compile("^(un|in|non)", re.I),
+            eventChart + 'AA': re.compile("^[A-Z]+$"),
+            eventChart + 'Mr.': re.compile("[a-z]\.$", re.I),
+            eventChart + 'Aa': re.compile("^[A-Z][a-z]"),
+            eventChart + '$$': re.compile("[^a-z0-9]", re.I),
         }
 
-    @measure
     def computeFromFile(self, filePath):
+        """
+        fit the model by parameters computed from input file (using TagsParser for decoding)
+        :param filePath:
+        """
         endTags = [self.endTag] * self.nOrder
         startTags = [self.startTag] * self.nOrder
         for tags in TagsParser().parseFile(filePath):
             self._tagsTransitions.addFromList(startTags + [t[-1] for t in tags] + endTags)
             self._eventsTags.addFromIterable(self._getWordsAppliedEvents(tags))
             self._wordTags.addFromIterable((word.lower(), tag) for word, tag in tags)
-        self._unknownCounter = self._wordTags.computeUnknown(self.unkThreshold)
-        self._totalUnknown = sum(self._unknownCounter.values())
+        self._unknownCounter = self._wordTags.computeUnknown(self._unkThreshold)
 
     def reComputeUnknown(self, newThreshold=5):
-        if newThreshold != self.unkThreshold:
+        """
+        re-compute the unknown Tags count according to a new newThreshold for max appearances
+        :param newThreshold: int
+        """
+        if newThreshold != self._unkThreshold:
             self._unknownCounter = self._wordTags.computeUnknown(newThreshold)
-            self.unkThreshold = newThreshold
-            self._totalUnknown = sum(self._unknownCounter.values())
+            self._unkThreshold = newThreshold
 
     def _getWordsAppliedEvents(self, tags):
+        """
+        :param tags: iterator of (word, tag) tuples
+        :return: Generator object. yield (signature, tag) corresponding to the matched word-events
+        """
         for word, tag in tags:
             for signature in self._eventsFilterOnWord(word):
-                self._eventsActions[signature].count += 1
                 yield signature, tag
 
     def loadTransitions(self, QfilePath, EfilePath):
+        """
+        fit the model using parameters stores in files (using StorageParser for decoding)
+        :param QfilePath: file containing counts for all n-grams in range (1, nOrder)
+        :param EfilePath: file containing words count
+        """
         parser = StorageParser()
         for key, value in parser.Load(QfilePath):
             self._tagsTransitions.setValue(value, key)
@@ -84,26 +87,34 @@ class HmmModel:
         for key, value in parser.Load(EfilePath):
             if key[0] == self.unknownToken:
                 self._unknownCounter[key[1]] = value
-                self._totalUnknown += value
             elif key[0].startswith(self.eventChar):
                 self._eventsTags.addFromIterable((key,), value)
-                self._eventsActions[key[0]].count += value
             else:
                 self._wordTags.addFromIterable((key,), value)
 
-    def writeQ(self, filePath):
-        StorageParser().Save(filePath, self._tagsTransitions.getAllItems())
-
-    def writeE(self, filePath):
-        StorageParser().Save(filePath,
-                             chain(self._wordTags.getAllItems(),
-                                   self._eventsTags.getAllItems(),
-                                   ((self.unknownToken,) + keyVal for keyVal in self._unknownCounter.items())))
+    def saveTransitions(self, QfilePath, EfilePath):
+        """
+        save the model's transition counts to files (using StorageParser)
+        :param QfilePath: file to store n-gram counts
+        :param EfilePath: file to store word, unknown and word-events counts
+        """
+        StorageParser().Save(QfilePath, self._tagsTransitions.getAllItems())
+        StorageParser().Save(EfilePath,
+            chain(self._wordTags.getAllItems(), self._eventsTags.getAllItems(),
+                ((self.unknownToken,) + keyVal for keyVal in self._unknownCounter.items())))
 
     def getAllTags(self):
+        """
+        :return: generator object. yield all tags that exist in the model
+        """
         return filter(lambda tag: tag != self.startTag, self._tagsTransitions.keys())
 
     def getWordTags(self, word):
+        """
+        if word wasn't in training data return tags that appeared with word-events or unknown words
+        :param word:
+        :return: set object. all tags that appear in training data with word
+        """
         tags = self._wordTags.wordTags(word.lower())
         if not tags:
             eventsTags = (self._eventsTags.wordTags(key) for key in self._eventsFilterOnWord(word))
@@ -114,9 +125,9 @@ class HmmModel:
     def getQ(self, params, hyperParam):
         """
         compute q(t_n|t_1,t_2,...t_n-1)
-        based on the folowing equation:
-        w_i * Score(params[i:]) / Score(params[i:-1])
-        :parameter hyperParam: should be with same len as params and sums up to 1.
+        :param params: (t_1, ..., t_n)
+        :param hyperParam: array-like. weights for q interpolation
+        :return: sum of: (w_i * Score(params[i:]) / Score(params[i:-1]))
         """
         getTagValue = self._tagsTransitions.getValue
         countValues = (getTagValue(params[i:]) / (getTagValue(params[i:-1]) or 1)
@@ -124,32 +135,66 @@ class HmmModel:
         return sum(hyperParam * np.fromiter(countValues, float))
 
     @lru_cache(maxsize=None)
-    def getE(self, w, t):
-        """ compute e(w|t) """
-        return self._wordTags.getCount(w.lower(), t) / self._tagsTransitions.getValue((t,))
+    def getE(self, word, tag):
+        """
+        compute e(w|t)
+        :param word:
+        :param tag:
+        :return: count(word, tag) / count(tag)
+        """
+        return self._wordTags.getCount(word.lower(), tag) / self._tagsTransitions.getValue((tag,))
 
     def wordExists(self, word, threshold=1):
+        """
+        :param word:
+        :param threshold: optinal. minimum appearances to be considered exist
+        :return: bool.
+        """
         return self._wordTags.wordExists(word.lower(), threshold)
 
-    def getEventTagRatio(self, eventKey, tag):
+    def getEventQ(self, eventKey, tag):
+        """
+        :param eventKey:
+        :param tag:
+        :return: count(event, tag) / count(tag)
+        """
         return self._eventsTags.getCount(eventKey, tag) / self._tagsTransitions.getValue((tag,))
 
     @lru_cache(maxsize=None)
-    def getUnknownTagRatio(self, tag):
+    def getUnknownQ(self, tag):
+        """
+        :param tag:
+        :return: count(unknown-words, tag) / count(tag)
+        """
         return self._unknownCounter[tag] / self._tagsTransitions.getValue((tag,))
 
     @lru_cache(maxsize=None)
-    def getEventRatioTuple(self, tag):
+    def getAllEventsQ(self, tag):
+        """
+        :param tag:
+        :return: tuple. count(event, tag) / count(tag) for every word-event
+        """
         return tuple(
-            (self.getEventTagRatio(eventKey, tag) for eventKey in self._eventsActions.keys()))
+            (self.getEventQ(eventKey, tag) for eventKey in self._wordEvents.keys()))
 
     def getNumOfEvents(self):
-        return len(self._eventsActions)
+        """
+        :return: num of word-events
+        """
+        return len(self._wordEvents)
 
     @lru_cache(maxsize=None)
     def _eventsFilterOnWord(self, word):
-        return (key for key, action in self._eventsActions.items() if action.regex.search(word))
+        """
+        :param word:
+        :return: generator object. all word-events that apply to word
+        """
+        return (key for key, regex in self._wordEvents.items() if regex.search(word))
 
     @lru_cache(maxsize=None)
     def getWordEventMask(self, word):
-        return tuple((bool(val.regex.search(word)) for val in self._eventsActions.values()))
+        """
+        :param word:
+        :return: tuple. mask with mask[i] = 1 iff wordEvents[i] applies to word
+        """
+        return tuple((bool(regex.search(word)) for regex in self._wordEvents.values()))

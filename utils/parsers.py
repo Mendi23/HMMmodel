@@ -116,59 +116,77 @@ class MappingParser:
     feat_val_delim = '='
     label_delim = ' '
     converted_delim = ':'
+    key_sep = '**********'
 
-    @staticmethod
-    def TagFeatToString (tag, features):
-        features = MappingParser.featuresToString(features)
-        return f"{tag}{MappingParser.label_delim}{features}"
+    def TagFeatToString (self, tag, features):
+        features = self.featuresToString(features)
+        return f"{tag}{self.label_delim}{features}"
 
-    @staticmethod
-    def featuresToString(features):
-        return MappingParser.col_delim.join(features)
+    def featuresToString(self, features):
+        return self.col_delim.join(features)
 
-    @staticmethod
-    def featureValue(feature, value):
-        return f"{feature}{MappingParser.feat_val_delim}{value}"
+    def featureValue(self, feature, value):
+        return f"{feature}{self.feat_val_delim}{value}"
 
-    @staticmethod
-    def splitFeatures(features):
-        return features.split(MappingParser.col_delim)
+    def getFeatureVal(self, feature):
+        return feature.split(self.feat_val_delim, 1)[-1]
 
-    @staticmethod
-    def TagVecToString (tag, featVect):
+    def splitFeatures(self, features):
+        return features.split(self.col_delim)
+
+    def TagVecToString (self, tag, featVect):
         return "{tag}{delim}{features}\n".format(
             tag = tag,
-            delim = MappingParser.label_delim,
-            features = MappingParser.col_delim.join((
-                f"{num}{MappingParser.converted_delim}1" for num in featVect
+            delim = self.label_delim,
+            features = self.col_delim.join((
+                f"{num}{self.converted_delim}1" for num in featVect
             ))
         )
 
-    @staticmethod
-    def saveDictsToFile (dicts, outFile):
+    def saveDictsToFile (self, outFile, dicts):
         with open(outFile, "w") as fOut:
             for dict_t in dicts:
-                for key, value in dict_t.items():
-                    fOut.write(f"{key}{MappingParser.col_delim}{value}\n")
-                fOut.write(f"{MappingParser.seperator}\n")
-    @staticmethod
-    def getDictsFromFile (inFile):
+                self._recDictSave(dict_t, fOut)
+
+    def _recDictSave(self, dict_t, fOut):
+        for key, value in dict_t.items():
+            if isinstance(value, dict):
+                fOut.write(f"{self.key_sep}{self.col_delim}{key}\n")
+                self._recDictSave(value, fOut)
+            else:
+                fOut.write(f"{key}{self.col_delim}{value}\n")
+        fOut.write(f"{self.seperator}\n")
+
+    def _recDictsLoad(self, fIn):
+        resultDict = {}
+        for line in fIn:
+            line = line.strip()
+            if line == self.seperator:
+                return resultDict
+            x = 2
+            if len(line.rsplit(self.col_delim, 1)) == 1:
+                print(fIn.readline())
+            key, val = line.rsplit(self.col_delim, 1)
+            if key == self.key_sep:
+                resultDict[val] = self._recDictsLoad(fIn)
+            else:
+                resultDict[key] = int(val)
+        return None
+
+        #print("SSSSSSSS")
+        #return resultDict
+
+    def getDictsFromFile (self, inFile):
         result = []
         with open(inFile) as fIn:
-            resultDict = {}
-            for line in fIn:
-                line = line.strip()
-                if line == MappingParser.seperator:
-                    result.append(resultDict)
-                    resultDict = {}
-                else:
-                    key, val = line.rsplit(MappingParser.col_delim, 1)
-                    resultDict[key] = int(val)
+            res = self._recDictsLoad(fIn)
+            while res:
+                result.append(res)
+                res = self._recDictsLoad(fIn)
         return result
 
-    @staticmethod
-    def splitTagFeatures(line):
-        return line.split(MappingParser.label_delim, 1)
+    def splitTagFeatures(self, line):
+        return line.split(self.label_delim, 1)
 
 
     # @staticmethod

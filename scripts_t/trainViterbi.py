@@ -4,7 +4,7 @@ import numpy as np
 
 from utils.hmmModel import HmmModel
 from utils.parsers import TagsParser, OutParser, TestParser
-from hmm2.Taggers import ViterbiTrigramTagger, GreedyTagger
+from hmm2.hmm_Taggers import ViterbiTrigramTagger, GreedyTagger
 
 
 def run_viterbi(infile, outfile, x, QH):
