@@ -148,9 +148,8 @@ class MemmTagger:
         if self.model:
             return self.model.get_params()
 
-    @lru_cache(maxsize=None)
     def _getPossibleTags(self, line, i):
-        res = self.word_tags.wordTags(line[i])
+        res = self.word_tags.wordTags(line[i].lower())
         return res if res else self.tags_dict.keys()
 
 
