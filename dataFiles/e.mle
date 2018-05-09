@@ -48345,10 +48345,13 @@ hardball NN	1
 ^$$ SYM	4
 ^$$ RBR	1
 ^$$ VBZ	2
-^num CD	3671
+^num CD	4548
+^num ,	1
 ^num .	1
-^num :	1
-^num NNP	1
+^num :	3
+^num JJ	21
+^num RB	3
+^num NNP	3
 ^_ed VBN	1360
 ^_ed VBD	861
 ^_ed JJ	1123

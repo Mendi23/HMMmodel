@@ -22,7 +22,7 @@ class HmmModel:
         self.unknownToken = "*UNK*"
         self.eventChar = eventChart = '^'
         self._wordEvents = {
-            eventChart + 'num': re.compile("^[0-9\.]+$", re.I),
+            eventChart + 'num': re.compile("^[0-9\.,\-]+$", re.I),
             eventChart + '_ought': re.compile("ought$", re.I),
             eventChart + '_ing': re.compile("ing$", re.I),
             eventChart + '_ate': re.compile("ate$", re.I),

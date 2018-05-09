@@ -1,5 +1,7 @@
 from collections import deque
+
 import numpy as np
+
 from utils.Viterbi import ViterbiTrigramTaggerAbstract
 from utils.hmmModel import HmmModel
 

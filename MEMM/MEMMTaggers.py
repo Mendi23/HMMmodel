@@ -148,8 +148,9 @@ class MemmTagger:
         if self.model:
             return self.model.get_params()
 
-    def _getPossibleTags(self, line, i):
-        res = self.word_tags.wordTags(line[i].lower())
+    @lru_cache(maxsize=None)
+    def getPossibleTagsForWord(self, word):
+        res = self.word_tags.wordTags(word)
         return res if res else self.tags_dict.keys()
 
 
@@ -174,6 +175,10 @@ class ViterbiTrigramTagger(GreedyTagger):
 
     def tagLine(self, line):
         return self._viterbi.tagLine(line)
+
+    def _getPossibleTags(self, line, i):
+        return self.getPossibleTagsForWord(line[i].lower())
+
 
     @lru_cache(maxsize=None)
     def _getProba(self, features):
