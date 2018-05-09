@@ -12,8 +12,8 @@ if __name__ == '__main__':
     """ command line: 
         output_file, expected_result_file
     """
-    expected = list(TagsParser().parseTagsFromFile("DataSets/ass1-tagger-test"))
+    expected_t = list(TagsParser().parseTagsFromFile("DataSets/ass1-tagger-test"))
     for file in glob("testResult/*.txt"):
-        out = list(TagsParser().parseTagsFromFile(file))
-        score = getScore(out, expected)
+        out_t = list(TagsParser().parseTagsFromFile(file))
+        score = getScore(out_t, expected_t)
         print(f"{file}: {score}")

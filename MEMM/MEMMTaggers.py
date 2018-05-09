@@ -5,8 +5,6 @@ from functools import lru_cache
 import scipy.sparse as sp
 import numpy as np
 import pickle
-from sklearn.linear_model import LogisticRegression
-
 from utils.ETTables import EmissionTable
 from utils.Viterbi import ViterbiTrigramTaggerAbstract
 from utils.parsers import MappingParser
@@ -19,10 +17,10 @@ class MemmTagger:
         self.tags_dict = {}
         self.features_dict = {}
         self.t_i, self.f_i = 1, 1
-        self.model: LogisticRegression = model
         self.tags = [None]
         self.word_tags = EmissionTable()
         self.MP = parser
+        self.model = model
 
     """
     input: list: word, list: tags, index: i
@@ -119,7 +117,7 @@ class MemmTagger:
         self.MP.saveDictsToFile(filePath, [self.features_dict, self.tags_dict, self.word_tags])
         if modelFile:
             assert self.model
-            self._saveModelTofile(modelFile)
+            self.saveModelTofile(modelFile)
 
     def loadParams(self, filePath, modelFile=None):
         self.features_dict, self.tags_dict, word_tags_dict = self.MP.getDictsFromFile(filePath)[:3]
@@ -131,7 +129,7 @@ class MemmTagger:
         if modelFile:
             self._loadModelFromFile(modelFile)
 
-    def _saveModelTofile(self, filePath):
+    def saveModelTofile(self, filePath):
         pickle.dump(self.model, open(filePath, 'wb'))
 
     def _loadModelFromFile(self, filePath):

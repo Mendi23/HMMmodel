@@ -163,9 +163,6 @@ class MappingParser:
             line = line.strip()
             if line == self.seperator:
                 return resultDict
-            x = 2
-            if len(line.rsplit(self.col_delim, 1)) == 1:
-                print(fIn.readline())
             key, val = line.rsplit(self.col_delim, 1)
             if key == self.key_sep:
                 resultDict[val] = self._recDictsLoad(fIn)
@@ -173,17 +170,15 @@ class MappingParser:
                 resultDict[key] = int(val)
         return None
 
-        #print("SSSSSSSS")
-        #return resultDict
-
     def getDictsFromFile (self, inFile):
-        result = []
+        # result = []
         with open(inFile) as fIn:
-            res = self._recDictsLoad(fIn)
-            while res:
-                result.append(res)
-                res = self._recDictsLoad(fIn)
-        return result
+            # res = self._recDictsLoad(fIn)
+            return list(iter(lambda : self._recDictsLoad(fIn), None))
+            # while res:
+            #     result.append(res)
+            #     res = self._recDictsLoad(fIn)
+        # return result
 
     def splitTagFeatures(self, line):
         return line.split(self.label_delim, 1)
