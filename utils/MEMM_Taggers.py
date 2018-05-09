@@ -2,6 +2,9 @@
 features is zero based
 """
 import pickle
+from inspect import getmembers, isfunction
+
+from utils import MEMM_Features
 from utils.ETTables import EmissionTable
 from functools import lru_cache
 import numpy as np
@@ -12,8 +15,8 @@ from utils.parsers import MappingParser
 
 class MemmTagger:
 
-    def __init__(self, featuresFuncs=None, model=None, parser=MappingParser()):
-        self._featuresFuncs = featuresFuncs
+    def __init__(self, model=None, parser=MappingParser()):
+        self._featuresFuncs = getmembers(MEMM_Features, isfunction)
         self.tags_dict = {}
         self.features_dict = {}
         self.t_i, self.f_i = 1, 1

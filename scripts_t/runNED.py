@@ -1,13 +1,14 @@
-import inspect
 from glob import glob
-
-from sklearn.linear_model import LogisticRegression
-from hmm2 import hmm_Taggers as hmm_tg
-from MEMM import MEMMTaggers as hemm_tg, Features
 from sys import argv
+
 import scipy.sparse as sp
+from sklearn.linear_model import LogisticRegression
+
+from utils import MEMM_Taggers as hemm_tg
+from hmm2 import hmm_Taggers as hmm_tg
 from scripts_t.ner_eval import main_func
 from utils.parsers import OutParser, TestParser, TagsParser
+
 
 def trainModel():
     x_train, y_train = [], []
@@ -41,10 +42,8 @@ if __name__ == '__main__':
     x.computeFromFile(train)
     hmm_greedy = hmm_tg.GreedyTagger(x)
     hmm_viterby = hmm_tg.ViterbiTrigramTagger(x)
-    emm_greedy = hemm_tg.GreedyTagger(inspect.getmembers(Features, inspect.isfunction),
-        LogisticRegression())
-    emm_viterbi = hemm_tg.ViterbiTrigramTagger(inspect.getmembers(Features, inspect.isfunction),
-        LogisticRegression())
+    emm_greedy = hemm_tg.GreedyTagger(LogisticRegression())
+    emm_viterbi = hemm_tg.ViterbiTrigramTagger(LogisticRegression())
 
     trainModel()
     loadModels()

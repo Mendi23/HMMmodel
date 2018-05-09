@@ -1,0 +1,200 @@
+IN form=in fw1=an fw2=oct. hyph=0 num=0 pref1=i pref2=in suf1=n suf2=in upper=1
+DT form=an fw1=oct. fw2=19 hyph=0 num=0 pref1=a pref2=an pt1=in pt21=in pw1=in suf1=n suf2=an upper=0
+NNP form=oct. fw1=19 fw2=review hyph=0 num=0 pref1=o pref2=oc pref3=oct pref4=oct. pt1=dt pt21=indt pw1=an pw2=in suf1=. suf2=t. suf3=ct. suf4=oct. upper=1
+CD form=19 fw1=review fw2=of hyph=0 num=1 pref1=1 pref2=19 pt1=nnp pt21=dtnnp pw1=oct. pw2=an suf1=9 suf2=19 upper=0
+NN form=review fw1=of fw2=`` hyph=0 num=0 pref1=r pref2=re pref3=rev pref4=revi pt1=cd pt21=nnpcd pw1=19 pw2=oct. suf1=w suf2=ew suf3=iew suf4=view upper=0
+IN form=of fw1=`` fw2=the hyph=0 num=0 pref1=o pref2=of pt1=nn pt21=cdnn pw1=review pw2=19 suf1=f suf2=of upper=0
+`` form=`` fw1=the fw2=misanthrope hyph=0 num=0 pref1=` pref2=`` pt1=in pt21=nnin pw1=of pw2=review suf1=` suf2=`` upper=0
+DT form=the fw1=misanthrope fw2='' hyph=0 num=0 pref1=t pref2=th pref3=the pt1=`` pt21=in`` pw1=`` pw2=of suf1=e suf2=he suf3=the upper=1
+NN form=misanthrope fw1='' fw2=at hyph=0 num=0 pref1=m pref2=mi pref3=mis pref4=misa pt1=dt pt21=``dt pw1=the pw2=`` suf1=e suf2=pe suf3=ope suf4=rope upper=1
+'' form='' fw1=at fw2=chicago hyph=0 num=0 pref1=' pref2='' pt1=nn pt21=dtnn pw1=misanthrope pw2=the suf1=' suf2='' upper=0
+IN form=at fw1=chicago fw2='s hyph=0 num=0 pref1=a pref2=at pt1='' pt21=nn'' pw1='' pw2=misanthrope suf1=t suf2=at upper=0
+NNP form=chicago fw1='s fw2=goodman hyph=0 num=0 pref1=c pref2=ch pref3=chi pref4=chic pt1=in pt21=''in pw1=at pw2='' suf1=o suf2=go suf3=ago suf4=cago upper=1
+POS form='s fw1=goodman fw2=theatre hyph=0 num=0 pref1=' pref2='s pt1=nnp pt21=innnp pw1=chicago pw2=at suf1=s suf2='s upper=0
+NNP form=goodman fw1=theatre fw2=( hyph=0 num=0 pref1=g pref2=go pref3=goo pref4=good pt1=pos pt21=nnppos pw1='s pw2=chicago suf1=n suf2=an suf3=man suf4=dman upper=1
+NNP form=theatre fw1=( fw2=`` hyph=0 num=0 pref1=t pref2=th pref3=the pref4=thea pt1=nnp pt21=posnnp pw1=goodman pw2='s suf1=e suf2=re suf3=tre suf4=atre upper=1
+( form=( fw1=`` fw2=revitalized hyph=0 num=0 pref1=( pt1=nnp pt21=nnpnnp pw1=theatre pw2=goodman suf1=( upper=0
+`` form=`` fw1=revitalized fw2=classics hyph=0 num=0 pref1=` pref2=`` pt1=( pt21=nnp( pw1=( pw2=theatre suf1=` suf2=`` upper=0
+VBN form=revitalized fw1=classics fw2=take hyph=0 num=0 pref1=r pref2=re pref3=rev pref4=revi pt1=`` pt21=(`` pw1=`` pw2=( suf1=d suf2=ed suf3=zed suf4=ized upper=1
+NNS form=classics fw1=take fw2=the hyph=0 num=0 pref1=c pref2=cl pref3=cla pref4=clas pt1=vbn pt21=``vbn pw1=revitalized pw2=`` suf1=s suf2=cs suf3=ics suf4=sics upper=1
+VBP form=take fw1=the fw2=stage hyph=0 num=0 pref1=t pref2=ta pref3=tak pref4=take pt1=nns pt21=vbnnns pw1=classics pw2=revitalized suf1=e suf2=ke suf3=ake suf4=take upper=1
+DT form=the fw1=stage fw2=in hyph=0 num=0 pref1=t pref2=th pref3=the pt1=vbp pt21=nnsvbp pw1=take pw2=classics suf1=e suf2=he suf3=the upper=0
+NN form=stage fw1=in fw2=windy hyph=0 num=0 pref1=s pref2=st pref3=sta pref4=stag pt1=dt pt21=vbpdt pw1=the pw2=take suf1=e suf2=ge suf3=age suf4=tage upper=1
+IN form=in fw1=windy fw2=city hyph=0 num=0 pref1=i pref2=in pt1=nn pt21=dtnn pw1=stage pw2=the suf1=n suf2=in upper=0
+NNP form=windy fw1=city fw2=, hyph=0 num=0 pref1=w pref2=wi pref3=win pref4=wind pt1=in pt21=nnin pw1=in pw2=stage suf1=y suf2=dy suf3=ndy suf4=indy upper=1
+NNP form=city fw1=, fw2='' hyph=0 num=0 pref1=c pref2=ci pref3=cit pref4=city pt1=nnp pt21=innnp pw1=windy pw2=in suf1=y suf2=ty suf3=ity suf4=city upper=1
+, form=, fw1='' fw2=leisure hyph=0 num=0 pref1=, pt1=nnp pt21=nnpnnp pw1=city pw2=windy suf1=, upper=0
+'' form='' fw1=leisure fw2=& hyph=0 num=0 pref1=' pref2='' pt1=, pt21=nnp, pw1=, pw2=city suf1=' suf2='' upper=0
+NN form=leisure fw1=& fw2=arts hyph=0 num=0 pref1=l pref2=le pref3=lei pref4=leis pt1='' pt21=,'' pw1='' pw2=, suf1=e suf2=re suf3=ure suf4=sure upper=1
+CC form=& fw1=arts fw2=) hyph=0 num=0 pref1=& pt1=nn pt21=''nn pw1=leisure pw2='' suf1=& upper=0
+NNS form=arts fw1=) fw2=, hyph=0 num=0 pref1=a pref2=ar pref3=art pref4=arts pt1=cc pt21=nncc pw1=& pw2=leisure suf1=s suf2=ts suf3=rts suf4=arts upper=1
+) form=) fw1=, fw2=the hyph=0 num=0 pref1=) pt1=nns pt21=ccnns pw1=arts pw2=& suf1=) upper=0
+, form=, fw1=the fw2=role hyph=0 num=0 pref1=, pt1=) pt21=nns) pw1=) pw2=arts suf1=, upper=0
+DT form=the fw1=role fw2=of hyph=0 num=0 pref1=t pref2=th pref3=the pt1=, pt21=), pw1=, pw2=) suf1=e suf2=he suf3=the upper=0
+NN form=role fw1=of fw2=celimene hyph=0 num=0 pref1=r pref2=ro pref3=rol pref4=role pt1=dt pt21=,dt pw1=the pw2=, suf1=e suf2=le suf3=ole suf4=role upper=0
+IN form=of fw1=celimene fw2=, hyph=0 num=0 pref1=o pref2=of pt1=nn pt21=dtnn pw1=role pw2=the suf1=f suf2=of upper=0
+NNP form=celimene fw1=, fw2=played hyph=0 num=0 pref1=c pref2=ce pref3=cel pref4=celi pt1=in pt21=nnin pw1=of pw2=role suf1=e suf2=ne suf3=ene suf4=mene upper=1
+, form=, fw1=played fw2=by hyph=0 num=0 pref1=, pt1=nnp pt21=innnp pw1=celimene pw2=of suf1=, upper=0
+VBN form=played fw1=by fw2=kim hyph=0 num=0 pref1=p pref2=pl pref3=pla pref4=play pt1=, pt21=nnp, pw1=, pw2=celimene suf1=d suf2=ed suf3=yed suf4=ayed upper=0
+IN form=by fw1=kim fw2=cattrall hyph=0 num=0 pref1=b pref2=by pt1=vbn pt21=,vbn pw1=played pw2=, suf1=y suf2=by upper=0
+NNP form=kim fw1=cattrall fw2=, hyph=0 num=0 pref1=k pref2=ki pref3=kim pt1=in pt21=vbnin pw1=by pw2=played suf1=m suf2=im suf3=kim upper=1
+NNP form=cattrall fw1=, fw2=was hyph=0 num=0 pref1=c pref2=ca pref3=cat pref4=catt pt1=nnp pt21=innnp pw1=kim pw2=by suf1=l suf2=ll suf3=all suf4=rall upper=1
+, form=, fw1=was fw2=mistakenly hyph=0 num=0 pref1=, pt1=nnp pt21=nnpnnp pw1=cattrall pw2=kim suf1=, upper=0
+VBD form=was fw1=mistakenly fw2=attributed hyph=0 num=0 pref1=w pref2=wa pref3=was pt1=, pt21=nnp, pw1=, pw2=cattrall suf1=s suf2=as suf3=was upper=0
+RB form=mistakenly fw1=attributed fw2=to hyph=0 num=0 pref1=m pref2=mi pref3=mis pref4=mist pt1=vbd pt21=,vbd pw1=was pw2=, suf1=y suf2=ly suf3=nly suf4=enly upper=0
+VBN form=attributed fw1=to fw2=christina hyph=0 num=0 pref1=a pref2=at pref3=att pref4=attr pt1=rb pt21=vbdrb pw1=mistakenly pw2=was suf1=d suf2=ed suf3=ted suf4=uted upper=0
+IN form=to fw1=christina fw2=haag hyph=0 num=0 pref1=t pref2=to pt1=vbn pt21=rbvbn pw1=attributed pw2=mistakenly suf1=o suf2=to upper=0
+NNP form=christina fw1=haag fw2=. hyph=0 num=0 pref1=c pref2=ch pref3=chr pref4=chri pt1=in pt21=vbnin pw1=to pw2=attributed suf1=a suf2=na suf3=ina suf4=tina upper=1
+NNP form=haag fw1=. hyph=0 num=0 pref1=h pref2=ha pref3=haa pref4=haag pt1=nnp pt21=innnp pw1=christina pw2=to suf1=g suf2=ag suf3=aag suf4=haag upper=1
+. form=. hyph=0 num=0 pref1=. pt1=nnp pt21=nnpnnp pw1=haag pw2=christina suf1=. upper=0
+NNP form=ms. fw1=haag fw2=plays hyph=0 num=0 pref1=m pref2=ms pref3=ms. suf1=. suf2=s. suf3=ms. upper=1
+NNP form=haag fw1=plays fw2=elianti hyph=0 num=0 pref1=h pref2=ha pref3=haa pref4=haag pt1=nnp pt21=nnp pw1=ms. suf1=g suf2=ag suf3=aag suf4=haag upper=1
+VBZ form=plays fw1=elianti fw2=. hyph=0 num=0 pref1=p pref2=pl pref3=pla pref4=play pt1=nnp pt21=nnpnnp pw1=haag pw2=ms. suf1=s suf2=ys suf3=ays suf4=lays upper=0
+NNP form=elianti fw1=. hyph=0 num=0 pref1=e pref2=el pref3=eli pref4=elia pt1=vbz pt21=nnpvbz pw1=plays pw2=haag suf1=i suf2=ti suf3=nti suf4=anti upper=1
+. form=. hyph=0 num=0 pref1=. pt1=nnp pt21=vbznnp pw1=elianti pw2=plays suf1=. upper=0
+NNP form=rolls-royce fw1=motor fw2=cars hyph=1 num=0 pref1=r pref2=ro pref3=rol pref4=roll suf1=e suf2=ce suf3=yce suf4=oyce upper=1
+NNP form=motor fw1=cars fw2=inc. hyph=0 num=0 pref1=m pref2=mo pref3=mot pref4=moto pt1=nnp pt21=nnp pw1=rolls-royce suf1=r suf2=or suf3=tor suf4=otor upper=1
+NNPS form=cars fw1=inc. fw2=said hyph=0 num=0 pref1=c pref2=ca pref3=car pref4=cars pt1=nnp pt21=nnpnnp pw1=motor pw2=rolls-royce suf1=s suf2=rs suf3=ars suf4=cars upper=1
+NNP form=inc. fw1=said fw2=it hyph=0 num=0 pref1=i pref2=in pref3=inc pref4=inc. pt1=nnps pt21=nnpnnps pw1=cars pw2=motor suf1=. suf2=c. suf3=nc. suf4=inc. upper=1
+VBD form=said fw1=it fw2=expects hyph=0 num=0 pref1=s pref2=sa pref3=sai pref4=said pt1=nnp pt21=nnpsnnp pw1=inc. pw2=cars suf1=d suf2=id suf3=aid suf4=said upper=0
+PRP form=it fw1=expects fw2=its hyph=0 num=0 pref1=i pref2=it pt1=vbd pt21=nnpvbd pw1=said pw2=inc. suf1=t suf2=it upper=0
+VBZ form=expects fw1=its fw2=u.s. hyph=0 num=0 pref1=e pref2=ex pref3=exp pref4=expe pt1=prp pt21=vbdprp pw1=it pw2=said suf1=s suf2=ts suf3=cts suf4=ects upper=0
+PRP$ form=its fw1=u.s. fw2=sales hyph=0 num=0 pref1=i pref2=it pref3=its pt1=vbz pt21=prpvbz pw1=expects pw2=it suf1=s suf2=ts suf3=its upper=0
+NNP form=u.s. fw1=sales fw2=to hyph=0 num=0 pref1=u pref2=u. pref3=u.s pref4=u.s. pt1=prp$ pt21=vbzprp$ pw1=its pw2=expects suf1=. suf2=s. suf3=.s. suf4=u.s. upper=1
+NNS form=sales fw1=to fw2=remain hyph=0 num=0 pref1=s pref2=sa pref3=sal pref4=sale pt1=nnp pt21=prp$nnp pw1=u.s. pw2=its suf1=s suf2=es suf3=les suf4=ales upper=0
+TO form=to fw1=remain fw2=steady hyph=0 num=0 pref1=t pref2=to pt1=nns pt21=nnpnns pw1=sales pw2=u.s. suf1=o suf2=to upper=0
+VB form=remain fw1=steady fw2=at hyph=0 num=0 pref1=r pref2=re pref3=rem pref4=rema pt1=to pt21=nnsto pw1=to pw2=sales suf1=n suf2=in suf3=ain suf4=main upper=0
+JJ form=steady fw1=at fw2=about hyph=0 num=0 pref1=s pref2=st pref3=ste pref4=stea pt1=vb pt21=tovb pw1=remain pw2=to suf1=y suf2=dy suf3=ady suf4=eady upper=0
+IN form=at fw1=about fw2=1,200 hyph=0 num=0 pref1=a pref2=at pt1=jj pt21=vbjj pw1=steady pw2=remain suf1=t suf2=at upper=0
+IN form=about fw1=1,200 fw2=cars hyph=0 num=0 pref1=a pref2=ab pref3=abo pref4=abou pt1=in pt21=jjin pw1=at pw2=steady suf1=t suf2=ut suf3=out suf4=bout upper=0
+CD form=1,200 fw1=cars fw2=in hyph=0 num=1 pref1=1 pref2=1, pref3=1,2 pref4=1,20 pt1=in pt21=inin pw1=about pw2=at suf1=0 suf2=00 suf3=200 suf4=,200 upper=0
+NNS form=cars fw1=in fw2=1990 hyph=0 num=0 pref1=c pref2=ca pref3=car pref4=cars pt1=cd pt21=incd pw1=1,200 pw2=about suf1=s suf2=rs suf3=ars suf4=cars upper=0
+IN form=in fw1=1990 fw2=. hyph=0 num=0 pref1=i pref2=in pt1=nns pt21=cdnns pw1=cars pw2=1,200 suf1=n suf2=in upper=0
+CD form=1990 fw1=. hyph=0 num=1 pref1=1 pref2=19 pref3=199 pref4=1990 pt1=in pt21=nnsin pw1=in pw2=cars suf1=0 suf2=90 suf3=990 suf4=1990 upper=0
+. form=. hyph=0 num=0 pref1=. pt1=cd pt21=incd pw1=1990 pw2=in suf1=. upper=0
+DT form=the fw1=luxury fw2=auto hyph=0 num=0 pref1=t pref2=th pref3=the suf1=e suf2=he suf3=the upper=1
+NN form=luxury fw1=auto fw2=maker hyph=0 num=0 pref1=l pref2=lu pref3=lux pref4=luxu pt1=dt pt21=dt pw1=the suf1=y suf2=ry suf3=ury suf4=xury upper=0
+NN form=auto fw1=maker fw2=last hyph=0 num=0 pref1=a pref2=au pref3=aut pref4=auto pt1=nn pt21=dtnn pw1=luxury pw2=the suf1=o suf2=to suf3=uto suf4=auto upper=0
+NN form=maker fw1=last fw2=year hyph=0 num=0 pref1=m pref2=ma pref3=mak pref4=make pt1=nn pt21=nnnn pw1=auto pw2=luxury suf1=r suf2=er suf3=ker suf4=aker upper=0
+JJ form=last fw1=year fw2=sold hyph=0 num=0 pref1=l pref2=la pref3=las pref4=last pt1=nn pt21=nnnn pw1=maker pw2=auto suf1=t suf2=st suf3=ast suf4=last upper=0
+NN form=year fw1=sold fw2=1,214 hyph=0 num=0 pref1=y pref2=ye pref3=yea pref4=year pt1=jj pt21=nnjj pw1=last pw2=maker suf1=r suf2=ar suf3=ear suf4=year upper=0
+VBD form=sold fw1=1,214 fw2=cars hyph=0 num=0 pref1=s pref2=so pref3=sol pref4=sold pt1=nn pt21=jjnn pw1=year pw2=last suf1=d suf2=ld suf3=old suf4=sold upper=0
+CD form=1,214 fw1=cars fw2=in hyph=0 num=1 pref1=1 pref2=1, pref3=1,2 pref4=1,21 pt1=vbd pt21=nnvbd pw1=sold pw2=year suf1=4 suf2=14 suf3=214 suf4=,214 upper=0
+NNS form=cars fw1=in fw2=the hyph=0 num=0 pref1=c pref2=ca pref3=car pref4=cars pt1=cd pt21=vbdcd pw1=1,214 pw2=sold suf1=s suf2=rs suf3=ars suf4=cars upper=0
+IN form=in fw1=the fw2=u.s. hyph=0 num=0 pref1=i pref2=in pt1=nns pt21=cdnns pw1=cars pw2=1,214 suf1=n suf2=in upper=0
+DT form=the fw1=u.s. hyph=0 num=0 pref1=t pref2=th pref3=the pt1=in pt21=nnsin pw1=in pw2=cars suf1=e suf2=he suf3=the upper=0
+NNP form=u.s. hyph=0 num=0 pref1=u pref2=u. pref3=u.s pref4=u.s. pt1=dt pt21=indt pw1=the pw2=in suf1=. suf2=s. suf3=.s. suf4=u.s. upper=1
+NNP form=howard fw1=mosher fw2=, hyph=0 num=0 pref1=h pref2=ho pref3=how pref4=howa suf1=d suf2=rd suf3=ard suf4=ward upper=1
+NNP form=mosher fw1=, fw2=president hyph=0 num=0 pref1=m pref2=mo pref3=mos pref4=mosh pt1=nnp pt21=nnp pw1=howard suf1=r suf2=er suf3=her suf4=sher upper=1
+, form=, fw1=president fw2=and hyph=0 num=0 pref1=, pt1=nnp pt21=nnpnnp pw1=mosher pw2=howard suf1=, upper=0
+NN form=president fw1=and fw2=chief hyph=0 num=0 pref1=p pref2=pr pref3=pre pref4=pres pt1=, pt21=nnp, pw1=, pw2=mosher suf1=t suf2=nt suf3=ent suf4=dent upper=0
+CC form=and fw1=chief fw2=executive hyph=0 num=0 pref1=a pref2=an pref3=and pt1=nn pt21=,nn pw1=president pw2=, suf1=d suf2=nd suf3=and upper=0
+JJ form=chief fw1=executive fw2=officer hyph=0 num=0 pref1=c pref2=ch pref3=chi pref4=chie pt1=cc pt21=nncc pw1=and pw2=president suf1=f suf2=ef suf3=ief suf4=hief upper=0
+NN form=executive fw1=officer fw2=, hyph=0 num=0 pref1=e pref2=ex pref3=exe pref4=exec pt1=jj pt21=ccjj pw1=chief pw2=and suf1=e suf2=ve suf3=ive suf4=tive upper=0
+NN form=officer fw1=, fw2=said hyph=0 num=0 pref1=o pref2=of pref3=off pref4=offi pt1=nn pt21=jjnn pw1=executive pw2=chief suf1=r suf2=er suf3=cer suf4=icer upper=0
+, form=, fw1=said fw2=he hyph=0 num=0 pref1=, pt1=nn pt21=nnnn pw1=officer pw2=executive suf1=, upper=0
+VBD form=said fw1=he fw2=anticipates hyph=0 num=0 pref1=s pref2=sa pref3=sai pref4=said pt1=, pt21=nn, pw1=, pw2=officer suf1=d suf2=id suf3=aid suf4=said upper=0
+PRP form=he fw1=anticipates fw2=growth hyph=0 num=0 pref1=h pref2=he pt1=vbd pt21=,vbd pw1=said pw2=, suf1=e suf2=he upper=0
+VBZ form=anticipates fw1=growth fw2=for hyph=0 num=0 pref1=a pref2=an pref3=ant pref4=anti pt1=prp pt21=vbdprp pw1=he pw2=said suf1=s suf2=es suf3=tes suf4=ates upper=0
+NN form=growth fw1=for fw2=the hyph=0 num=0 pref1=g pref2=gr pref3=gro pref4=grow pt1=vbz pt21=prpvbz pw1=anticipates pw2=he suf1=h suf2=th suf3=wth suf4=owth upper=0
+IN form=for fw1=the fw2=luxury hyph=0 num=0 pref1=f pref2=fo pref3=for pt1=nn pt21=vbznn pw1=growth pw2=anticipates suf1=r suf2=or suf3=for upper=0
+NNS form=airplanes fw1=. hyph=0 num=0 pref1=a pref2=ai pref3=air pref4=airp pt1=dt pt21=vbdt pw1=the pw2=fly suf1=s suf2=es suf3=nes suf4=anes upper=0
+. form=. hyph=0 num=0 pref1=. pt1=nns pt21=dtnns pw1=airplanes pw2=the suf1=. upper=0
+IN form=if fw1=they fw2=were hyph=0 num=0 pref1=i pref2=if suf1=f suf2=if upper=1
+PRP form=they fw1=were fw2=to hyph=0 num=0 pref1=t pref2=th pref3=the pref4=they pt1=in pt21=in pw1=if suf1=y suf2=ey suf3=hey suf4=they upper=0
+VBD form=were fw1=to fw2=insist hyph=0 num=0 pref1=w pref2=we pref3=wer pref4=were pt1=prp pt21=inprp pw1=they pw2=if suf1=e suf2=re suf3=ere suf4=were upper=0
+TO form=to fw1=insist fw2=on hyph=0 num=0 pref1=t pref2=to pt1=vbd pt21=prpvbd pw1=were pw2=they suf1=o suf2=to upper=0
+VB form=insist fw1=on fw2=a hyph=0 num=0 pref1=i pref2=in pref3=ins pref4=insi pt1=to pt21=vbdto pw1=to pw2=were suf1=t suf2=st suf3=ist suf4=sist upper=0
+IN form=on fw1=a fw2=low hyph=0 num=0 pref1=o pref2=on pt1=vb pt21=tovb pw1=insist pw2=to suf1=n suf2=on upper=0
+DT form=a fw1=low fw2=bid hyph=0 num=0 pref1=a pt1=in pt21=vbin pw1=on pw2=insist suf1=a upper=0
+JJ form=low fw1=bid fw2=of hyph=0 num=0 pref1=l pref2=lo pref3=low pt1=dt pt21=indt pw1=a pw2=on suf1=w suf2=ow suf3=low upper=0
+NN form=bid fw1=of fw2=, hyph=0 num=0 pref1=b pref2=bi pref3=bid pt1=jj pt21=dtjj pw1=low pw2=a suf1=d suf2=id suf3=bid upper=0
+IN form=of fw1=, fw2=say hyph=0 num=0 pref1=o pref2=of pt1=nn pt21=jjnn pw1=bid pw2=low suf1=f suf2=of upper=0
+, form=, fw1=say fw2=$ hyph=0 num=0 pref1=, pt1=in pt21=nnin pw1=of pw2=bid suf1=, upper=0
+VB form=say fw1=$ fw2=200 hyph=0 num=0 pref1=s pref2=sa pref3=say pt1=, pt21=in, pw1=, pw2=of suf1=y suf2=ay suf3=say upper=0
+$ form=$ fw1=200 fw2=a hyph=0 num=0 pref1=$ pt1=vb pt21=,vb pw1=say pw2=, suf1=$ upper=0
+CD form=200 fw1=a fw2=share hyph=0 num=1 pref1=2 pref2=20 pref3=200 pt1=$ pt21=vb$ pw1=$ pw2=say suf1=0 suf2=00 suf3=200 upper=0
+DT form=a fw1=share fw2=, hyph=0 num=0 pref1=a pt1=cd pt21=$cd pw1=200 pw2=$ suf1=a upper=0
+NN form=share fw1=, fw2=the hyph=0 num=0 pref1=s pref2=sh pref3=sha pref4=shar pt1=dt pt21=cddt pw1=a pw2=200 suf1=e suf2=re suf3=are suf4=hare upper=0
+, form=, fw1=the fw2=board hyph=0 num=0 pref1=, pt1=nn pt21=dtnn pw1=share pw2=a suf1=, upper=0
+DT form=the fw1=board fw2=might hyph=0 num=0 pref1=t pref2=th pref3=the pt1=, pt21=nn, pw1=, pw2=share suf1=e suf2=he suf3=the upper=0
+NN form=board fw1=might fw2=n't hyph=0 num=0 pref1=b pref2=bo pref3=boa pref4=boar pt1=dt pt21=,dt pw1=the pw2=, suf1=d suf2=rd suf3=ard suf4=oard upper=0
+MD form=might fw1=n't fw2=be hyph=0 num=0 pref1=m pref2=mi pref3=mig pref4=migh pt1=nn pt21=dtnn pw1=board pw2=the suf1=t suf2=ht suf3=ght suf4=ight upper=0
+RB form=n't fw1=be fw2=able hyph=0 num=0 pref1=n pref2=n' pref3=n't pt1=md pt21=nnmd pw1=might pw2=board suf1=t suf2='t suf3=n't upper=0
+VB form=be fw1=able fw2=to hyph=0 num=0 pref1=b pref2=be pt1=rb pt21=mdrb pw1=n't pw2=might suf1=e suf2=be upper=0
+JJ form=able fw1=to fw2=obtain hyph=0 num=0 pref1=a pref2=ab pref3=abl pref4=able pt1=vb pt21=rbvb pw1=be pw2=n't suf1=e suf2=le suf3=ble suf4=able upper=0
+TO form=to fw1=obtain fw2=a hyph=0 num=0 pref1=t pref2=to pt1=jj pt21=vbjj pw1=able pw2=be suf1=o suf2=to upper=0
+VB form=obtain fw1=a fw2=higher hyph=0 num=0 pref1=o pref2=ob pref3=obt pref4=obta pt1=to pt21=jjto pw1=to pw2=able suf1=n suf2=in suf3=ain suf4=tain upper=0
+DT form=a fw1=higher fw2=offer hyph=0 num=0 pref1=a pt1=vb pt21=tovb pw1=obtain pw2=to suf1=a upper=0
+JJR form=higher fw1=offer fw2=from hyph=0 num=0 pref1=h pref2=hi pref3=hig pref4=high pt1=dt pt21=vbdt pw1=a pw2=obtain suf1=r suf2=er suf3=her suf4=gher upper=0
+NN form=offer fw1=from fw2=other hyph=0 num=0 pref1=o pref2=of pref3=off pref4=offe pt1=jjr pt21=dtjjr pw1=higher pw2=a suf1=r suf2=er suf3=fer suf4=ffer upper=0
+IN form=from fw1=other fw2=bidders hyph=0 num=0 pref1=f pref2=fr pref3=fro pref4=from pt1=nn pt21=jjrnn pw1=offer pw2=higher suf1=m suf2=om suf3=rom suf4=from upper=0
+JJ form=other fw1=bidders fw2=because hyph=0 num=0 pref1=o pref2=ot pref3=oth pref4=othe pt1=in pt21=nnin pw1=from pw2=offer suf1=r suf2=er suf3=her suf4=ther upper=0
+NNS form=bidders fw1=because fw2=banks hyph=0 num=0 pref1=b pref2=bi pref3=bid pref4=bidd pt1=jj pt21=injj pw1=other pw2=from suf1=s suf2=rs suf3=ers suf4=ders upper=0
+IN form=because fw1=banks fw2=might hyph=0 num=0 pref1=b pref2=be pref3=bec pref4=beca pt1=nns pt21=jjnns pw1=bidders pw2=other suf1=e suf2=se suf3=use suf4=ause upper=0
+NNS form=banks fw1=might fw2=hesitate hyph=0 num=0 pref1=b pref2=ba pref3=ban pref4=bank pt1=in pt21=nnsin pw1=because pw2=bidders suf1=s suf2=ks suf3=nks suf4=anks upper=0
+MD form=might fw1=hesitate fw2=to hyph=0 num=0 pref1=m pref2=mi pref3=mig pref4=migh pt1=nns pt21=innns pw1=banks pw2=because suf1=t suf2=ht suf3=ght suf4=ight upper=0
+VB form=hesitate fw1=to fw2=finance hyph=0 num=0 pref1=h pref2=he pref3=hes pref4=hesi pt1=md pt21=nnsmd pw1=might pw2=banks suf1=e suf2=te suf3=ate suf4=tate upper=0
+TO form=to fw1=finance fw2=a hyph=0 num=0 pref1=t pref2=to pt1=vb pt21=mdvb pw1=hesitate pw2=might suf1=o suf2=to upper=0
+VB form=finance fw1=a fw2=transaction hyph=0 num=0 pref1=f pref2=fi pref3=fin pref4=fina pt1=to pt21=vbto pw1=to pw2=hesitate suf1=e suf2=ce suf3=nce suf4=ance upper=0
+DT form=a fw1=transaction fw2=the hyph=0 num=0 pref1=a pt1=vb pt21=tovb pw1=finance pw2=to suf1=a upper=0
+NN form=transaction fw1=the fw2=pilots hyph=0 num=0 pref1=t pref2=tr pref3=tra pref4=tran pt1=dt pt21=vbdt pw1=a pw2=finance suf1=n suf2=on suf3=ion suf4=tion upper=0
+DT form=the fw1=pilots fw2=oppose hyph=0 num=0 pref1=t pref2=th pref3=the pt1=nn pt21=dtnn pw1=transaction pw2=a suf1=e suf2=he suf3=the upper=0
+NNS form=pilots fw1=oppose fw2=. hyph=0 num=0 pref1=p pref2=pi pref3=pil pref4=pilo pt1=dt pt21=nndt pw1=the pw2=transaction suf1=s suf2=ts suf3=ots suf4=lots upper=0
+VBP form=oppose fw1=. hyph=0 num=0 pref1=o pref2=op pref3=opp pref4=oppo pt1=nns pt21=dtnns pw1=pilots pw2=the suf1=e suf2=se suf3=ose suf4=pose upper=0
+. form=. hyph=0 num=0 pref1=. pt1=vbp pt21=nnsvbp pw1=oppose pw2=pilots suf1=. upper=0
+RB form=also fw1=, fw2=because hyph=0 num=0 pref1=a pref2=al pref3=als pref4=also suf1=o suf2=so suf3=lso suf4=also upper=1
+, form=, fw1=because fw2=ual hyph=0 num=0 pref1=, pt1=rb pt21=rb pw1=also suf1=, upper=0
+IN form=because fw1=ual fw2=chairman hyph=0 num=0 pref1=b pref2=be pref3=bec pref4=beca pt1=, pt21=rb, pw1=, pw2=also suf1=e suf2=se suf3=use suf4=ause upper=0
+NNP form=ual fw1=chairman fw2=stephen hyph=0 num=0 pref1=u pref2=ua pref3=ual pt1=in pt21=,in pw1=because pw2=, suf1=l suf2=al suf3=ual upper=1
+NNP form=chairman fw1=stephen fw2=wolf hyph=0 num=0 pref1=c pref2=ch pref3=cha pref4=chai pt1=nnp pt21=innnp pw1=ual pw2=because suf1=n suf2=an suf3=man suf4=rman upper=1
+NNP form=stephen fw1=wolf fw2=and hyph=0 num=0 pref1=s pref2=st pref3=ste pref4=step pt1=nnp pt21=nnpnnp pw1=chairman pw2=ual suf1=n suf2=en suf3=hen suf4=phen upper=1
+NNP form=wolf fw1=and fw2=other hyph=0 num=0 pref1=w pref2=wo pref3=wol pref4=wolf pt1=nnp pt21=nnpnnp pw1=stephen pw2=chairman suf1=f suf2=lf suf3=olf suf4=wolf upper=1
+CC form=and fw1=other fw2=ual hyph=0 num=0 pref1=a pref2=an pref3=and pt1=nnp pt21=nnpnnp pw1=wolf pw2=stephen suf1=d suf2=nd suf3=and upper=0
+JJ form=other fw1=ual fw2=executives hyph=0 num=0 pref1=o pref2=ot pref3=oth pref4=othe pt1=cc pt21=nnpcc pw1=and pw2=wolf suf1=r suf2=er suf3=her suf4=ther upper=0
+NNP form=ual fw1=executives fw2=have hyph=0 num=0 pref1=u pref2=ua pref3=ual pt1=jj pt21=ccjj pw1=other pw2=and suf1=l suf2=al suf3=ual upper=1
+NNS form=executives fw1=have fw2=joined hyph=0 num=0 pref1=e pref2=ex pref3=exe pref4=exec pt1=nnp pt21=jjnnp pw1=ual pw2=other suf1=s suf2=es suf3=ves suf4=ives upper=0
+VBP form=have fw1=joined fw2=the hyph=0 num=0 pref1=h pref2=ha pref3=hav pref4=have pt1=nns pt21=nnpnns pw1=executives pw2=ual suf1=e suf2=ve suf3=ave suf4=have upper=0
+VBN form=joined fw1=the fw2=pilots hyph=0 num=0 pref1=j pref2=jo pref3=joi pref4=join pt1=vbp pt21=nnsvbp pw1=have pw2=executives suf1=d suf2=ed suf3=ned suf4=ined upper=0
+DT form=the fw1=pilots fw2=' hyph=0 num=0 pref1=t pref2=th pref3=the pt1=vbn pt21=vbpvbn pw1=joined pw2=have suf1=e suf2=he suf3=the upper=0
+NNS form=pilots fw1=' fw2=bid hyph=0 num=0 pref1=p pref2=pi pref3=pil pref4=pilo pt1=dt pt21=vbndt pw1=the pw2=joined suf1=s suf2=ts suf3=ots suf4=lots upper=0
+POS form=' fw1=bid fw2=, hyph=0 num=0 pref1=' pt1=nns pt21=dtnns pw1=pilots pw2=the suf1=' upper=0
+NN form=bid fw1=, fw2=the hyph=0 num=0 pref1=b pref2=bi pref3=bid pt1=pos pt21=nnspos pw1=' pw2=pilots suf1=d suf2=id suf3=bid upper=0
+, form=, fw1=the fw2=board hyph=0 num=0 pref1=, pt1=nn pt21=posnn pw1=bid pw2=' suf1=, upper=0
+DT form=the fw1=board fw2=might hyph=0 num=0 pref1=t pref2=th pref3=the pt1=, pt21=nn, pw1=, pw2=bid suf1=e suf2=he suf3=the upper=0
+NN form=board fw1=might fw2=be hyph=0 num=0 pref1=b pref2=bo pref3=boa pref4=boar pt1=dt pt21=,dt pw1=the pw2=, suf1=d suf2=rd suf3=ard suf4=oard upper=0
+MD form=might fw1=be fw2=forced hyph=0 num=0 pref1=m pref2=mi pref3=mig pref4=migh pt1=nn pt21=dtnn pw1=board pw2=the suf1=t suf2=ht suf3=ght suf4=ight upper=0
+VB form=be fw1=forced fw2=to hyph=0 num=0 pref1=b pref2=be pt1=md pt21=nnmd pw1=might pw2=board suf1=e suf2=be upper=0
+VBN form=forced fw1=to fw2=exclude hyph=0 num=0 pref1=f pref2=fo pref3=for pref4=forc pt1=vb pt21=mdvb pw1=be pw2=might suf1=d suf2=ed suf3=ced suf4=rced upper=0
+TO form=to fw1=exclude fw2=him hyph=0 num=0 pref1=t pref2=to pt1=vbn pt21=vbvbn pw1=forced pw2=be suf1=o suf2=to upper=0
+VB form=exclude fw1=him fw2=from hyph=0 num=0 pref1=e pref2=ex pref3=exc pref4=excl pt1=to pt21=vbnto pw1=to pw2=forced suf1=e suf2=de suf3=ude suf4=lude upper=0
+PRP form=him fw1=from fw2=its hyph=0 num=0 pref1=h pref2=hi pref3=him pt1=vb pt21=tovb pw1=exclude pw2=to suf1=m suf2=im suf3=him upper=0
+IN form=from fw1=its fw2=deliberations hyph=0 num=0 pref1=f pref2=fr pref3=fro pref4=from pt1=prp pt21=vbprp pw1=him pw2=exclude suf1=m suf2=om suf3=rom suf4=from upper=0
+PRP$ form=its fw1=deliberations fw2=in hyph=0 num=0 pref1=i pref2=it pref3=its pt1=in pt21=prpin pw1=from pw2=him suf1=s suf2=ts suf3=its upper=0
+NNS form=deliberations fw1=in fw2=order hyph=0 num=0 pref1=d pref2=de pref3=del pref4=deli pt1=prp$ pt21=inprp$ pw1=its pw2=from suf1=s suf2=ns suf3=ons suf4=ions upper=0
+IN form=in fw1=order fw2=to hyph=0 num=0 pref1=i pref2=in pt1=nns pt21=prp$nns pw1=deliberations pw2=its suf1=n suf2=in upper=0
+NN form=order fw1=to fw2=be hyph=0 num=0 pref1=o pref2=or pref3=ord pref4=orde pt1=in pt21=nnsin pw1=in pw2=deliberations suf1=r suf2=er suf3=der suf4=rder upper=0
+TO form=to fw1=be fw2=fair hyph=0 num=0 pref1=t pref2=to pt1=nn pt21=innn pw1=order pw2=in suf1=o suf2=to upper=0
+VB form=be fw1=fair fw2=to hyph=0 num=0 pref1=b pref2=be pt1=to pt21=nnto pw1=to pw2=order suf1=e suf2=be upper=0
+JJ form=fair fw1=to fw2=other hyph=0 num=0 pref1=f pref2=fa pref3=fai pref4=fair pt1=vb pt21=tovb pw1=be pw2=to suf1=r suf2=ir suf3=air suf4=fair upper=0
+IN form=to fw1=other fw2=bidders hyph=0 num=0 pref1=t pref2=to pt1=jj pt21=vbjj pw1=fair pw2=be suf1=o suf2=to upper=0
+JJ form=other fw1=bidders fw2=. hyph=0 num=0 pref1=o pref2=ot pref3=oth pref4=othe pt1=in pt21=jjin pw1=to pw2=fair suf1=r suf2=er suf3=her suf4=ther upper=0
+NNS form=bidders fw1=. hyph=0 num=0 pref1=b pref2=bi pref3=bid pref4=bidd pt1=jj pt21=injj pw1=other pw2=to suf1=s suf2=rs suf3=ers suf4=ders upper=0
+. form=. hyph=0 num=0 pref1=. pt1=nns pt21=jjnns pw1=bidders pw2=other suf1=. upper=0
+DT form=that fw1=could fw2=cost hyph=0 num=0 pref1=t pref2=th pref3=tha pref4=that suf1=t suf2=at suf3=hat suf4=that upper=1
+MD form=could fw1=cost fw2=him hyph=0 num=0 pref1=c pref2=co pref3=cou pref4=coul pt1=dt pt21=dt pw1=that suf1=d suf2=ld suf3=uld suf4=ould upper=0
+VB form=cost fw1=him fw2=the hyph=0 num=0 pref1=c pref2=co pref3=cos pref4=cost pt1=md pt21=dtmd pw1=could pw2=that suf1=t suf2=st suf3=ost suf4=cost upper=0
+PRP form=him fw1=the fw2=chance hyph=0 num=0 pref1=h pref2=hi pref3=him pt1=vb pt21=mdvb pw1=cost pw2=could suf1=m suf2=im suf3=him upper=0
+DT form=the fw1=chance fw2=to hyph=0 num=0 pref1=t pref2=th pref3=the pt1=prp pt21=vbprp pw1=him pw2=cost suf1=e suf2=he suf3=the upper=0
+NN form=chance fw1=to fw2=influence hyph=0 num=0 pref1=c pref2=ch pref3=cha pref4=chan pt1=dt pt21=prpdt pw1=the pw2=him suf1=e suf2=ce suf3=nce suf4=ance upper=0
+TO form=to fw1=influence fw2=the hyph=0 num=0 pref1=t pref2=to pt1=nn pt21=dtnn pw1=chance pw2=the suf1=o suf2=to upper=0
+VB form=influence fw1=the fw2=outcome hyph=0 num=0 pref1=i pref2=in pref3=inf pref4=infl pt1=to pt21=nnto pw1=to pw2=chance suf1=e suf2=ce suf3=nce suf4=ence upper=0
+DT form=the fw1=outcome fw2=and hyph=0 num=0 pref1=t pref2=th pref3=the pt1=vb pt21=tovb pw1=influence pw2=to suf1=e suf2=he suf3=the upper=0
+NN form=outcome fw1=and fw2=perhaps hyph=0 num=0 pref1=o pref2=ou pref3=out pref4=outc pt1=dt pt21=vbdt pw1=the pw2=influence suf1=e suf2=me suf3=ome suf4=come upper=0
+CC form=and fw1=perhaps fw2=join hyph=0 num=0 pref1=a pref2=an pref3=and pt1=nn pt21=dtnn pw1=outcome pw2=the suf1=d suf2=nd suf3=and upper=0
+RB form=perhaps fw1=join fw2=the hyph=0 num=0 pref1=p pref2=pe pref3=per pref4=perh pt1=cc pt21=nncc pw1=and pw2=outcome suf1=s suf2=ps suf3=aps suf4=haps upper=0
+VB form=join fw1=the fw2=winning hyph=0 num=0 pref1=j pref2=jo pref3=joi pref4=join pt1=rb pt21=ccrb pw1=perhaps pw2=and suf1=n suf2=in suf3=oin suf4=join upper=0
+DT form=the fw1=winning fw2=bidder hyph=0 num=0 pref1=t pref2=th pref3=the pt1=vb pt21=rbvb pw1=join pw2=perhaps suf1=e suf2=he suf3=the upper=0
+VBG form=winning fw1=bidder fw2=. hyph=0 num=0 pref1=w pref2=wi pref3=win pref4=winn pt1=dt pt21=vbdt pw1=the pw2=join suf1=g suf2=ng suf3=ing suf4=ning upper=0
+NN form=bidder fw1=. hyph=0 num=0 pref1=b pref2=bi pref3=bid pref4=bidd pt1=vbg pt21=dtvbg pw1=winning pw2=the suf1=r suf2=er suf3=der suf4=dder upper=0
+. form=. hyph=0 num=0 pref1=. pt1=nn pt21=vbgnn pw1=bidder pw2=winning suf1=. upper=0

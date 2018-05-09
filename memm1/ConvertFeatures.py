@@ -9,7 +9,7 @@ if root_path not in sys.path:
 # -------------------------
 
 import sys
-from MEMM.MEMMTaggers import MemmTagger
+from utils.MEMM_Taggers import MemmTagger
 from scripts_t.measuretime import measure
 
 

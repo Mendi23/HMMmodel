@@ -1,0 +1,15 @@
+# How To Run
+
+## ExtractFeatures
+
+    python ExtractFeatures.py corpus_file features_file
+
+## ConvertFeatures
+
+    python ConvertFeatures.py features_file feature_vecs_file feature_map_file
+
+## TrainSolver
+
+    python TrainSolver.py feature_vec_file model_file
+
+The TrainSolver script will run for about 20 minutes
