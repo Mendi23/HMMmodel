@@ -1,4 +1,4 @@
-from collections import namedtuple, defaultdict
+from collections import namedtuple, defaultdict, deque
 from functools import total_ordering
 from itertools import product
 
@@ -53,16 +53,22 @@ class ViterbiTrigramTaggerAbstract:
 
             for t in possibleTs:
                 result_dict = {}
+                realPossibleRs = deque(possibleRs)
                 for r in possibleRs:
                     possibleValues = (self._calcVTableCell(vTable[table_i - 1][it][t], (it, t, r), line, i)
                                       for it in possibleIts)
 
-                    cell = result_dict[r] = max(possibleValues)
+                    cell = max(possibleValues)
+                    if cell.val != self.zeroTagVal.val:
+                        result_dict[r] = cell
+                    else:
+                        realPossibleRs.remove(r)
 
                     if i == lineLength - 1:
                         maxTagVal = max(maxTagVal, cell)
 
                 vTable[table_i][t] = result_dict
+                possibleRs = realPossibleRs
 
         output = []
         self._appendSelectedTags(maxTagVal, line, lineLength - 1, output)
@@ -70,8 +76,6 @@ class ViterbiTrigramTaggerAbstract:
 
     def _calcVTableCell(self, VCell, tagsTriplet, line, i):
         val = self._getCellVal(line, i, tagsTriplet)
-        if val == -np.inf:
-            return self.zeroTagVal
 
         return TagVal(VCell, tagsTriplet[-1], val + VCell.val)
 
