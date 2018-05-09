@@ -1,11 +1,11 @@
 """
 features is zero based
 """
-from functools import lru_cache
-import scipy.sparse as sp
-import numpy as np
 import pickle
 from utils.ETTables import EmissionTable
+from functools import lru_cache
+import numpy as np
+import scipy.sparse as sp
 from utils.Viterbi import ViterbiTrigramTaggerAbstract
 from utils.parsers import MappingParser
 
