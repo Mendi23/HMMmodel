@@ -23,10 +23,6 @@ def main(inputf, modelfile, mapfile, outfilename):
         for i, wordsLine in enumerate(TestParser().parseFile(inputf)):
             outF.printLine(tagger.tagLine(wordsLine))
 
-    print(f"proba: {tagger._getProba.cache_info()}")
-    print(f"posta: {tagger.getPossibleTagsForWord.cache_info()}")
-
-
 if __name__ == '__main__':
     input_file_name, modelname, feature_map_file, out_file_name = sys.argv[1:5]
     main(input_file_name, modelname, feature_map_file, out_file_name)

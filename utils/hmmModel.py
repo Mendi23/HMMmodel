@@ -122,6 +122,15 @@ class HmmModel:
             tags = chain(chain.from_iterable(eventsTags), self._unknownCounter.keys())
         return set(tags)
 
+    def getPossibleNextTag(self, tags):
+        """
+        return all tags that appear in training data following the the first nOrder tags
+        :param tags: list-like object.
+        :return: set object.
+        """
+        return self._tagsTransitions.getKeys(tags[:self.nOrder + 1])
+
+
     @lru_cache(maxsize=None)
     def getQ(self, params, hyperParam):
         """

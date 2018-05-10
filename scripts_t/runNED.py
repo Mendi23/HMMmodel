@@ -37,24 +37,24 @@ def loadModels():
     emm_viterbi.loadParams("dataFiles/NED_data", "dataFiles/NED_model")
 
 if __name__ == '__main__':
-    train, dev = argv[1:]
-    x = hmm_tg.HmmModel(2)
-    x.computeFromFile(train)
-    hmm_greedy = hmm_tg.GreedyTagger(x)
-    hmm_viterby = hmm_tg.ViterbiTrigramTagger(x)
-    emm_greedy = memm_tg.GreedyTagger(LogisticRegression())
-    emm_viterbi = memm_tg.ViterbiTrigramTagger(LogisticRegression())
+    # train, dev = argv[1:]
+    # x = hmm_tg.HmmModel(2)
+    # x.computeFromFile(train)
+    # hmm_greedy = hmm_tg.GreedyTagger(x)
+    # hmm_viterby = hmm_tg.ViterbiTrigramTagger(x)
+    # emm_greedy = memm_tg.GreedyTagger(LogisticRegression())
+    # emm_viterbi = memm_tg.ViterbiTrigramTagger(LogisticRegression())
+    #
+    # #trainModel()
+    # loadModels()
 
-    trainModel()
-    loadModels()
-
-    out = "testResult/NED/"
-    outputFiles = ("hmm_greedy", "hmm_viterbi", "emm_greedy", "emm_viterbi")
-    for i, tagger in enumerate((hmm_greedy, hmm_viterby, emm_greedy, emm_viterbi)):
-        with OutParser(out+outputFiles[i]) as outF:
-            for wordsLine in TestParser(splitWord = True).parseFile(dev):
-                outF.printLine(tagger.tagLine(wordsLine))
-
+    # out = "testResult/NED/"
+    # outputFiles = ("hmm_greedy", "hmm_viterbi", "emm_greedy", "emm_viterbi")
+    # for i, tagger in enumerate((hmm_greedy, hmm_viterby, emm_greedy, emm_viterbi)):
+    #     with OutParser(out+outputFiles[i]) as outF:
+    #         for wordsLine in TestParser(splitWord = True).parseFile(dev):
+    #             outF.printLine(tagger.tagLine(wordsLine))
+    #
 
     expected = list(TagsParser().parseTagsFromFile("DataSets/dev"))
     for file in glob("testResult/NED/*"):

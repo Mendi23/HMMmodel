@@ -35,6 +35,9 @@ class Tree(defaultdict):
         for k in self.keys():
             yield from self[k].getAllItems(cur + (k,))
 
+    def getKeys(self, indexes=None):
+        return self._getDirectIndex(indexes).keys()
+
 
 class NgramTransitions(Tree):
     def __init__(self, k=3):
