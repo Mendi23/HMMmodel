@@ -32,11 +32,9 @@ class MemmTagger:
 
     def extractFeatures(self, words, tags, i):
         assert self._featuresFuncs
-
-        return tuple(self.MP.featureValue(feat, val).lower()
-                     for feat, val in
-                     ((feature[0], feature[1](words, tags, i))
-                      for feature in self._featuresFuncs) if val)
+        return tuple(self.MP.featureValue(feat, val).lower() for feat, val in
+                     filter(lambda x: x[1], ((feature[0], feature[1](words, tags, i))
+                                             for feature in self._featuresFuncs)))
 
     """
     input: list: strings of "feat=val"
@@ -184,20 +182,15 @@ class ViterbiTrigramTagger(GreedyTagger):
     def _getPossibleTags(self, line, i):
         return self.getPossibleTagsForWord(line[i].lower())
 
+
     @lru_cache(maxsize=None)
-    def _calcFeaturesAndProba(self, words, tags, i):
-        features = self.extractFeatures(words, tags, i)
+    def _getProba(self, features):
         features_vec = self.transform(features)
         return np.array(self.model.predict_log_proba(features_vec)[0])
 
     def _getCellVal_proba(self, line, i, tagsTriplet):
         tag_i = self.tags_dict[tagsTriplet[-1]] - 1
-
-        # tags_window = {ii: tag for ii, tag in zip(range(i - 2, i), tagsTriplet[:-1])}
-        fromi, toi = max(i - 2, 0), min(i + 3, len(line))
-        words = tuple(line[j] for j in range(fromi, toi))
-        tags_window = tuple(tagsTriplet[:-1]) + (None,)
-        i -= fromi
-
-        all_props = self._calcFeaturesAndProba(words, tags_window, i)
+        tags_window = {ii: tag for ii, tag in zip(range(i - 2, i + 1), tagsTriplet)}
+        features = self.extractFeatures(line, tags_window, i)
+        all_props = self._getProba(features)
         return all_props[tag_i]

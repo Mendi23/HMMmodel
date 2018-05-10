@@ -23,7 +23,7 @@ def main(inputf, modelfile, mapfile, outfilename):
         for i, wordsLine in enumerate(TestParser().parseFile(inputf)):
             outF.printLine(tagger.tagLine(wordsLine))
 
-    print(f"proba: {tagger._calcFeaturesAndProba.cache_info()}")
+    print(f"proba: {tagger._getProba.cache_info()}")
     print(f"posta: {tagger.getPossibleTagsForWord.cache_info()}")
 
 
