@@ -51,17 +51,13 @@ class NgramTransitions(Tree):
 
 
 class EmissionTable:
-    def __init__(self, dict_t = None, kword=None):
+    def __init__(self, dict_t = None):
         self._countersByWord = defaultdict(Counter)
-        self._KWord = kword
-        self._cByKWord = defaultdict(Counter)
         if dict_t:
             assert isinstance(dict_t, dict)
             for key, val in dict_t.items():
                 counter = Counter(val)
                 self._countersByWord[key] = counter
-                if self._KWord:
-                    self._cByKWord[key[:self._KWord]] += counter
 
     def getCount(self, word, tag):
         return self._countersByWord[word][tag]
@@ -69,8 +65,6 @@ class EmissionTable:
     def addFromIterable(self, items, value=1):
         for word, tag in items:
             self._countersByWord[word][tag] += value
-            if self._KWord:
-                self._cByKWord[word[:self._KWord]][tag] += value
 
     def computeUnknown(self, threshold):
         return reduce(lambda x, y: x + y,
@@ -92,12 +86,6 @@ class EmissionTable:
     def wordTags(self, word):
         if self.wordExists(word):
             return self._countersByWord[word].keys()
-        return None
-
-    def kWordTags(self, word):
-        word = word[:self._KWord]
-        if word in self._cByKWord and any(self._cByKWord[word]):
-            return self._cByKWord[word].keys()
         return None
 
     def items(self):

@@ -11,7 +11,7 @@ from utils.parsers import TagsParser, StorageParser
 class HmmModel:
     def __init__(self, nOrder=2, unkThreshold=5):
         self._tagsTransitions = NgramTransitions(k=nOrder + 1)
-        self._wordTags = EmissionTable(kword=2)
+        self._wordTags = EmissionTable()
         self._eventsTags = EmissionTable()
         self._unknownCounter = Counter()
         self.nOrder = nOrder
@@ -116,7 +116,7 @@ class HmmModel:
         :param word:
         :return: set object. all tags that appear in training data with word
         """
-        tags = self._wordTags.kWordTags(word.lower())
+        tags = self._wordTags.wordTags(word.lower())
         if not tags:
             eventsTags = (self._eventsTags.wordTags(key) for key in self._eventsFilterOnWord(word))
             tags = chain(chain.from_iterable(eventsTags), self._unknownCounter.keys())
