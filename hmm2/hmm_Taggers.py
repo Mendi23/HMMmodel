@@ -25,7 +25,7 @@ class GreedyTagger:
 
         if not unkSigHyperParam:
             eventsLen = hmmmodel.getNumOfEvents()
-            unkSigHyperParam = (2,) * eventsLen + (1,)
+            unkSigHyperParam = (100,) * eventsLen + (1,)
         self.unkSigHP = np.array(unkSigHyperParam)
 
     def tagLine(self, wordsLine):
