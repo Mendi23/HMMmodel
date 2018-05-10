@@ -10,10 +10,10 @@ if root_path not in sys.path:
 
 import sys
 from utils.MEMM_Taggers import MemmTagger
-from scripts_t.measuretime import measure
+# from scripts_t.measuretime import measure
 
 
-@measure
+# @measure
 def main(featuresf, vectorf, mapfile):
     with open(vectorf, "w") as fOut:
         t = MemmTagger()

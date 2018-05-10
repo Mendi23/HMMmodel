@@ -8,12 +8,12 @@ if root_path not in sys.path:
     sys.path.insert(0, root_path)
 # -------------------------
 
-from scripts_t.measuretime import measure
+# from scripts_t.measuretime import measure
 from utils.parsers import TestParser, OutParser
 from utils.MEMM_Taggers import GreedyTagger
 
 
-@measure
+# @measure
 def main(infile, modelfile, mapfile, outfile):
     tagger = GreedyTagger()
     tagger.loadParams(mapfile, modelfile)

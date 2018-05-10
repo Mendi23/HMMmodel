@@ -10,9 +10,9 @@ if root_path not in sys.path:
 
 from utils.parsers import TagsParser
 from utils.MEMM_Taggers import MemmTagger
-from scripts_t.measuretime import measure
+# from scripts_t.measuretime import measure
 
-@measure
+# @measure
 def main(inf, outf):
     t = MemmTagger()
     with open(outf, "w") as output:

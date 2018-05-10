@@ -9,12 +9,12 @@ if root_path not in sys.path:
 # -------------------------
 
 import sys
-from scripts_t.measuretime import measure
+# from scripts_t.measuretime import measure
 from utils.parsers import TestParser, OutParser
 from utils.MEMM_Taggers import ViterbiTrigramTagger
 
 
-@measure
+# @measure
 def main(inputf, modelfile, mapfile, outfilename):
     tagger = ViterbiTrigramTagger()
     tagger.loadParams(mapfile, modelfile)

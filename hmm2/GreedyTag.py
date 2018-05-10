@@ -8,12 +8,12 @@ if root_path not in sys.path:
     sys.path.insert(0, root_path)
 # -------------------------
 
-from scripts_t.measuretime import measure
+# from scripts_t.measuretime import measure
 from hmm2.hmm_Taggers import GreedyTagger
 from utils.parsers import TestParser, OutParser
 from utils.hmmModel import HmmModel
 
-@measure
+# @measure
 def main(inputf, q_file, e_file, outfile):
     x = HmmModel(2)
     x.loadTransitions(q_file, e_file)
