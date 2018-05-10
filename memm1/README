@@ -1,4 +1,4 @@
-# How To Run
+# How To Run:
 
 ## ExtractFeatures
 
@@ -12,4 +12,8 @@
 
     python TrainSolver.py feature_vec_file model_file
 
-The TrainSolver script will run for about 20 minutes
+note: The TrainSolver script will run for about 20 minutes
+
+# Data and partial files
+
+You can find the data and partial files inside the `DataFiles` folder

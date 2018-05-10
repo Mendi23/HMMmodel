@@ -11,3 +11,5 @@ Uriel Hai and Mendi Halpern
 * numpy
 * sklearn
 * scipy
+
+Please read more inforamtion about MEMM in memm1/README
