@@ -4,7 +4,7 @@ from sys import argv
 import scipy.sparse as sp
 from sklearn.linear_model import LogisticRegression
 
-from utils import MEMM_Taggers as hemm_tg
+from utils import MEMM_Taggers as memm_tg
 from hmm2 import hmm_Taggers as hmm_tg
 from scripts_t.ner_eval import main_func
 from utils.parsers import OutParser, TestParser, TagsParser
@@ -42,8 +42,8 @@ if __name__ == '__main__':
     x.computeFromFile(train)
     hmm_greedy = hmm_tg.GreedyTagger(x)
     hmm_viterby = hmm_tg.ViterbiTrigramTagger(x)
-    emm_greedy = hemm_tg.GreedyTagger(LogisticRegression())
-    emm_viterbi = hemm_tg.ViterbiTrigramTagger(LogisticRegression())
+    emm_greedy = memm_tg.GreedyTagger(LogisticRegression())
+    emm_viterbi = memm_tg.ViterbiTrigramTagger(LogisticRegression())
 
     trainModel()
     loadModels()
