@@ -69,7 +69,7 @@ class EmissionTable:
     def computeUnknown(self, threshold):
         return reduce(lambda x, y: x + y,
             filter(lambda counter: sum(counter.values()) < threshold,
-                self._countersByWord.values()))
+                self._countersByWord.values()), Counter())
 
     def getAllItems(self):
         for word, tagsCounter in self._countersByWord.items():
